@@ -1,0 +1,31 @@
+version: '3.9'
+
+# Compose para el VM de Compute Engine (solo Ollama + Redis)
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: tutor_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: tutor_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  ollama_data:
+  redis_data:

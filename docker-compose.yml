@@ -1,0 +1,107 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: tutor_postgres
+    environment:
+      POSTGRES_DB: tutordb
+      POSTGRES_USER: tutor_user
+      POSTGRES_PASSWORD: tutor_pass_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tutor_user -d tutordb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: tutor_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: tutor_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tutor_backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://tutor_user:tutor_pass_dev@postgres:5432/tutordb
+      REDIS_URL: redis://redis:6379/0
+      OLLAMA_BASE_URL: http://ollama:11434
+      ENVIRONMENT: development
+      SECRET_KEY: dev_secret_key_change_in_production_1234567890abcdef
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+      REFRESH_TOKEN_EXPIRE_DAYS: "7"
+      OLLAMA_MODEL: "qwen2.5:7b-instruct-q4_K_M"
+      OLLAMA_EMBED_MODEL: mxbai-embed-large
+      OLLAMA_TIMEOUT: "120"
+      EMBEDDING_DIMENSION: "1024"
+      BACKEND_CORS_ORIGINS: '["http://localhost:5173","http://localhost:3000"]'
+      MAX_UPLOAD_SIZE_MB: "50"
+      CHAT_RATE_LIMIT_PER_HOUR: "20"
+      API_RATE_LIMIT_PER_MINUTE: "100"
+      RAG_TOP_K: "5"
+      RAG_SIMILARITY_THRESHOLD: "0.70"
+      RAG_CONTEXT_WINDOW: "5"
+      CHUNK_SIZE: "500"
+      CHUNK_OVERLAP: "50"
+      UPLOAD_DIR: /app/uploads
+      ADMIN_EMAIL: admin@iestprfa.edu.pe
+      ADMIN_PASSWORD: Admin123!
+      ADMIN_NAME: Administrador del Sistema
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/app:/app/app
+      - uploads_data:/app/uploads
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: tutor_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000/api/v1
+    volumes:
+      - ./frontend/src:/app/src
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
+  ollama_data:
+  uploads_data:
