@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.py$\")",
+      "Bash(wc -l /c/tutor-ia-rfa/backend/app/models/*.py)",
+      "Bash(ls:*)",
+      "Bash(grep -E \"\\\\.\\(py|tsx|ts\\)$\")",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite:*)",
+      "Bash(python -c \"compile\\(open\\('backend/scripts/seed_db.py', encoding='utf-8'\\).read\\(\\), 'seed_db.py', 'exec'\\); print\\('OK: No syntax errors'\\)\")"
+    ]
+  }
+}

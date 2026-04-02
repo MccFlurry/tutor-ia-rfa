@@ -4,10 +4,17 @@ import { useEffect } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { usersApi } from '@/api/users'
 import AuthGuard from '@/components/auth/AuthGuard'
+import AppLayout from '@/components/layout/AppLayout'
 import LoginPage from '@/pages/LoginPage'
 import DashboardPage from '@/pages/DashboardPage'
+import ModulesPage from '@/pages/ModulesPage'
+import ModuleDetailPage from '@/pages/ModuleDetailPage'
+import TopicPage from '@/pages/TopicPage'
+import QuizPage from '@/pages/QuizPage'
+import ProgressPage from '@/pages/ProgressPage'
+import AchievementsPage from '@/pages/AchievementsPage'
 
-function App() {
+function AppRoutes() {
   const { loadFromStorage, isAuthenticated, user, setUser, logout } = useAuthStore()
 
   useEffect(() => {
@@ -24,19 +31,34 @@ function App() {
   }, [isAuthenticated, user, setUser, logout])
 
   return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/login" element={<LoginPage />} />
+
+      {/* Authenticated routes with layout */}
+      <Route
+        element={
+          <AuthGuard>
+            <AppLayout />
+          </AuthGuard>
+        }
+      >
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/modules" element={<ModulesPage />} />
+        <Route path="/modules/:id" element={<ModuleDetailPage />} />
+        <Route path="/topics/:id" element={<TopicPage />} />
+        <Route path="/quiz/:topicId" element={<QuizPage />} />
+        <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/achievements" element={<AchievementsPage />} />
+      </Route>
+    </Routes>
+  )
+}
+
+function App() {
+  return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route
-          path="/dashboard"
-          element={
-            <AuthGuard>
-              <DashboardPage />
-            </AuthGuard>
-          }
-        />
-      </Routes>
+      <AppRoutes />
       <Toaster position="top-right" />
     </BrowserRouter>
   )

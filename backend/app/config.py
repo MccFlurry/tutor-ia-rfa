@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 500
     CHUNK_OVERLAP: int = 50
 
+    # Quiz IA
+    QUIZ_NUM_QUESTIONS: int = 5
+    QUIZ_SESSION_TTL: int = 1800  # 30 minutos
+
     # Uploads
     UPLOAD_DIR: str = "./uploads"
 

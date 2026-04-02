@@ -537,12 +537,29 @@ POST /topics/{id}/complete   Body: {} → Marca como completado manualmente
 POST /topics/{id}/time       Body: {seconds: int} → Acumula tiempo de estudio
 ```
 
-### `/quiz` — Autoevaluaciones
-```
-GET  /quiz/topic/{topic_id}        Returns: [{id, question_text, options (shuffled)}]
-                                   (Las respuestas correctas NO se envían al frontend)
+### `/quiz` — Autoevaluaciones (Generadas por IA)
 
-POST /quiz/topic/{topic_id}/submit Body: {answers: {question_id: selected_index}}
+**Arquitectura:** Las preguntas son generadas dinámicamente por el LLM (Ollama qwen2.5)
+cada vez que el estudiante solicita un quiz. Cada intento genera preguntas únicas y
+personalizadas basadas en el contenido del tema. Si Ollama no está disponible, se usan
+las preguntas estáticas de la tabla `quiz_questions` como fallback.
+
+**Flujo:**
+1. Frontend solicita quiz → Backend envía contenido del tema al LLM
+2. LLM genera N preguntas en JSON → respuestas correctas se guardan en Redis (TTL 30min)
+3. Frontend recibe preguntas SIN respuestas + session_id
+4. Estudiante responde → Backend compara contra Redis → devuelve feedback
+5. Si aprueba (≥60%) → marca tema completado → verifica logros
+
+```
+GET  /quiz/topic/{topic_id}        Returns: {
+                                     session_id,
+                                     questions: [{id, question_text, options}]
+                                   }
+                                   (Genera preguntas via LLM, almacena respuestas en Redis)
+                                   (Fallback: preguntas estáticas de BD si LLM falla)
+
+POST /quiz/topic/{topic_id}/submit Body: {session_id, answers: {question_id: selected_index}}
                                    Returns: {
                                      score, is_passed,
                                      feedback: [{
@@ -552,6 +569,7 @@ POST /quiz/topic/{topic_id}/submit Body: {answers: {question_id: selected_index}
                                      }],
                                      attempt_id
                                    }
+                                   Errores: 410 si sesión expirada, 503 si servicio no disponible
 
 GET  /quiz/topic/{topic_id}/history Returns: [{
                                      attempted_at, score, is_passed
@@ -1378,68 +1396,98 @@ httpx==0.28.0
 
 ## 🚀 ORDEN DE CONSTRUCCIÓN
 
-### FASE 1: Infraestructura y Base de Datos (Días 1-3)
-1. Crear estructura completa de carpetas del repositorio
-2. Configurar `docker-compose.yml`
-3. Crear `backend/app/config.py` y `backend/app/database.py`
-4. Crear TODOS los modelos SQLAlchemy en `backend/app/models/`
-5. Generar migración inicial de Alembic y verificar que crea las tablas correctamente (incluyendo `CREATE EXTENSION IF NOT EXISTS vector;`)
-6. Configurar React + Vite + TypeScript + Tailwind + shadcn/ui en `frontend/`
-7. Ejecutar `docker compose up` → todos los servicios deben levantar sin errores
+### FASE 1: Infraestructura y Base de Datos — ✅ COMPLETADA
+1. ✅ Crear estructura completa de carpetas del repositorio
+2. ✅ Configurar `docker-compose.yml` (postgres pgvector, redis, ollama, backend, frontend)
+3. ✅ Crear `backend/app/config.py` (Pydantic BaseSettings) y `backend/app/database.py` (async SQLAlchemy)
+4. ✅ Crear TODOS los modelos SQLAlchemy en `backend/app/models/` (user, module, topic, quiz, progress, achievement, chat, document)
+5. ✅ Generar migración inicial de Alembic con `CREATE EXTENSION IF NOT EXISTS vector;` y todas las tablas
+6. ✅ Configurar React 18 + Vite + TypeScript + Tailwind + shadcn/ui en `frontend/`
+7. ✅ `docker compose up` levanta todos los servicios
 
-### FASE 2: Autenticación Completa (Días 4-6)
-8. Implementar `utils/security.py` (JWT + bcrypt)
-9. Implementar `services/auth_service.py`
-10. Implementar `routers/auth.py` con todos los endpoints
-11. Implementar `dependencies.py` (get_db, get_current_user, get_redis, require_admin)
-12. Implementar `LoginPage.tsx` con formulario completo
-13. Implementar `authStore.ts` y `api/client.ts` con interceptor JWT
-14. Implementar `AuthGuard.tsx`
-15. **Prueba:** Registro → Login → Token recibido → Ruta protegida funciona
+### FASE 2: Autenticación Completa — ✅ COMPLETADA
+8. ✅ Implementar `utils/security.py` (JWT encode/decode + bcrypt hash/verify)
+9. ✅ Implementar `services/auth_service.py` (register, login, refresh)
+10. ✅ Implementar `routers/auth.py` (POST register, login, refresh, logout)
+11. ✅ Implementar `dependencies.py` (get_db, get_current_user, get_redis, require_admin)
+12. ✅ Implementar `LoginPage.tsx` con formulario, toggle registro, protección brute-force (3 intentos + lockout 5min)
+13. ✅ Implementar `authStore.ts` (Zustand + localStorage) y `api/client.ts` (interceptor JWT, 401 redirect)
+14. ✅ Implementar `AuthGuard.tsx` (redirect a /login, soporte requireAdmin)
+15. ✅ **Verificado:** Registro → Login → Token → Rutas protegidas funcionan
 
-### FASE 3: Módulos, Temas y Contenido (Días 7-10)
-16. Ejecutar `scripts/setup_ollama.sh` para descargar modelos
-17. Implementar `scripts/seed_db.py` y ejecutarlo
-18. Implementar `routers/modules.py` y `routers/topics.py`
-19. Implementar `ModulesPage.tsx`, `ModuleDetailPage.tsx`, `TopicPage.tsx`
-20. Implementar `ContentRenderer.tsx` con react-markdown y CodeBlock
-21. **Prueba:** Login → Ver módulos → Entrar a un tema → Leer contenido
+### FASE 3: Módulos, Temas y Contenido — ✅ COMPLETADA
+16. ✅ `scripts/setup_ollama.sh` para descargar modelos qwen2.5 y mxbai-embed-large
+17. ✅ `scripts/seed_db.py` — 5 módulos, 22 temas con contenido Markdown completo (código Kotlin, tablas, tips), 25+ preguntas quiz, 7 logros, usuario admin
+18. ✅ `routers/modules.py` (list con progreso + detail con status por tema) y `routers/topics.py` (get, visit, complete, time)
+19. ✅ `ModulesPage.tsx` (grid responsivo), `ModuleDetailPage.tsx` (breadcrumb + lista temas), `TopicPage.tsx` (contenido + navegación prev/next)
+20. ✅ `ContentRenderer.tsx` con react-markdown + remark-gfm (tablas) + `CodeBlock.tsx` (syntax highlight + copiar)
+21. ✅ Layout compartido: `AppLayout.tsx` + `Sidebar.tsx` (responsivo mobile) + `Navbar.tsx`
+22. ✅ Componentes shadcn/ui: button, card, progress, badge, separator, skeleton
+23. ✅ **Verificado:** Login → Ver módulos → Entrar tema → Leer contenido con código y tablas
 
-### FASE 4: Progreso y Autoevaluaciones (Días 11-14)
-22. Implementar `services/progress_service.py` con lógica de cálculo de porcentajes
-23. Implementar `services/achievement_service.py` con detección automática de logros
-24. Implementar `routers/progress.py`, `routers/quiz.py`, `routers/achievements.py`
-25. Implementar `QuizWidget.tsx` con preguntas, selección y feedback
-26. Implementar `ProgressPage.tsx` con barras y logros
-27. **Prueba:** Completar un tema → Hacer quiz → Ver progreso actualizado → Verificar logros
+### FASE 4: Progreso, Autoevaluaciones con IA y Logros — ✅ COMPLETADA
+24. ✅ `services/progress_service.py` — cálculo de progreso global, por módulo, tiempo, promedio quizzes, historial actividad
+25. ✅ `services/achievement_service.py` — detección automática de 7 tipos de logros (first_topic, module_completed, streak_days, chat_messages, quiz_perfect, course_completed)
+26. ✅ `services/llm_service.py` — Cliente Ollama para generación de quizzes con IA
+    - Prompt en español que genera N preguntas en JSON estructurado
+    - Trunca contenido a 3500 chars para ventana de contexto del modelo 7B
+    - Parser robusto: limpia markdown fences, valida opciones y correct_index
+    - ChatOllama con `format="json"` y `temperature=0.7`
+27. ✅ `routers/quiz.py` — **Quizzes generados por IA:**
+    - GET genera preguntas via Ollama → almacena respuestas en Redis (TTL 30min) → envía solo preguntas al frontend
+    - POST evalúa contra Redis → grading instantáneo → marca tema completado si aprueba → verifica logros
+    - Fallback automático a preguntas estáticas de BD si Ollama no está disponible
+    - Sesiones single-use (se eliminan de Redis después de evaluar)
+28. ✅ `routers/progress.py` (GET stats globales + GET actividad reciente)
+29. ✅ `routers/achievements.py` (GET todos con estado earned/locked)
+30. ✅ `QuizPage.tsx` — Loading "La IA está preparando tus preguntas..." con animación, manejo de sesión expirada (410 → auto-regenera), retry genera preguntas NUEVAS
+31. ✅ `QuizQuestion.tsx` + `QuizResults.tsx` — selección, score, feedback con explicaciones
+32. ✅ `ProgressPage.tsx` — 4 cards stats, barras por módulo, grid de logros, historial actividad
+33. ✅ `AchievementsPage.tsx` — Logros obtenidos vs por desbloquear
+34. ✅ **Verificado:** Leer tema → Quiz IA genera preguntas únicas → Responder → Score + feedback → Progreso actualizado → Logros otorgados
 
-### FASE 5: Tutor IA con RAG (Días 15-18)
-28. Implementar `services/embed_service.py` (cliente mxbai-embed-large)
-29. Implementar `services/ingest_service.py` (chunking + embeddings + pgvector)
-30. Implementar `services/llm_service.py` (cliente qwen2.5)
-31. Implementar `services/rag_service.py` (pipeline completo con caché Redis)
-32. Implementar `routers/chat.py` con rate limiting via `slowapi`
-33. Implementar `ChatPage.tsx` con historial de sesiones e interfaz de chat
-34. Subir los documentos del curso desde el panel de admin → verificar procesamiento
-35. **Prueba:** Hacer una pregunta al tutor → Recibir respuesta fundamentada en el material → Ver fuentes
+### FASE 5: Tutor IA Conversacional con RAG (SIGUIENTE)
+35. Implementar `services/embed_service.py` (cliente mxbai-embed-large para generar embeddings)
+36. Implementar `services/ingest_service.py` (parseo PDF/DOCX/TXT → chunking → embeddings → pgvector)
+37. Implementar `services/rag_service.py` (pipeline completo: embed query → pgvector similarity search → prompt aumentado → Ollama → caché Redis)
+38. Implementar `routers/chat.py` con:
+    - CRUD de sesiones de chat
+    - POST mensaje con pipeline RAG
+    - Rate limiting via slowapi (20 msgs/hora)
+    - Fuentes citadas en cada respuesta
+39. Implementar `ChatPage.tsx` con:
+    - Sidebar de sesiones (nueva conversación, historial)
+    - Burbujas de chat (user/assistant) con Markdown renderizado
+    - Fuentes RAG colapsables bajo cada respuesta
+    - Indicador "Tutor escribiendo..." mientras el LLM procesa
+    - Input con Enter envía, Shift+Enter nueva línea
+40. **Prueba:** Hacer una pregunta al tutor → Recibir respuesta fundamentada en el material → Ver fuentes citadas
 
-### FASE 6: Dashboard y Admin (Días 19-21)
-36. Implementar `routers/dashboard.py` con agregación de datos del usuario
-37. Implementar `DashboardPage.tsx` completo
-38. Implementar `routers/admin.py` con upload de documentos y CRUD de contenido
-39. Implementar `AdminPage.tsx` con tabs de corpus, contenido y usuarios
-40. Implementar upload de documentos con `BackgroundTasks` (procesamiento asíncrono)
+### FASE 6: Dashboard Completo y Panel Admin
+41. Implementar `routers/dashboard.py` — endpoint dedicado con agregación de datos (último tema, recomendaciones, logros recientes)
+42. Mejorar `DashboardPage.tsx` — banner "Continuar donde lo dejaste", logros recientes, recomendaciones personalizadas
+43. Implementar `routers/admin.py`:
+    - CRUD de módulos, temas y preguntas
+    - Upload de documentos (multipart/form-data) con procesamiento asíncrono via BackgroundTasks
+    - Gestión de usuarios (activar/desactivar, cambiar rol)
+    - Reprocesamiento de documentos con error
+44. Implementar `AdminPage.tsx` con tabs:
+    - Tab "Corpus RAG": tabla de documentos, drag & drop upload, estado procesamiento
+    - Tab "Contenido del Curso": árbol colapsable Módulo → Temas → Preguntas con CRUD
+    - Tab "Usuarios": lista paginada con acciones de gestión
+45. **Prueba:** Admin sube PDF → procesamiento automático → chunks en BD → tutor usa el contenido en respuestas
 
-### FASE 7: Calidad y Preparación para Piloto (Días 22-28)
-41. Implementar rate limiting global con `slowapi`
-42. Configurar `loguru` con logs JSON estructurados
-43. Escribir pruebas unitarias para `auth_service.py`, `rag_service.py`, `progress_service.py`
-44. Escribir pruebas de integración para los endpoints críticos (auth, chat, modules)
-45. Ejecutar Lighthouse → Corregir hasta Performance ≥ 70 y Accessibility ≥ 85
-46. Verificar diseño responsivo en 375px, 768px, 1440px
-47. Configurar Firebase Hosting → primer deploy del frontend
-48. Configurar Cloud Run → primer deploy del backend
-49. Escribir `README.md` con instrucciones de instalación paso a paso
+### FASE 7: Calidad y Preparación para Piloto
+46. Implementar rate limiting global con `slowapi` (100 req/min por IP)
+47. Configurar `loguru` con logs JSON estructurados para producción
+48. Escribir pruebas unitarias para `auth_service.py`, `rag_service.py`, `progress_service.py`, `llm_service.py`
+49. Escribir pruebas de integración para endpoints críticos (auth, chat, modules, quiz)
+50. Ejecutar Lighthouse → Corregir hasta Performance ≥ 70 y Accessibility ≥ 85
+51. Verificar diseño responsivo en 375px, 768px, 1440px
+52. Configurar Firebase Hosting → primer deploy del frontend
+53. Configurar Cloud Run → primer deploy del backend
+54. Escribir `README.md` con instrucciones de instalación paso a paso
+55. **Verificación final:** Todos los criterios de aceptación cumplidos
 
 ---
 
@@ -1447,16 +1495,19 @@ httpx==0.28.0
 
 El sistema está listo para evaluación con usuarios piloto cuando:
 
-- [ ] `docker compose up` levanta TODOS los servicios sin errores en equipo limpio
-- [ ] La semilla (`seed_db.py`) pobla correctamente los 5 módulos, 22 temas y 7 logros
-- [ ] Flujo estudiante completo: Registro → Login → Ver módulo → Leer tema → Hacer quiz → Ver progreso actualizado
-- [ ] El tutor IA responde preguntas relacionadas con el curso usando el corpus RAG
+- [x] `docker compose up` levanta TODOS los servicios sin errores en equipo limpio
+- [x] La semilla (`seed_db.py`) pobla correctamente los 5 módulos, 22 temas y 7 logros
+- [x] Flujo estudiante completo: Registro → Login → Ver módulo → Leer tema → Hacer quiz → Ver progreso actualizado
+- [x] Las autoevaluaciones son generadas por IA (Ollama) con preguntas únicas en cada intento
+- [x] Fallback a preguntas estáticas de BD si Ollama no está disponible
+- [x] Sistema de logros detecta y otorga automáticamente (7 tipos de logros)
+- [ ] El tutor IA conversacional responde preguntas usando el corpus RAG
 - [ ] Las respuestas del tutor citan las fuentes del corpus
 - [ ] El tutor rechaza preguntas ajenas al curso con mensaje educativo
 - [ ] El panel de admin permite subir un PDF y procesarlo (ver chunks generados en BD)
 - [ ] Lighthouse Performance ≥ 70 en la página de módulos
 - [ ] El diseño es completamente funcional en pantalla de 375px
-- [ ] Todos los textos visibles al usuario están en español
+- [x] Todos los textos visibles al usuario están en español
 - [ ] Las pruebas del backend pasan con cobertura ≥ 60%
 - [ ] El rate limiting del chat IA funciona (responde 429 al superar 20 mensajes/hora)
 - [ ] El `README.md` permite a una persona nueva levantar el sistema desde cero

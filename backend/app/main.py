@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import auth, users
+from app.routers import auth, users, modules, topics, quiz, progress, achievements
 
 app = FastAPI(
     title="Tutor IA - IESTP RFA",
@@ -21,6 +21,11 @@ app.add_middleware(
 # Routers
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(users.router, prefix="/api/v1")
+app.include_router(modules.router, prefix="/api/v1")
+app.include_router(topics.router, prefix="/api/v1")
+app.include_router(quiz.router, prefix="/api/v1")
+app.include_router(progress.router, prefix="/api/v1")
+app.include_router(achievements.router, prefix="/api/v1")
 
 
 @app.get("/health")
