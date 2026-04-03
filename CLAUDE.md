@@ -1446,48 +1446,94 @@ httpx==0.28.0
 33. ✅ `AchievementsPage.tsx` — Logros obtenidos vs por desbloquear
 34. ✅ **Verificado:** Leer tema → Quiz IA genera preguntas únicas → Responder → Score + feedback → Progreso actualizado → Logros otorgados
 
-### FASE 5: Tutor IA Conversacional con RAG (SIGUIENTE)
-35. Implementar `services/embed_service.py` (cliente mxbai-embed-large para generar embeddings)
-36. Implementar `services/ingest_service.py` (parseo PDF/DOCX/TXT → chunking → embeddings → pgvector)
-37. Implementar `services/rag_service.py` (pipeline completo: embed query → pgvector similarity search → prompt aumentado → Ollama → caché Redis)
-38. Implementar `routers/chat.py` con:
-    - CRUD de sesiones de chat
-    - POST mensaje con pipeline RAG
-    - Rate limiting via slowapi (20 msgs/hora)
-    - Fuentes citadas en cada respuesta
-39. Implementar `ChatPage.tsx` con:
-    - Sidebar de sesiones (nueva conversación, historial)
-    - Burbujas de chat (user/assistant) con Markdown renderizado
-    - Fuentes RAG colapsables bajo cada respuesta
-    - Indicador "Tutor escribiendo..." mientras el LLM procesa
+### FASE 5: Tutor IA Conversacional con RAG — ✅ COMPLETADA
+35. ✅ `services/embed_service.py` — cliente singleton mxbai-embed-large (async query + batch)
+36. ✅ `services/ingest_service.py` — pipeline: parse PDF/DOCX/TXT → limpiar → chunk (500 chars, 50 overlap) → embed → pgvector
+37. ✅ `services/rag_service.py` — pipeline RAG: embed query → pgvector cosine similarity (top 5, threshold 0.70) → prompt aumentado con historial → Ollama qwen2.5 → caché Redis (TTL 1h)
+38. ✅ `schemas/chat.py` + `routers/chat.py` con:
+    - CRUD de sesiones de chat (crear, listar, eliminar)
+    - POST mensaje con pipeline RAG completo
+    - Rate limiting via Redis (20 msgs/hora por usuario, responde 429)
+    - Fuentes citadas en cada respuesta (similitud ≥ 0.75)
+    - Endpoint GET /chat/remaining para consultas restantes
+    - Título auto-generado desde primer mensaje del usuario
+    - Integración con achievement_service (logro "Explorador del Tutor IA")
+39. ✅ `ChatPage.tsx` + componentes chat:
+    - `ChatMessage.tsx` — burbujas user/assistant con Markdown + syntax highlight
+    - `ChatSources.tsx` — fuentes RAG colapsables con % relevancia
+    - `TypingIndicator.tsx` — animación "Tutor escribiendo..."
+    - Sidebar de sesiones (crear, seleccionar, eliminar con hover)
     - Input con Enter envía, Shift+Enter nueva línea
-40. **Prueba:** Hacer una pregunta al tutor → Recibir respuesta fundamentada en el material → Ver fuentes citadas
+    - Contador de consultas restantes por hora
+    - Optimistic updates al enviar mensajes
+    - `types/chat.ts`, `api/chat.ts`, `hooks/useChat.ts`
+    - Ruta `/chat` añadida a `App.tsx`
+40. ✅ **Verificado:** Pregunta al tutor → respuesta fundamentada en material del curso → fuentes citadas → rechaza preguntas ajenas al curso
+41. ✅ `scripts/ingest_course_docs.py` (en backend/scripts/) — ingesta los 22 temas del curso como 163 chunks con embeddings en pgvector
+42. ✅ Ollama nativo en Windows con GPU (RTX 4070, 16GB VRAM) — respuestas ~3-5s en caliente
+43. ✅ Fix: `llm_service.py` — prompt quiz usa `{"questions":[...]}` wrapper para compatibilidad con `format="json"`, parser maneja ambos formatos
+44. ✅ Fix: `rag_service.py` — vector literal inline en SQL para compatibilidad con asyncpg (no soporta `::vector` cast en parámetros)
+45. ✅ Fix: `docker-compose.yml` — Ollama nativo via `host.docker.internal:11434` para desarrollo local con GPU
 
-### FASE 6: Dashboard Completo y Panel Admin
-41. Implementar `routers/dashboard.py` — endpoint dedicado con agregación de datos (último tema, recomendaciones, logros recientes)
-42. Mejorar `DashboardPage.tsx` — banner "Continuar donde lo dejaste", logros recientes, recomendaciones personalizadas
-43. Implementar `routers/admin.py`:
-    - CRUD de módulos, temas y preguntas
-    - Upload de documentos (multipart/form-data) con procesamiento asíncrono via BackgroundTasks
+### FASE 5.5: Desafíos de Programación con Evaluación IA — ✅ COMPLETADA
+46. ✅ `models/coding.py` — CodingChallenge + CodingSubmission (SQLAlchemy models)
+47. ✅ `alembic/versions/002_add_coding_challenges.py` — migración para tablas coding_challenges y coding_submissions
+48. ✅ `services/code_eval_service.py` — LLM evalúa código del estudiante:
+    - Criterios: corrección (40%), buenas prácticas (25%), eficiencia (20%), legibilidad (15%)
+    - Score 0-100 + feedback en Markdown + strengths + improvements
+    - Prompt con solución de referencia como guía (no como única respuesta válida)
+    - `format="json"` para respuesta estructurada
+49. ✅ `schemas/coding.py` + `routers/coding.py`:
+    - GET challenges por topic + GET challenge individual
+    - POST submit con evaluación LLM
+    - GET history + GET best submission
+    - GET completion-status (estado detallado quiz + coding por tema)
+50. ✅ `CodingChallengePage.tsx` — layout split:
+    - Izquierda: descripción del problema (Markdown), pistas colapsables, resultados de evaluación (score, feedback, strengths, improvements)
+    - Derecha: editor de código dark theme con monospace, botón enviar con loading "La IA está evaluando tu código..."
+    - `types/coding.ts`, `api/coding.ts`, ruta `/coding/:challengeId`
+51. ✅ 7 desafíos de programación seeded en Módulos 2 y 4:
+    - Calculadora de Promedio (fácil), Clasificador de Triángulos (medio), Filtro con Lambda (medio)
+    - Sistema de Inventario OOP (medio), Figuras Geométricas con Polimorfismo (difícil)
+    - Logger del Ciclo de Vida (fácil), Modelo de Datos para API (medio)
+52. ✅ `services/topic_completion_service.py` — lógica centralizada de completación:
+    - Tema con quiz + coding → AMBOS deben aprobarse (quiz ≥60%, coding ≥60 pts)
+    - Tema con solo quiz → quiz ≥60%
+    - Tema con solo coding → coding ≥60 pts
+    - Quiz submit y coding submit ambos llaman a `check_and_complete_topic()`
+53. ✅ `TopicListItem.tsx` muestra indicador "Desafío de Código" (ícono Code2 azul) junto a "Quiz"
+54. ✅ `TopicPage.tsx` muestra botones de desafíos de código junto al botón de quiz
+55. ✅ Backend: `has_coding_challenge` en TopicBrief schema + query eficiente agrupada en módulo router
+56. ✅ **Verificado:** Escribir código → LLM evalúa (~5-10s GPU) → score + feedback detallado → topic solo se completa cuando quiz Y coding están aprobados
+
+### FASE 6: Dashboard Completo y Panel Admin (SIGUIENTE)
+57. Implementar `routers/dashboard.py` — endpoint dedicado con agregación de datos (último tema, recomendaciones, logros recientes)
+58. Mejorar `DashboardPage.tsx` — banner "Continuar donde lo dejaste", logros recientes, recomendaciones personalizadas
+59. Implementar `routers/admin.py`:
+    - CRUD de módulos, temas y preguntas de quiz
+    - CRUD de desafíos de programación por tema (crear, editar, eliminar)
+    - Botón "Generar desafío con IA" → LLM analiza contenido del tema y genera desafío apropiado → profesor revisa y aprueba
+    - Upload de documentos RAG (multipart/form-data) con procesamiento asíncrono via BackgroundTasks
     - Gestión de usuarios (activar/desactivar, cambiar rol)
     - Reprocesamiento de documentos con error
-44. Implementar `AdminPage.tsx` con tabs:
+60. Implementar `AdminPage.tsx` con tabs:
     - Tab "Corpus RAG": tabla de documentos, drag & drop upload, estado procesamiento
-    - Tab "Contenido del Curso": árbol colapsable Módulo → Temas → Preguntas con CRUD
+    - Tab "Contenido del Curso": árbol colapsable Módulo → Temas → Preguntas + Desafíos de Código con CRUD
     - Tab "Usuarios": lista paginada con acciones de gestión
-45. **Prueba:** Admin sube PDF → procesamiento automático → chunks en BD → tutor usa el contenido en respuestas
+61. **Prueba:** Admin sube PDF → procesamiento automático → chunks en BD → tutor usa el contenido en respuestas
+62. **Prueba:** Admin crea desafío de código para un tema → estudiante lo ve y puede resolverlo
 
 ### FASE 7: Calidad y Preparación para Piloto
-46. Implementar rate limiting global con `slowapi` (100 req/min por IP)
-47. Configurar `loguru` con logs JSON estructurados para producción
-48. Escribir pruebas unitarias para `auth_service.py`, `rag_service.py`, `progress_service.py`, `llm_service.py`
-49. Escribir pruebas de integración para endpoints críticos (auth, chat, modules, quiz)
-50. Ejecutar Lighthouse → Corregir hasta Performance ≥ 70 y Accessibility ≥ 85
-51. Verificar diseño responsivo en 375px, 768px, 1440px
-52. Configurar Firebase Hosting → primer deploy del frontend
-53. Configurar Cloud Run → primer deploy del backend
-54. Escribir `README.md` con instrucciones de instalación paso a paso
-55. **Verificación final:** Todos los criterios de aceptación cumplidos
+63. Implementar rate limiting global con `slowapi` (100 req/min por IP)
+64. Configurar `loguru` con logs JSON estructurados para producción
+65. Escribir pruebas unitarias para `auth_service.py`, `rag_service.py`, `progress_service.py`, `llm_service.py`, `code_eval_service.py`
+66. Escribir pruebas de integración para endpoints críticos (auth, chat, modules, quiz, coding)
+67. Ejecutar Lighthouse → Corregir hasta Performance ≥ 70 y Accessibility ≥ 85
+68. Verificar diseño responsivo en 375px, 768px, 1440px
+69. Configurar Firebase Hosting → primer deploy del frontend
+70. Configurar Cloud Run → primer deploy del backend
+71. Escribir `README.md` con instrucciones de instalación paso a paso
+72. **Verificación final:** Todos los criterios de aceptación cumplidos
 
 ---
 
@@ -1501,15 +1547,19 @@ El sistema está listo para evaluación con usuarios piloto cuando:
 - [x] Las autoevaluaciones son generadas por IA (Ollama) con preguntas únicas en cada intento
 - [x] Fallback a preguntas estáticas de BD si Ollama no está disponible
 - [x] Sistema de logros detecta y otorga automáticamente (7 tipos de logros)
-- [ ] El tutor IA conversacional responde preguntas usando el corpus RAG
-- [ ] Las respuestas del tutor citan las fuentes del corpus
-- [ ] El tutor rechaza preguntas ajenas al curso con mensaje educativo
+- [x] El tutor IA conversacional responde preguntas usando el corpus RAG
+- [x] Las respuestas del tutor citan las fuentes del corpus
+- [x] El tutor rechaza preguntas ajenas al curso con mensaje educativo
+- [x] Desafíos de programación con evaluación IA (score + feedback + strengths + improvements)
+- [x] Temas con coding challenges requieren AMBOS (quiz + coding) para completarse
+- [x] Indicador visual "Desafío de Código" en lista de temas del módulo
 - [ ] El panel de admin permite subir un PDF y procesarlo (ver chunks generados en BD)
+- [ ] El panel de admin permite crear/editar desafíos de programación por tema
 - [ ] Lighthouse Performance ≥ 70 en la página de módulos
 - [ ] El diseño es completamente funcional en pantalla de 375px
 - [x] Todos los textos visibles al usuario están en español
 - [ ] Las pruebas del backend pasan con cobertura ≥ 60%
-- [ ] El rate limiting del chat IA funciona (responde 429 al superar 20 mensajes/hora)
+- [x] El rate limiting del chat IA funciona (responde 429 al superar 20 mensajes/hora)
 - [ ] El `README.md` permite a una persona nueva levantar el sistema desde cero
 
 ---

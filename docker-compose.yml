@@ -32,13 +32,18 @@ services:
       timeout: 3s
       retries: 5
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: tutor_ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
+  # Ollama se ejecuta nativamente en Windows para usar GPU (RTX 4070).
+  # El backend se conecta via host.docker.internal:11434.
+  # Para usar Ollama en Docker (CPU), descomentar este bloque y cambiar
+  # OLLAMA_BASE_URL a http://ollama:11434 en el backend.
+  #
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: tutor_ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
 
   backend:
     build:
@@ -50,7 +55,7 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://tutor_user:tutor_pass_dev@postgres:5432/tutordb
       REDIS_URL: redis://redis:6379/0
-      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
       ENVIRONMENT: development
       SECRET_KEY: dev_secret_key_change_in_production_1234567890abcdef
       ALGORITHM: HS256

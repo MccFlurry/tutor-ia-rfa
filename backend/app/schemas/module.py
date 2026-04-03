@@ -8,6 +8,7 @@ class TopicBrief(BaseModel):
     order_index: int
     estimated_minutes: int
     has_quiz: bool
+    has_coding_challenge: bool = False
     status: str  # 'not_started' | 'in_progress' | 'completed'
 
     model_config = {"from_attributes": True}

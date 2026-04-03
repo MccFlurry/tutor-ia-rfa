@@ -12,7 +12,6 @@ from app.config import settings
 from app.models.user import User
 from app.models.topic import Topic
 from app.models.quiz import QuizQuestion, QuizAttempt
-from app.models.progress import UserTopicProgress
 from app.schemas.quiz import (
     QuizQuestionResponse,
     QuizGenerateResponse,
@@ -22,14 +21,14 @@ from app.schemas.quiz import (
     QuizAttemptResponse,
 )
 from app.services.llm_service import generate_quiz_questions, QuizGenerationError
-from app.services.achievement_service import check_and_grant_achievements
+from app.services.topic_completion_service import check_and_complete_topic
 from app.utils.logger import logger
 
 router = APIRouter(prefix="/quiz", tags=["quiz"])
 
 
 async def _build_session_from_db(
-    topic_id: int, db: AsyncSession, redis_client
+    topic_id: int, user_id: uuid.UUID, db: AsyncSession, redis_client
 ) -> QuizGenerateResponse | None:
     """Fallback: build a quiz session from static DB questions."""
     result = await db.execute(
@@ -60,13 +59,61 @@ async def _build_session_from_db(
             options=q.options,
         ))
 
+    await _save_session(session_id, session_data, user_id, topic_id, redis_client)
+
+    return QuizGenerateResponse(session_id=session_id, questions=response_questions)
+
+
+def _active_key(user_id: uuid.UUID, topic_id: int) -> str:
+    """Redis key that points to the user's active (unsubmitted) quiz session for a topic."""
+    return f"quiz_active:{user_id}:{topic_id}"
+
+
+async def _recover_active_session(
+    user_id: uuid.UUID, topic_id: int, redis_client
+) -> QuizGenerateResponse | None:
+    """Return the existing unsubmitted quiz session if one exists."""
+    active_key = _active_key(user_id, topic_id)
+    session_id = await redis_client.get(active_key)
+    if not session_id:
+        return None
+
+    raw = await redis_client.get(f"quiz_session:{session_id}")
+    if not raw:
+        # Session expired but pointer remained — clean up
+        await redis_client.delete(active_key)
+        return None
+
+    session_data = json.loads(raw)
+    questions = session_data["questions"]
+
+    response_questions = [
+        QuizQuestionResponse(
+            id=qid,
+            question_text=q["question_text"],
+            options=q["options"],
+        )
+        for qid, q in questions.items()
+    ]
+
+    logger.info(f"Quiz sesión activa recuperada para tema {topic_id}, sesión {session_id}")
+    return QuizGenerateResponse(session_id=session_id, questions=response_questions)
+
+
+async def _save_session(
+    session_id: str, session_data: dict, user_id: uuid.UUID, topic_id: int, redis_client
+) -> None:
+    """Save quiz session and set the active pointer for the user+topic."""
     await redis_client.setex(
         f"quiz_session:{session_id}",
         settings.QUIZ_SESSION_TTL,
         json.dumps(session_data, ensure_ascii=False),
     )
-
-    return QuizGenerateResponse(session_id=session_id, questions=response_questions)
+    await redis_client.setex(
+        _active_key(user_id, topic_id),
+        settings.QUIZ_SESSION_TTL,
+        session_id,
+    )
 
 
 @router.get("/topic/{topic_id}", response_model=QuizGenerateResponse)
@@ -78,6 +125,7 @@ async def get_quiz(
 ):
     """
     Generate a quiz for a topic using AI (Ollama).
+    If the user already has an active (unsubmitted) session, returns it.
     Falls back to static DB questions if LLM is unavailable.
     """
     # Verify topic exists and has quiz
@@ -89,6 +137,11 @@ async def get_quiz(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tema no encontrado")
     if not topic.has_quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Este tema no tiene autoevaluación")
+
+    # Check for existing active session (user left without submitting)
+    existing = await _recover_active_session(current_user.id, topic_id, redis_client)
+    if existing:
+        return existing
 
     # Try AI generation
     try:
@@ -112,11 +165,7 @@ async def get_quiz(
                 options=q.options,
             ))
 
-        await redis_client.setex(
-            f"quiz_session:{session_id}",
-            settings.QUIZ_SESSION_TTL,
-            json.dumps(session_data, ensure_ascii=False),
-        )
+        await _save_session(session_id, session_data, current_user.id, topic_id, redis_client)
 
         logger.info(f"Quiz IA generado para tema {topic_id}, sesión {session_id}")
         return QuizGenerateResponse(session_id=session_id, questions=response_questions)
@@ -128,7 +177,7 @@ async def get_quiz(
         logger.error(f"Error inesperado generando quiz para tema {topic_id}: {e}")
 
     # Fallback to DB questions
-    fallback = await _build_session_from_db(topic_id, db, redis_client)
+    fallback = await _build_session_from_db(topic_id, current_user.id, db, redis_client)
     if fallback:
         logger.info(f"Quiz fallback (BD) para tema {topic_id}, sesión {fallback.session_id}")
         return fallback
@@ -195,39 +244,15 @@ async def submit_quiz(
     db.add(attempt)
     await db.flush()
 
-    # If passed, mark topic as completed
+    # If passed, check if topic can be fully completed (quiz + coding if needed)
     if is_passed:
-        progress_result = await db.execute(
-            select(UserTopicProgress).where(
-                UserTopicProgress.user_id == current_user.id,
-                UserTopicProgress.topic_id == topic_id,
-            )
-        )
-        progress = progress_result.scalar_one_or_none()
-        now = datetime.now(timezone.utc)
-
-        if not progress:
-            progress = UserTopicProgress(
-                user_id=current_user.id,
-                topic_id=topic_id,
-                is_completed=True,
-                completed_at=now,
-                first_visited_at=now,
-                last_accessed_at=now,
-            )
-            db.add(progress)
-        elif not progress.is_completed:
-            progress.is_completed = True
-            progress.completed_at = now
-            progress.last_accessed_at = now
-
-    # Check achievements
-    await check_and_grant_achievements(current_user.id, db)
+        await check_and_complete_topic(current_user.id, topic_id, db)
 
     await db.commit()
 
-    # Delete session from Redis (single-use)
+    # Delete session and active pointer from Redis (single-use)
     await redis_client.delete(f"quiz_session:{body.session_id}")
+    await redis_client.delete(_active_key(current_user.id, topic_id))
 
     return QuizSubmitResponse(
         score=round(score * 100, 1),

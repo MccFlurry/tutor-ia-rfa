@@ -8,6 +8,7 @@ from app.models.user import User
 from app.models.module import Module
 from app.models.topic import Topic
 from app.models.progress import UserTopicProgress
+from app.models.coding import CodingChallenge
 from app.schemas.module import ModuleResponse, ModuleDetailResponse, TopicBrief
 
 router = APIRouter(prefix="/modules", tags=["modules"])
@@ -106,6 +107,14 @@ async def get_module(
     )
     progress_map = {p.topic_id: p for p in progress_result.scalars().all()} if topics else {}
 
+    # Get coding challenge counts per topic
+    coding_result = await db.execute(
+        select(CodingChallenge.topic_id, func.count(CodingChallenge.id))
+        .where(CodingChallenge.topic_id.in_([t.id for t in topics]) if topics else False)
+        .group_by(CodingChallenge.topic_id)
+    )
+    coding_map = {row[0]: row[1] for row in coding_result.all()} if topics else {}
+
     topic_briefs = []
     completed_count = 0
     for topic in topics:
@@ -124,6 +133,7 @@ async def get_module(
             order_index=topic.order_index,
             estimated_minutes=topic.estimated_minutes,
             has_quiz=topic.has_quiz,
+            has_coding_challenge=coding_map.get(topic.id, 0) > 0,
             status=topic_status,
         ))
 

@@ -17,6 +17,7 @@ export interface TopicBrief {
   order_index: number
   estimated_minutes: number
   has_quiz: boolean
+  has_coding_challenge: boolean
   status: 'not_started' | 'in_progress' | 'completed'
 }
 

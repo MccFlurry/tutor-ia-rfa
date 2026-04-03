@@ -13,6 +13,8 @@ import TopicPage from '@/pages/TopicPage'
 import QuizPage from '@/pages/QuizPage'
 import ProgressPage from '@/pages/ProgressPage'
 import AchievementsPage from '@/pages/AchievementsPage'
+import ChatPage from '@/pages/ChatPage'
+import CodingChallengePage from '@/pages/CodingChallengePage'
 
 function AppRoutes() {
   const { loadFromStorage, isAuthenticated, user, setUser, logout } = useAuthStore()
@@ -50,6 +52,8 @@ function AppRoutes() {
         <Route path="/quiz/:topicId" element={<QuizPage />} />
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/achievements" element={<AchievementsPage />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/coding/:challengeId" element={<CodingChallengePage />} />
       </Route>
     </Routes>
   )

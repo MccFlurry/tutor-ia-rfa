@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { CheckCircle2, Circle, Clock, FileQuestion } from 'lucide-react'
+import { CheckCircle2, Circle, Clock, FileQuestion, Code2 } from 'lucide-react'
 import type { TopicBrief } from '@/types/module'
 
 interface TopicListItemProps {
@@ -38,6 +38,12 @@ export default function TopicListItem({ topic }: TopicListItemProps) {
             <span className="text-xs text-gray-400 flex items-center gap-1">
               <FileQuestion className="w-3 h-3" />
               Quiz
+            </span>
+          )}
+          {topic.has_coding_challenge && (
+            <span className="text-xs text-primary-500 flex items-center gap-1">
+              <Code2 className="w-3 h-3" />
+              Desafío de Código
             </span>
           )}
         </div>

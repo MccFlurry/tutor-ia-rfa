@@ -6,6 +6,7 @@ from app.models.progress import UserTopicProgress
 from app.models.achievement import Achievement, UserAchievement
 from app.models.chat import ChatSession, ChatMessage
 from app.models.document import Document, DocumentChunk
+from app.models.coding import CodingChallenge, CodingSubmission
 
 __all__ = [
     "User",
@@ -20,4 +21,6 @@ __all__ = [
     "ChatMessage",
     "Document",
     "DocumentChunk",
+    "CodingChallenge",
+    "CodingSubmission",
 ]

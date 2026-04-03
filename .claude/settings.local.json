@@ -8,7 +8,23 @@
       "Bash(npm install:*)",
       "Bash(npx tsc:*)",
       "Bash(npx vite:*)",
-      "Bash(python -c \"compile\\(open\\('backend/scripts/seed_db.py', encoding='utf-8'\\).read\\(\\), 'seed_db.py', 'exec'\\); print\\('OK: No syntax errors'\\)\")"
+      "Bash(python -c \"compile\\(open\\('backend/scripts/seed_db.py', encoding='utf-8'\\).read\\(\\), 'seed_db.py', 'exec'\\); print\\('OK: No syntax errors'\\)\")",
+      "Bash(find /c/tutor-ia-rfa/frontend/src/types -type f -exec wc -l {} +)",
+      "Bash(docker exec tutor_ollama:*)",
+      "Bash(docker start:*)",
+      "Bash(docker compose up:*)",
+      "Bash(docker exec tutor_backend:*)",
+      "Bash(docker restart:*)",
+      "Bash(curl -s -X POST http://localhost:8000/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"admin@iestprfa.edu.pe\",\"password\":\"Admin123!\"}')",
+      "Bash(python -c ':*)",
+      "Bash(curl -s -X POST http://localhost:8000/api/v1/auth/login -H \"Content-Type: application/json\" -d \"{\\\\\"email\\\\\":\\\\\"admin@iestprfa.edu.pe\\\\\",\\\\\"password\\\\\":\\\\\"Admin123!\\\\\"}\")",
+      "Bash(nvidia-smi)",
+      "Bash(where ollama:*)",
+      "Bash(ollama list:*)",
+      "Bash(ollama pull:*)",
+      "Bash(docker stop:*)",
+      "Bash(nvidia-smi:*)",
+      "Bash(docker cp:*)"
     ]
   }
 }

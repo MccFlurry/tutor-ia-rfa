@@ -23,6 +23,7 @@ from app.models.module import Module
 from app.models.topic import Topic
 from app.models.achievement import Achievement
 from app.models.quiz import QuizQuestion
+from app.models.coding import CodingChallenge
 from app.utils.security import hash_password
 
 
@@ -2424,6 +2425,459 @@ R8 (sucesor de ProGuard) **optimiza y ofusca** tu código:
 
 
 # ──────────────────────────────────────────────
+# DESAFÍOS DE PROGRAMACIÓN
+# ──────────────────────────────────────────────
+
+CODING_CHALLENGES = {
+    "Variables, Tipos de Datos y Operadores en Kotlin": [
+        {
+            "title": "Calculadora de Promedio",
+            "difficulty": "easy",
+            "description": """## Calculadora de Promedio de Notas
+
+Escribe una función en Kotlin que reciba tres notas (como `Double`) y retorne el promedio.
+
+**Requisitos:**
+- La función se debe llamar `calcularPromedio`
+- Debe recibir 3 parámetros de tipo `Double`
+- Debe retornar un `Double` con el promedio
+- Imprime si el alumno está "Aprobado" (promedio >= 10.5) o "Desaprobado"
+
+**Ejemplo:**
+```
+calcularPromedio(15.0, 12.0, 18.0) → 15.0 → "Aprobado"
+calcularPromedio(8.0, 5.0, 10.0) → 7.67 → "Desaprobado"
+```""",
+            "initial_code": """fun calcularPromedio(nota1: Double, nota2: Double, nota3: Double): Double {
+    // Tu código aquí
+
+}
+
+fun main() {
+    val promedio = calcularPromedio(15.0, 12.0, 18.0)
+    println("Promedio: $promedio")
+    // Imprime si está aprobado o desaprobado
+}""",
+            "solution_code": """fun calcularPromedio(nota1: Double, nota2: Double, nota3: Double): Double {
+    return (nota1 + nota2 + nota3) / 3.0
+}
+
+fun main() {
+    val promedio = calcularPromedio(15.0, 12.0, 18.0)
+    println("Promedio: $promedio")
+    if (promedio >= 10.5) println("Aprobado") else println("Desaprobado")
+}""",
+            "hints": "Recuerda que la división entre enteros en Kotlin trunca el resultado. Usa 3.0 para obtener un Double.",
+        },
+    ],
+    "Estructuras de Control: if/else, when y bucles": [
+        {
+            "title": "Clasificador de Triángulos",
+            "difficulty": "medium",
+            "description": """## Clasificador de Triángulos
+
+Escribe una función que reciba los tres lados de un triángulo y retorne su tipo.
+
+**Requisitos:**
+- Función `clasificarTriangulo(a: Double, b: Double, c: Double): String`
+- Primero verifica si los lados forman un triángulo válido (la suma de dos lados debe ser mayor al tercero)
+- Retorna: `"Equilátero"`, `"Isósceles"`, `"Escaleno"` o `"No es un triángulo válido"`
+
+**Ejemplo:**
+```
+clasificarTriangulo(5.0, 5.0, 5.0) → "Equilátero"
+clasificarTriangulo(5.0, 5.0, 3.0) → "Isósceles"
+clasificarTriangulo(3.0, 4.0, 5.0) → "Escaleno"
+clasificarTriangulo(1.0, 2.0, 10.0) → "No es un triángulo válido"
+```""",
+            "initial_code": """fun clasificarTriangulo(a: Double, b: Double, c: Double): String {
+    // Tu código aquí
+
+}
+
+fun main() {
+    println(clasificarTriangulo(5.0, 5.0, 5.0))
+    println(clasificarTriangulo(5.0, 5.0, 3.0))
+    println(clasificarTriangulo(3.0, 4.0, 5.0))
+    println(clasificarTriangulo(1.0, 2.0, 10.0))
+}""",
+            "solution_code": """fun clasificarTriangulo(a: Double, b: Double, c: Double): String {
+    if (a + b <= c || a + c <= b || b + c <= a) {
+        return "No es un triángulo válido"
+    }
+    return when {
+        a == b && b == c -> "Equilátero"
+        a == b || b == c || a == c -> "Isósceles"
+        else -> "Escaleno"
+    }
+}""",
+            "hints": "Usa `when` con condiciones booleanas para un código más limpio que múltiples if/else.",
+        },
+    ],
+    "Funciones, Lambdas y Alcance en Kotlin": [
+        {
+            "title": "Filtro de Números Pares con Lambda",
+            "difficulty": "medium",
+            "description": """## Filtro de Números Pares con Lambda
+
+Escribe un programa que use funciones de orden superior y lambdas para procesar una lista de números.
+
+**Requisitos:**
+1. Crea una lista de números del 1 al 20
+2. Usa `filter` con una lambda para obtener solo los pares
+3. Usa `map` para elevar cada número par al cuadrado
+4. Usa `forEach` para imprimir cada resultado
+5. Calcula la suma total usando `reduce` o `sum()`
+
+**Resultado esperado:**
+```
+4, 16, 36, 64, 100, 144, 196, 256, 324, 400
+Suma total: 1540
+```""",
+            "initial_code": """fun main() {
+    val numeros = (1..20).toList()
+
+    // 1. Filtra los números pares
+
+    // 2. Eleva al cuadrado cada par
+
+    // 3. Imprime cada resultado
+
+    // 4. Calcula e imprime la suma total
+
+}""",
+            "solution_code": """fun main() {
+    val numeros = (1..20).toList()
+
+    val resultado = numeros
+        .filter { it % 2 == 0 }
+        .map { it * it }
+
+    resultado.forEach { print("$it, ") }
+    println()
+    println("Suma total: ${resultado.sum()}")
+}""",
+            "hints": "Puedes encadenar filter, map y forEach. Recuerda que `it` es el parámetro implícito de una lambda con un solo argumento.",
+        },
+    ],
+    "POO: Clases, Objetos y Constructores": [
+        {
+            "title": "Sistema de Inventario Simple",
+            "difficulty": "medium",
+            "description": """## Sistema de Inventario Simple
+
+Crea un sistema de inventario usando clases en Kotlin.
+
+**Requisitos:**
+1. Clase `Producto` con: `nombre: String`, `precio: Double`, `cantidad: Int`
+2. Método `valorTotal()` que retorne `precio * cantidad`
+3. Método `toString()` que muestre la info del producto de forma legible
+4. Clase `Inventario` que tenga una lista mutable de productos
+5. Método `agregarProducto(producto: Producto)`
+6. Método `valorInventario(): Double` que retorne el valor total de todos los productos
+7. Método `buscarProducto(nombre: String): Producto?`
+
+**Ejemplo de uso:**
+```kotlin
+val inv = Inventario()
+inv.agregarProducto(Producto("Laptop", 2500.0, 3))
+inv.agregarProducto(Producto("Mouse", 45.0, 10))
+println(inv.valorInventario()) // 7950.0
+```""",
+            "initial_code": """class Producto(
+    val nombre: String,
+    val precio: Double,
+    var cantidad: Int
+) {
+    // Implementa valorTotal() y toString()
+}
+
+class Inventario {
+    // Implementa la lista de productos y los métodos
+}
+
+fun main() {
+    val inv = Inventario()
+    inv.agregarProducto(Producto("Laptop", 2500.0, 3))
+    inv.agregarProducto(Producto("Mouse", 45.0, 10))
+    inv.agregarProducto(Producto("Teclado", 80.0, 5))
+
+    println("Valor total del inventario: S/. ${inv.valorInventario()}")
+    println(inv.buscarProducto("Mouse"))
+}""",
+            "solution_code": """class Producto(
+    val nombre: String,
+    val precio: Double,
+    var cantidad: Int
+) {
+    fun valorTotal(): Double = precio * cantidad
+
+    override fun toString(): String =
+        "$nombre - S/. $precio x $cantidad = S/. ${valorTotal()}"
+}
+
+class Inventario {
+    private val productos = mutableListOf<Producto>()
+
+    fun agregarProducto(producto: Producto) {
+        productos.add(producto)
+    }
+
+    fun valorInventario(): Double =
+        productos.sumOf { it.valorTotal() }
+
+    fun buscarProducto(nombre: String): Producto? =
+        productos.find { it.nombre.equals(nombre, ignoreCase = true) }
+}""",
+            "hints": "Usa `mutableListOf<Producto>()` para la lista. `sumOf` es más idiomático que un bucle manual para sumar valores.",
+        },
+    ],
+    "POO: Herencia, Interfaces y Polimorfismo": [
+        {
+            "title": "Sistema de Figuras Geométricas",
+            "difficulty": "hard",
+            "description": """## Sistema de Figuras Geométricas con Polimorfismo
+
+Implementa un sistema de figuras geométricas usando herencia e interfaces.
+
+**Requisitos:**
+1. Interfaz `Dibujable` con método `dibujar(): String`
+2. Clase abstracta `Figura` con propiedad `nombre` y método abstracto `area(): Double`
+3. Clase `Circulo(val radio: Double)` que extienda `Figura` e implemente `Dibujable`
+4. Clase `Rectangulo(val ancho: Double, val alto: Double)` que extienda `Figura` e implemente `Dibujable`
+5. Clase `Triangulo(val base: Double, val altura: Double)` que extienda `Figura` e implemente `Dibujable`
+6. Función `imprimirFiguras(figuras: List<Figura>)` que imprima el nombre, área y dibujo de cada figura
+
+**Ejemplo:**
+```
+Circulo: Área = 78.54
+  → ● Dibujando circulo con radio 5.0
+Rectangulo: Área = 24.0
+  → ▬ Dibujando rectángulo 6.0 x 4.0
+```""",
+            "initial_code": """import kotlin.math.PI
+
+interface Dibujable {
+    fun dibujar(): String
+}
+
+abstract class Figura(val nombre: String) {
+    abstract fun area(): Double
+}
+
+// Implementa Circulo, Rectangulo y Triangulo
+
+fun imprimirFiguras(figuras: List<Figura>) {
+    // Implementa aquí
+}
+
+fun main() {
+    val figuras = listOf(
+        Circulo(5.0),
+        Rectangulo(6.0, 4.0),
+        Triangulo(8.0, 3.0)
+    )
+    imprimirFiguras(figuras)
+}""",
+            "solution_code": """import kotlin.math.PI
+
+interface Dibujable {
+    fun dibujar(): String
+}
+
+abstract class Figura(val nombre: String) {
+    abstract fun area(): Double
+}
+
+class Circulo(val radio: Double) : Figura("Circulo"), Dibujable {
+    override fun area(): Double = PI * radio * radio
+    override fun dibujar(): String = "● Dibujando circulo con radio $radio"
+}
+
+class Rectangulo(val ancho: Double, val alto: Double) : Figura("Rectangulo"), Dibujable {
+    override fun area(): Double = ancho * alto
+    override fun dibujar(): String = "▬ Dibujando rectángulo $ancho x $alto"
+}
+
+class Triangulo(val base: Double, val altura: Double) : Figura("Triangulo"), Dibujable {
+    override fun area(): Double = (base * altura) / 2.0
+    override fun dibujar(): String = "▲ Dibujando triángulo base $base, altura $altura"
+}
+
+fun imprimirFiguras(figuras: List<Figura>) {
+    for (figura in figuras) {
+        println("${figura.nombre}: Área = ${"%.2f".format(figura.area())}")
+        if (figura is Dibujable) {
+            println("  → ${figura.dibujar()}")
+        }
+    }
+}""",
+            "hints": "Usa `is` para verificar si una Figura también implementa Dibujable (smart cast). Recuerda usar `override` para los métodos.",
+        },
+    ],
+    "Activities y el Ciclo de Vida de Android": [
+        {
+            "title": "Logger del Ciclo de Vida",
+            "difficulty": "easy",
+            "description": """## Logger del Ciclo de Vida de una Activity
+
+Escribe el código de una Activity que registre en el Logcat cada evento del ciclo de vida.
+
+**Requisitos:**
+1. Clase `MainActivity` que extienda `AppCompatActivity`
+2. Override de todos los métodos del ciclo de vida: `onCreate`, `onStart`, `onResume`, `onPause`, `onStop`, `onDestroy`
+3. Cada método debe llamar a `super` y registrar un mensaje con `Log.d`
+4. Usa la tag `"CicloDeVida"` para todos los logs
+5. En `onCreate`, configura el layout con `setContentView`
+
+**Ejemplo de salida en Logcat:**
+```
+D/CicloDeVida: onCreate ejecutado
+D/CicloDeVida: onStart ejecutado
+D/CicloDeVida: onResume ejecutado
+```""",
+            "initial_code": """import android.os.Bundle
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    // Implementa los métodos del ciclo de vida
+
+}""",
+            "solution_code": """import android.os.Bundle
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    private val TAG = "CicloDeVida"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        Log.d(TAG, "onCreate ejecutado")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart ejecutado")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume ejecutado")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause ejecutado")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop ejecutado")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy ejecutado")
+    }
+}""",
+            "hints": "Siempre llama a `super.onX()` al inicio de cada método. Usa `companion object` o `private val` para la constante TAG.",
+        },
+    ],
+    "Consumo de APIs REST y Manejo de JSON": [
+        {
+            "title": "Modelo de Datos para API",
+            "difficulty": "medium",
+            "description": """## Modelo de Datos para una API REST
+
+Crea las data classes necesarias para representar la respuesta de una API de usuarios.
+
+**JSON de la API:**
+```json
+{
+  "status": "success",
+  "data": {
+    "users": [
+      {
+        "id": 1,
+        "name": "Juan Pérez",
+        "email": "juan@email.com",
+        "active": true,
+        "roles": ["admin", "editor"]
+      }
+    ],
+    "total": 50,
+    "page": 1
+  }
+}
+```
+
+**Requisitos:**
+1. Data class `User` con las propiedades del JSON
+2. Data class `UsersData` con la lista de usuarios, total y page
+3. Data class `ApiResponse` con status y data
+4. Función `filtrarActivos(response: ApiResponse): List<User>` que retorne solo usuarios activos
+5. Función `buscarPorRol(response: ApiResponse, rol: String): List<User>` que filtre por rol""",
+            "initial_code": """// Define tus data classes aquí
+
+data class User(
+    // ...
+)
+
+// Define las demás clases y funciones
+
+fun main() {
+    // Crea datos de prueba y verifica tus funciones
+}""",
+            "solution_code": """data class User(
+    val id: Int,
+    val name: String,
+    val email: String,
+    val active: Boolean,
+    val roles: List<String>
+)
+
+data class UsersData(
+    val users: List<User>,
+    val total: Int,
+    val page: Int
+)
+
+data class ApiResponse(
+    val status: String,
+    val data: UsersData
+)
+
+fun filtrarActivos(response: ApiResponse): List<User> =
+    response.data.users.filter { it.active }
+
+fun buscarPorRol(response: ApiResponse, rol: String): List<User> =
+    response.data.users.filter { rol in it.roles }
+
+fun main() {
+    val response = ApiResponse(
+        status = "success",
+        data = UsersData(
+            users = listOf(
+                User(1, "Juan", "juan@email.com", true, listOf("admin")),
+                User(2, "María", "maria@email.com", false, listOf("editor")),
+                User(3, "Pedro", "pedro@email.com", true, listOf("admin", "editor"))
+            ),
+            total = 3, page = 1
+        )
+    )
+    println("Activos: ${filtrarActivos(response).map { it.name }}")
+    println("Admins: ${buscarPorRol(response, "admin").map { it.name }}")
+}""",
+            "hints": "Las data classes en Kotlin generan automáticamente equals(), hashCode(), toString() y copy(). Usa `in` para verificar si un elemento está en una lista.",
+        },
+    ],
+}
+
+
+# ──────────────────────────────────────────────
 # LOGROS
 # ──────────────────────────────────────────────
 
@@ -2792,7 +3246,31 @@ async def seed():
         await db.flush()
         print(f"  {total_questions} preguntas de quiz creadas")
 
-        # 5. Create achievements
+        # 5. Create coding challenges
+        total_challenges = 0
+        for topic_title, challenges in CODING_CHALLENGES.items():
+            topic = topic_map.get(topic_title)
+            if not topic:
+                print(f"  ⚠ Tema no encontrado para desafío: {topic_title}")
+                continue
+            for idx, c_data in enumerate(challenges):
+                challenge = CodingChallenge(
+                    topic_id=topic.id,
+                    title=c_data["title"],
+                    description=c_data["description"],
+                    initial_code=c_data.get("initial_code"),
+                    language=c_data.get("language", "kotlin"),
+                    difficulty=c_data.get("difficulty", "medium"),
+                    hints=c_data.get("hints"),
+                    solution_code=c_data.get("solution_code"),
+                    order_index=idx,
+                )
+                db.add(challenge)
+                total_challenges += 1
+        await db.flush()
+        print(f"  {total_challenges} desafíos de programación creados")
+
+        # 6. Create achievements
         for a_data in ACHIEVEMENTS:
             # Set condition_module_id for "Maestro de Kotlin"
             if a_data["name"] == "Maestro de Kotlin":
@@ -2816,6 +3294,7 @@ async def seed():
         print(f"  {len(MODULES)} módulos")
         print(f"  {sum(len(t) for t in TOPICS_BY_MODULE.values())} temas")
         print(f"  {total_questions} preguntas de quiz")
+        print(f"  {total_challenges} desafíos de programación")
         print(f"  {len(ACHIEVEMENTS)} logros")
         print(f"  1 usuario admin ({settings.ADMIN_EMAIL})")
 

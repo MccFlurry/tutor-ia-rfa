@@ -42,17 +42,19 @@ REGLAS ESTRICTAS:
 6. Todo debe estar en español.
 7. Las preguntas deben evaluar comprensión, no memorización textual.
 8. Varía la dificultad: incluye preguntas fáciles, intermedias y difíciles.
-9. Responde ÚNICAMENTE con un array JSON válido, sin texto adicional.
+9. Responde ÚNICAMENTE con un objeto JSON con la clave "questions".
 
-FORMATO DE RESPUESTA (JSON array):
-[
-  {{
-    "question_text": "¿Pregunta aquí?",
-    "options": ["Opción A", "Opción B", "Opción C", "Opción D"],
-    "correct_option_index": 0,
-    "explanation": "Explicación breve de por qué es correcta."
-  }}
-]"""
+FORMATO DE RESPUESTA (JSON objeto):
+{{
+  "questions": [
+    {{
+      "question_text": "¿Pregunta aquí?",
+      "options": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "correct_option_index": 0,
+      "explanation": "Explicación breve de por qué es correcta."
+    }}
+  ]
+}}"""
 
 
 def _truncate_content(content: str, max_chars: int = 3500) -> str:
@@ -79,6 +81,13 @@ def _parse_llm_response(raw: str, num_questions: int) -> list[GeneratedQuestion]
             data = json.loads(match.group())
         else:
             raise QuizGenerationError(f"LLM devolvió JSON inválido: {e}")
+
+    # Handle wrapper object: {"questions": [...]}
+    if isinstance(data, dict):
+        if "questions" in data and isinstance(data["questions"], list):
+            data = data["questions"]
+        else:
+            raise QuizGenerationError("LLM devolvió un objeto JSON sin la clave 'questions'")
 
     if not isinstance(data, list):
         raise QuizGenerationError("LLM no devolvió un array JSON")
@@ -132,7 +141,7 @@ async def generate_quiz_questions(
     if len(topic_content.strip()) < 100:
         raise QuizGenerationError("Contenido del tema demasiado corto para generar preguntas")
 
-    truncated = _truncate_content(topic_content)
+    truncated = _truncate_content(topic_content, max_chars=2500)
 
     system_prompt = QUIZ_SYSTEM_PROMPT.format(num_questions=num_questions)
     human_prompt = f"--- CONTENIDO DE LA LECCIÓN ---\n\n{truncated}\n\n--- FIN DEL CONTENIDO ---\n\nGenera {num_questions} preguntas de autoevaluación basadas en este contenido."
@@ -142,7 +151,8 @@ async def generate_quiz_questions(
             base_url=settings.OLLAMA_BASE_URL,
             model=settings.OLLAMA_MODEL,
             temperature=0.7,
-            num_ctx=4096,
+            num_ctx=8192,
+            num_predict=4096,
             format="json",
         )
 

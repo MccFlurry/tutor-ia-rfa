@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ChevronRight, ChevronLeft, ArrowRight, CheckCircle2, FileQuestion } from 'lucide-react'
+import { ChevronRight, ChevronLeft, ArrowRight, CheckCircle2, FileQuestion, Code2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { topicsApi } from '@/api/topics'
+import { codingApi } from '@/api/coding'
 import { modulesApi } from '@/api/modules'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -21,6 +22,13 @@ export default function TopicPage() {
   const { data: topic, isLoading } = useQuery({
     queryKey: ['topic', topicId],
     queryFn: () => topicsApi.get(topicId).then((r) => r.data),
+    enabled: !!id,
+  })
+
+  // Check for coding challenges
+  const { data: codingData } = useQuery({
+    queryKey: ['coding-topic', topicId],
+    queryFn: () => codingApi.getChallengesForTopic(topicId).then((r) => r.data),
     enabled: !!id,
   })
 
@@ -173,6 +181,17 @@ export default function TopicPage() {
             Ir a la Autoevaluación
           </Button>
         )}
+        {codingData?.has_challenges && codingData.challenges.map((ch) => (
+          <Button
+            key={ch.id}
+            onClick={() => navigate(`/coding/${ch.id}`)}
+            variant="outline"
+            className="border-primary-300 text-primary-700 hover:bg-primary-50"
+          >
+            <Code2 className="w-4 h-4 mr-2" />
+            {ch.title}
+          </Button>
+        ))}
       </div>
 
       {/* Prev / Next navigation */}
