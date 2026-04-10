@@ -24,7 +24,9 @@
       "Bash(ollama pull:*)",
       "Bash(docker stop:*)",
       "Bash(nvidia-smi:*)",
-      "Bash(docker cp:*)"
+      "Bash(docker cp:*)",
+      "Bash(xargs -I {} basename {})",
+      "Read(//tmp/**)"
     ]
   }
 }
