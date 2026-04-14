@@ -26,7 +26,8 @@
       "Bash(nvidia-smi:*)",
       "Bash(docker cp:*)",
       "Bash(xargs -I {} basename {})",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(python -m scripts \"C:/tutor-ia-rfa/CLAUDE.md\")"
     ]
   }
 }

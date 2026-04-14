@@ -1,18 +1,18 @@
 # CLAUDE.md — Tutor IA Generativa · Aplicaciones Móviles IESTP RFA
 
-Tesis pregrado USAT. STI con RAG privado para curso Apps Móviles (Android/Kotlin) del IESTP "República Federal de Alemania", Chiclayo.
+Tesis pregrado USAT. STI con RAG privado para curso de Apps Móviles (Android/Kotlin) del IESTP "República Federal de Alemania", Chiclayo.
 
 Estudiantes: estudian 5 módulos, consultan tutor IA privado (RAG), autoevalúan, ven progreso gamificado.
 
 **Reglas absolutas:**
 - LLM 100% privado vía Ollama. Nunca APIs pagas (OpenAI/Anthropic/Gemini).
-- Conocimiento dominio solo vía RAG.
-- UI **español peruano**.
-- Evaluación: ISO/IEC 25010 + SUS ≥68, 10-15 estudiantes piloto.
+- Conocimiento de dominio solo via RAG.
+- UI en **español peruano**.
+- Evaluación: ISO/IEC 25010 + SUS ≥68, con 10-15 estudiantes piloto.
 
 ---
 
-## 🏗️ STACK
+## �� STACK
 
 **Frontend:** React 18 + Vite + TypeScript, Tailwind 3, shadcn/ui, Zustand, TanStack Query, React Router v6, react-hot-toast, Lucide. Deploy: Firebase Hosting.
 
@@ -32,7 +32,7 @@ Estudiantes: estudian 5 módulos, consultan tutor IA privado (RAG), autoevalúan
 
 ---
 
-## 📁 ESTRUCTURA
+## � ESTRUCTURA
 
 ```
 tutor-ia-rfa/
@@ -74,7 +74,7 @@ tutor-ia-rfa/
 
 ---
 
-## 🗄️ ESQUEMA BD
+## 🗄� ESQUEMA BD
 
 Pre-req: `CREATE EXTENSION IF NOT EXISTS vector;`
 
@@ -108,9 +108,9 @@ document_chunks(id UUID PK, document_id FK, content, embedding vector(1024), chu
 coding_challenges(id, topic_id FK, title, description, difficulty, hints, reference_solution, ...)
 coding_submissions(id, user_id FK, challenge_id FK, code, score, feedback, strengths, improvements, submitted_at)
 
--- ÍNDICES
+-- �NDICES
 CREATE INDEX idx_chunks_embedding ON document_chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 50);
--- ⚠️ Crear DESPUÉS de ingestar datos. lists ≈ sqrt(n_chunks)
+-- ⚠� Crear DESPUÉS de ingestar datos. lists ≈ sqrt(n_chunks)
 CREATE INDEX idx_user_progress_user/topic, idx_quiz_attempts_user, idx_chat_messages_session, idx_document_chunks_document;
 ```
 
@@ -142,7 +142,7 @@ Auth: `Authorization: Bearer <access_token>` (excepto `/auth/login`, `/auth/regi
 - `POST /{id}/visit`, `POST /{id}/complete`, `POST /{id}/time` body `{seconds}`
 
 ### `/quiz` (IA genera preguntas, fallback BD estática)
-- `GET /topic/{topic_id}` → `{session_id, questions}` (LLM genera, respuestas Redis TTL 30min)
+- `GET /topic/{topic_id}` → `{session_id, questions}` (LLM genera, respuestas en Redis TTL 30min)
 - `POST /topic/{topic_id}/submit` body `{session_id, answers}` → `{score, is_passed, feedback, attempt_id}` · 410=sesión expirada, 503=servicio caído
 - `GET /topic/{topic_id}/history`
 
@@ -181,7 +181,7 @@ Auth: `Authorization: Bearer <access_token>` (excepto `/auth/login`, `/auth/regi
 1. Chequear caché Redis `rag:{hash(question)}`
 2. `OllamaEmbeddings(mxbai-embed-large).aembed_query(question)` → vec[1024]
 3. pgvector cosine search: `1 - (embedding <=> :query_vec::vector) AS similarity`, threshold 0.70, top 5
-4. Sin chunks → mensaje educativo rechazo
+4. Si no chunks → mensaje educativo de rechazo
 5. Build context (chunks con fuente) + history (últimas 5 rondas)
 6. `OllamaLLM(qwen2.5:7b-instruct-q4_K_M, temperature=0.3, num_ctx=4096).ainvoke(prompt)`
 7. Sources con similarity≥0.75 → `{content_preview, document_name, similarity}`
@@ -201,10 +201,10 @@ Auth: `Authorization: Bearer <access_token>` (excepto `/auth/login`, `/auth/regi
 7. status='active', chunk_count=N · o 'error' con mensaje
 
 ### `services/llm_service.py` (Quiz IA)
-ChatOllama con `format="json"`, `temperature=0.7`. Prompt español genera N preguntas. ⚠️ **Usar wrapper `{"questions":[...]}`** no array desnudo (incompatible con format=json). Parser maneja ambos. Trunca contenido 3500 chars.
+ChatOllama con `format="json"`, `temperature=0.7`. Prompt español genera N preguntas. ⚠� **Usar wrapper `{"questions":[...]}`** no array desnudo (incompatible con format=json). Parser maneja ambos. Trunca contenido a 3500 chars.
 
 ### `services/code_eval_service.py`
-LLM evalúa código. Criterios: corrección 40%, buenas prácticas 25%, eficiencia 20%, legibilidad 15%. Score 0-100 + feedback Markdown + strengths + improvements. `format="json"`. Solución referencia como guía, no única válida.
+LLM evalúa código. Criterios: corrección 40%, buenas prácticas 25%, eficiencia 20%, legibilidad 15%. Score 0-100 + feedback Markdown + strengths + improvements. `format="json"`. Solución de referencia como guía, no única válida.
 
 ---
 
@@ -227,7 +227,7 @@ npx shadcn@latest add button card input label progress badge dialog tabs toast s
 - **DashboardPage:** saludo, hero "Continuar donde lo dejaste", círculo animado progreso, 3 recomendaciones, 3 logros recientes
 - **ModulesPage:** grid responsivo 1/2/3 cols, ModuleCard con progreso, bloqueados grayscale+candado+tooltip
 - **ModuleDetailPage:** header+progress, breadcrumb, lista temas (✅ verde completado / 🔵 azul pulsante en progreso / ⬜ gris pendiente)
-- **TopicPage:** breadcrumb, panel lateral "Consultar Tutor IA" (modal), área Markdown (react-markdown + remark-gfm + react-syntax-highlighter vscDarkPlus + botón copiar), iframe YouTube 16:9, barra fija "← Anterior | X de Y | Siguiente →", botón "Ir a Autoevaluación" o "Marcar completado", botones desafíos código
+- **TopicPage:** breadcrumb, panel lateral "Consultar Tutor IA" (modal), área Markdown (react-markdown + remark-gfm + react-syntax-highlighter vscDarkPlus + botón copiar), iframe YouTube 16:9, barra fija "� Anterior | X de Y | Siguiente →", botón "Ir a Autoevaluación" o "Marcar completado", botones de desafíos de código
 - **ChatPage:** 2 columnas (sidebar sesiones + chat). Burbujas user-der azul / tutor-izq gris. Markdown renderizado. Fuentes colapsables. "✦ escribiendo...". Contador "X de 20 consultas/hora". Textarea auto-grow, Enter envía, Shift+Enter nueva línea
 - **ProgressPage:** 3 tarjetas métricas, barras por módulo, grid logros, historial
 - **AdminPage:** tabs [Corpus RAG | Contenido | Usuarios]. RAG: tabla docs, drag&drop upload, estado procesando. Contenido: árbol colapsable Módulo→Temas→Preguntas+Coding con CRUD
@@ -246,18 +246,18 @@ npx shadcn@latest add button card input label progress badge dialog tabs toast s
 
 **22 temas totales** distribuidos: M1=4, M2=5, M3=4, M4=5, M5=4. Cada uno: title, estimated_minutes (10-35), has_quiz (true/false). Ver `backend/scripts/seed_db.py` para contenido Markdown completo con código Kotlin.
 
-**7 logros:** Primer Paso 🚀 (first_topic=1), Finalizador Módulo 🏆 (module_completed=1), Racha 7 Días 🔥 (streak_days=7), Explorador Tutor IA 🤖 (chat_messages=10), Maestro Kotlin ⚡ (module_completed=2 mod_id=2), Quiz Perfecto 💯 (quiz_perfect=100), Desarrollador Completo 🎓 (course_completed=100).
+**7 logros:** Primer Paso 🚀 (first_topic=1), Finalizador Módulo � (module_completed=1), Racha 7 Días 🔥 (streak_days=7), Explorador Tutor IA 🤖 (chat_messages=10), Maestro Kotlin ⚡ (module_completed=2 mod_id=2), Quiz Perfecto 💯 (quiz_perfect=100), Desarrollador Completo 🎓 (course_completed=100).
 
 **7 desafíos coding** (M2 y M4): Calculadora Promedio (fácil), Clasificador Triángulos (medio), Filtro con Lambda (medio), Sistema Inventario OOP (medio), Figuras Polimorfismo (difícil), Logger Ciclo Vida (fácil), Modelo Datos API (medio).
 
 ---
 
-## 🐳 DOCKER COMPOSE (dev)
+## � DOCKER COMPOSE (dev)
 
 Servicios clave:
 - **postgres:** `pgvector/pgvector:pg16`, DB `tutordb`, user `tutor_user`, pass `tutor_pass_dev`, healthcheck pg_isready
 - **redis:** `redis:7-alpine`, `--maxmemory 256mb --maxmemory-policy allkeys-lru`
-- **ollama:** `ollama/ollama:latest`, vol `ollama_data:/root/.ollama`. **⚠️ Dev Windows: Ollama nativo via `host.docker.internal:11434` para GPU. Contenedor comentado.**
+- **ollama:** `ollama/ollama:latest`, vol `ollama_data:/root/.ollama`. **⚠� En dev Windows: Ollama nativo via `host.docker.internal:11434` para GPU. Contenedor comentado.**
 - **backend:** FastAPI, hot reload. Command: `alembic upgrade head && python scripts/seed_db.py && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload`
 - **frontend:** React Vite dev server puerto 5173, `VITE_API_BASE_URL=http://localhost:8000/api/v1`
 
@@ -271,7 +271,7 @@ ollama pull mxbai-embed-large            # ~670MB
 
 ---
 
-## ⚙️ VARIABLES (`.env.example`)
+## ⚙� VARIABLES (`.env.example`)
 
 ```
 DATABASE_URL=postgresql+asyncpg://tutor_user:tutor_pass_dev@localhost:5432/tutordb
@@ -322,7 +322,7 @@ ADMIN_NAME=Administrador del Sistema
 ## 🚀 FASES
 
 ### ✅ FASE 1 — Infraestructura y BD
-Estructura, docker-compose con pgvector/redis/ollama, config.py + database.py async, todos modelos SQLAlchemy, migración inicial Alembic con `CREATE EXTENSION vector`, React+Vite+TS+Tailwind+shadcn en frontend. `docker compose up` funciona.
+Estructura, docker-compose con pgvector/redis/ollama, config.py + database.py async, todos los modelos SQLAlchemy, migración inicial Alembic con `CREATE EXTENSION vector`, React+Vite+TS+Tailwind+shadcn en frontend. `docker compose up` funciona.
 
 ### ✅ FASE 2 — Autenticación
 `security.py` JWT+bcrypt, `auth_service.py`, `routers/auth.py`, `dependencies.py` (get_db, get_current_user, get_redis, require_admin). Frontend: `LoginPage` con toggle registro + brute-force protection (3 intentos+lockout 5min), `authStore` Zustand+localStorage, `api/client.ts` interceptor 401, `AuthGuard` con requireAdmin.
@@ -331,7 +331,7 @@ Estructura, docker-compose con pgvector/redis/ollama, config.py + database.py as
 `setup_ollama.sh`, `seed_db.py` (5 módulos + 22 temas Markdown completo + 25+ preguntas + 7 logros + admin). `routers/modules.py` + `topics.py`. Frontend: `ModulesPage`, `ModuleDetailPage`, `TopicPage`, `ContentRenderer` (react-markdown + remark-gfm), `CodeBlock` (syntax+copy), layout (AppLayout/Sidebar/Navbar), shadcn components.
 
 ### ✅ FASE 4 — Progreso, Quiz IA, Logros
-`progress_service.py`, `achievement_service.py` (7 tipos auto-detect), `llm_service.py` (Ollama quizzes JSON), `routers/quiz.py` (GET genera vía LLM→Redis TTL 30min, POST evalúa, fallback BD estática si Ollama caído, sesiones single-use), `progress.py`, `achievements.py`. Frontend: `QuizPage` ("IA está preparando...", retry genera NUEVAS, 410→auto-regenera), `QuizQuestion`, `QuizResults`, `ProgressPage` (4 cards + barras + logros + actividad), `AchievementsPage`.
+`progress_service.py`, `achievement_service.py` (7 tipos auto-detect), `llm_service.py` (Ollama quizzes JSON), `routers/quiz.py` (GET genera via LLM→Redis TTL 30min, POST evalúa, fallback BD estática si Ollama caído, sesiones single-use), `progress.py`, `achievements.py`. Frontend: `QuizPage` ("IA está preparando...", retry genera NUEVAS, 410→auto-regenera), `QuizQuestion`, `QuizResults`, `ProgressPage` (4 cards + barras + logros + actividad), `AchievementsPage`.
 
 ### ✅ FASE 5 — Tutor IA Conversacional RAG
 `embed_service.py` singleton mxbai, `ingest_service.py` (parse→clean→chunk→embed→pgvector), `rag_service.py` (embed→pgvector cosine top5 ≥0.70→prompt aumentado con historial→qwen2.5→cache Redis TTL 1h). `routers/chat.py`: CRUD sesiones, POST mensaje con RAG, rate limit Redis 20/h→429, fuentes ≥0.75, `GET /remaining`, título auto desde primer msg, integra achievement. Frontend: `ChatPage` + `ChatMessage` (Markdown+syntax), `ChatSources` (colapsable %relevancia), `TypingIndicator`, sidebar sesiones, input Enter/Shift+Enter, contador, optimistic updates.
@@ -350,114 +350,16 @@ Frontend: `CodingChallengePage` split (izq: problem Markdown + hints + resultado
 
 7 desafíos seeded. `topic_completion_service.py`: tema con quiz+coding → AMBOS deben aprobarse (quiz ≥60%, coding ≥60pts). Quiz submit y coding submit ambos llaman `check_and_complete_topic()`. `TopicListItem` muestra ícono "Desafío de Código". `has_coding_challenge` en TopicBrief schema con query agrupada.
 
-### ⏳ FASE 6 — Personalización vía CRISP-DM (NUEVA)
+### � FASE 6 — Dashboard Completo y Admin
+- `routers/dashboard.py` con agregación (último tema, recomendaciones, logros recientes)
+- `DashboardPage` mejorado: banner "Continuar...", recomendaciones
+- `routers/admin.py`: CRUD módulos/temas/quiz/coding, **botón "Generar desafío con IA"** (LLM analiza tema→genera→profesor aprueba), upload docs multipart + BackgroundTasks, gestión users, reprocesar docs error
+- `AdminPage` tabs [Corpus RAG | Contenido | Usuarios] con árbol colapsable y drag&drop
 
-**Objetivo:** Evaluación de entrada generada por IA asigna nivel (`beginner` | `intermediate` | `advanced`). LLM adapta dificultad de quizzes + coding challenges al nivel del estudiante. Re-asignación dinámica según desempeño.
-
-#### 1️⃣ Business Understanding
-- Problema: estudiantes con distinto nivel reciben mismos ejercicios → desmotivación + aprendizaje subóptimo
-- Meta: diferenciar dificultad por nivel, medir progreso adaptativo
-- Niveles: `beginner` | `intermediate` | `advanced`
-- KPIs éxito: SUS ≥68, tasa completación por nivel, accuracy clasificador vs juicio docente, re-asignaciones correctas
-
-#### 2️⃣ Data Understanding
-Datos a capturar:
-- **Evaluación entrada:** respuestas + tiempo por pregunta + cobertura por módulo (M1-M5)
-- **Señales continuas:** quiz scores, intentos por quiz, coding scores, tiempo por tema, consultas al tutor
-- **Metadata:** fecha, ID tema/módulo, tipo pregunta (conceptual | código | aplicación)
-
-#### 3️⃣ Data Preparation
-**Nuevas tablas** (migración `003_add_personalization.py`):
-```sql
-user_levels(user_id UUID PK FK, level VARCHAR(20), entry_score FLOAT, assessed_at, last_reassessed_at, history JSONB)
-
-entry_assessment_sessions(id UUID PK, user_id FK, questions JSONB, answers JSONB, score FLOAT, computed_level, created_at)
-
--- Fallback docente (solo si LLM falla)
-entry_assessment_bank(id SERIAL PK, module_id FK, question_text, options JSONB, correct_index, difficulty 'easy'|'medium'|'hard', created_by FK, is_active)
-```
-
-**Feature engineering:**
-- `overall_entry_score` (0-100) = Σ (correctas × peso_módulo × peso_dificultad)
-- Pesos módulo: M1=1.0, M2=1.2, M3=1.1, M4=1.3, M5=1.5
-- Pesos dificultad: easy=1.0, medium=1.5, hard=2.0
-- **Umbrales nivel:** `<40` beginner · `40-75` intermediate · `>75` advanced
-
-Índices: `user_id`, `computed_level`, `module_id` en bank.
-
-#### 4️⃣ Modeling
-**Clasificador de nivel (rule-based v1):**
-- Input: respuestas entrada + pesos
-- Output: `{level, score, confidence}`
-- Algoritmo: score ponderado → umbrales fijos
-- v2 futuro: scikit-learn classifier si piloto genera data suficiente
-
-**Prompt engineering adaptativo:**
-- `llm_service.py` + `code_eval_service.py` reciben parámetro `student_level`
-- Diferenciación:
-  - `beginner`: preguntas conceptuales, código sintaxis básica, pistas explícitas, 1 concepto por pregunta
-  - `intermediate`: aplicación práctica, lógica moderada, menos pistas, combinar 2 conceptos
-  - `advanced`: edge cases, optimización, sin pistas, diseño + refactor, patrones avanzados
-- Coding eval: criterios más estrictos en buenas prácticas/eficiencia para nivel alto
-
-#### 5️⃣ Evaluation
-**Métricas:**
-- Accuracy clasificador vs juicio docente (muestra 10-15 estudiantes piloto)
-- Distribución niveles (detectar sesgo a un solo bucket)
-- Correlación nivel ↔ avg quiz/coding score (debe ser positiva)
-
-**Reglas re-asignación automática:**
-- 3 quizzes consecutivos ≥90% → proponer subir nivel
-- 3 quizzes consecutivos <50% → proponer bajar nivel
-- Estudiante confirma (o admin override)
-- Registro en `user_levels.history`
-
-#### 6️⃣ Deployment
-**Backend:**
-1. `models/user_level.py`, `models/entry_assessment.py`, `models/assessment_bank.py`
-2. Migración Alembic `003_add_personalization.py`
-3. `services/entry_assessment_service.py`:
-   - `generate_assessment()` → LLM crea 10-15 preguntas cubriendo M1-M5 con dificultad mixta, `format="json"`, wrapper `{"questions":[...]}`
-   - Fallback: muestrear de `entry_assessment_bank` si Ollama falla/timeout
-4. `services/leveling_service.py`:
-   - `compute_level(answers, weights)` → `{level, score, confidence}`
-   - `check_reassessment(user_id, db)` → evalúa últimos N quizzes, retorna propuesta
-   - Integra con `achievement_service` (logro "Subiste de nivel")
-5. **Endpoints nuevos:**
-   - `POST /assessment/start` → `{session_id, questions}` (LLM o fallback)
-   - `POST /assessment/submit` body `{session_id, answers}` → `{level, score, feedback_por_modulo}`
-   - `GET /users/me/level` → nivel actual + historial
-   - `POST /users/me/reassess` → dispara evaluación nueva
-   - `GET/POST/PUT/DELETE /admin/assessment-bank` (CRUD fallback)
-6. Modificar `llm_service.py` y `code_eval_service.py`: aceptar `student_level`, adaptar prompts
-7. Modificar `routers/quiz.py` + `routers/coding.py`: leer `user_level`, pasar a servicios LLM
-
-**Frontend:**
-- `EntryAssessmentPage.tsx`: wizard multi-paso con preguntas IA, barra progreso, "La IA está analizando tu nivel..." al final, resultado con gráfica por módulo
-- **Redirect forzado post-login:** si `user.level IS NULL` → `/assessment` antes de dashboard
-- Badge nivel en `Navbar` (color-coded: gris/azul/morado)
-- `ReassessmentModal.tsx`: propuesta subir/bajar tras N quizzes
-- Panel admin:
-  - Tab "Banco Fallback": CRUD preguntas por módulo/dificultad
-  - Tab "Niveles Estudiantes": tabla con nivel actual, historial, botón override
-
-**Verificación:**
-- Nuevo usuario registra → forzado a evaluación → LLM genera preguntas únicas → responde → nivel asignado
-- Quiz siguiente adapta dificultad según nivel (verificar prompts diferenciados en logs)
-- Tras 3 quizzes ≥90% → modal propone subir nivel
-- Si Ollama down durante evaluación → fallback usa banco del docente
-- Admin ve tabla niveles + puede hacer override manual
-
-### ⏳ FASE 7 — Dashboard Completo y Admin
-- `routers/dashboard.py` con agregación (último tema, recomendaciones, logros recientes, **nivel del estudiante**)
-- `DashboardPage` mejorado: banner "Continuar...", recomendaciones **por nivel**, progreso
-- `routers/admin.py`: CRUD módulos/temas/quiz/coding, **botón "Generar desafío con IA"** (LLM analiza tema+nivel→genera→profesor aprueba), upload docs multipart + BackgroundTasks, gestión users (incluye nivel), reprocesar docs error
-- `AdminPage` tabs [Corpus RAG | Contenido | Usuarios | Banco Fallback | Niveles] con árbol colapsable y drag&drop
-
-### ⏳ FASE 8 — Calidad y Piloto
+### � FASE 7 — Calidad y Piloto
 - slowapi global 100 req/min/IP
 - loguru JSON estructurado para prod
-- Unit tests: auth/rag/progress/llm/code_eval/**entry_assessment/leveling**. Integration: auth/chat/modules/quiz/coding/**assessment**
+- Unit tests: auth/rag/progress/llm/code_eval. Integration: auth/chat/modules/quiz/coding
 - Lighthouse Performance ≥70, Accessibility ≥85
 - Responsivo 375/768/1440px
 - Firebase Hosting + Cloud Run deploy
@@ -473,7 +375,7 @@ entry_assessment_bank(id SERIAL PK, module_id FK, question_text, options JSONB, 
 - [x] Flujo estudiante: registro→login→módulo→tema→quiz→progreso
 - [x] Quizzes IA únicos cada intento
 - [x] Fallback quiz BD si Ollama caído
-- [x] 7 tipos logros auto-otorgan
+- [x] 7 tipos de logros auto-otorgan
 - [x] Tutor IA responde con corpus RAG
 - [x] Respuestas citan fuentes
 - [x] Rechaza off-topic con mensaje educativo
@@ -482,11 +384,6 @@ entry_assessment_bank(id SERIAL PK, module_id FK, question_text, options JSONB, 
 - [x] Indicador "Desafío Código" en lista temas
 - [ ] Admin sube PDF→procesa→chunks en BD
 - [ ] Admin CRUD desafíos coding
-- [ ] Evaluación entrada IA genera preguntas únicas → asigna nivel
-- [ ] Fallback banco docente activa si Ollama cae
-- [ ] Quizzes y coding adaptan dificultad al nivel del estudiante
-- [ ] Re-asignación automática tras 3 quizzes consecutivos ≥90% o <50%
-- [ ] Admin ve tabla niveles + override manual
 - [ ] Lighthouse Performance ≥70 en ModulesPage
 - [ ] Funcional en 375px
 - [x] Textos UI en español
@@ -496,7 +393,7 @@ entry_assessment_bank(id SERIAL PK, module_id FK, question_text, options JSONB, 
 
 ---
 
-## ⚠️ ADVERTENCIAS CLAVE
+## ⚠� ADVERTENCIAS CLAVE
 
 **LLM/Hardware:** `qwen2.5:7b-instruct-q4_K_M` requiere ≥6GB RAM libre. VM e2-standard-2 (8GB total) funciona justo. Si respuestas >20s → cambiar a `llama3.2:3b-instruct-q4_K_M` (2GB, más rápido, menor calidad). Dev local sin GPU es lento, normal.
 
