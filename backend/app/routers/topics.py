@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 from app.database import get_db
 from app.dependencies import get_current_user
@@ -10,6 +10,7 @@ from app.models.user import User
 from app.models.topic import Topic
 from app.models.module import Module
 from app.models.progress import UserTopicProgress
+from app.models.coding import CodingChallenge
 from app.schemas.topic import (
     TopicResponse,
     TopicModuleInfo,
@@ -86,6 +87,15 @@ async def get_topic(
             completed_at=progress.completed_at,
         )
 
+    # Check if topic has any catalogue (non-AI) coding challenges
+    coding_result = await db.execute(
+        select(func.count(CodingChallenge.id)).where(
+            CodingChallenge.topic_id == topic_id,
+            CodingChallenge.is_ai_generated == False,
+        )
+    )
+    has_coding_challenge = (coding_result.scalar() or 0) > 0
+
     return TopicResponse(
         id=topic.id,
         title=topic.title,
@@ -93,6 +103,7 @@ async def get_topic(
         video_url=topic.video_url,
         estimated_minutes=topic.estimated_minutes,
         has_quiz=topic.has_quiz,
+        has_coding_challenge=has_coding_challenge,
         order_index=topic.order_index,
         module=TopicModuleInfo(id=module.id, title=module.title),
         progress_info=progress_info,

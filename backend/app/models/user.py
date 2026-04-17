@@ -35,3 +35,5 @@ class User(Base):
     quiz_attempts = relationship("QuizAttempt", back_populates="user", cascade="all, delete-orphan")
     achievements = relationship("UserAchievement", back_populates="user", cascade="all, delete-orphan")
     chat_sessions = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
+    level_record = relationship("UserLevel", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    assessment_sessions = relationship("EntryAssessmentSession", back_populates="user", cascade="all, delete-orphan")

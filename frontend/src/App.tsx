@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { usersApi } from '@/api/users'
 import AuthGuard from '@/components/auth/AuthGuard'
+import LevelGuard from '@/components/auth/LevelGuard'
 import AppLayout from '@/components/layout/AppLayout'
 import LoginPage from '@/pages/LoginPage'
 import DashboardPage from '@/pages/DashboardPage'
@@ -15,6 +16,8 @@ import ProgressPage from '@/pages/ProgressPage'
 import AchievementsPage from '@/pages/AchievementsPage'
 import ChatPage from '@/pages/ChatPage'
 import CodingChallengePage from '@/pages/CodingChallengePage'
+import EntryAssessmentPage from '@/pages/EntryAssessmentPage'
+import AdminPage from '@/pages/AdminPage'
 
 function AppRoutes() {
   const { loadFromStorage, isAuthenticated, user, setUser, logout } = useAuthStore()
@@ -37,11 +40,23 @@ function AppRoutes() {
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/login" element={<LoginPage />} />
 
-      {/* Authenticated routes with layout */}
+      {/* Entry assessment: authenticated but no level required */}
+      <Route
+        path="/assessment"
+        element={
+          <AuthGuard>
+            <EntryAssessmentPage />
+          </AuthGuard>
+        }
+      />
+
+      {/* Authenticated routes with layout + level requirement */}
       <Route
         element={
           <AuthGuard>
-            <AppLayout />
+            <LevelGuard>
+              <AppLayout />
+            </LevelGuard>
           </AuthGuard>
         }
       >
@@ -54,6 +69,14 @@ function AppRoutes() {
         <Route path="/achievements" element={<AchievementsPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/coding/:challengeId" element={<CodingChallengePage />} />
+        <Route
+          path="/admin"
+          element={
+            <AuthGuard requireAdmin>
+              <AdminPage />
+            </AuthGuard>
+          }
+        />
       </Route>
     </Routes>
   )

@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Integer, String, Text, Float, ForeignKey
+from sqlalchemy import Integer, String, Text, Float, Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID, TIMESTAMP, JSONB
 
@@ -16,16 +16,23 @@ class CodingChallenge(Base):
         Integer, ForeignKey("topics.id", ondelete="CASCADE"), nullable=False
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=False)  # Markdown problem statement
-    initial_code: Mapped[str | None] = mapped_column(Text, nullable=True)  # Starter template
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    initial_code: Mapped[str | None] = mapped_column(Text, nullable=True)
     language: Mapped[str] = mapped_column(String(50), default="kotlin")
-    difficulty: Mapped[str] = mapped_column(String(20), default="medium")  # easy, medium, hard
+    difficulty: Mapped[str] = mapped_column(String(20), default="medium")
     hints: Mapped[str | None] = mapped_column(Text, nullable=True)
-    solution_code: Mapped[str | None] = mapped_column(Text, nullable=True)  # Reference for LLM
+    solution_code: Mapped[str | None] = mapped_column(Text, nullable=True)
     order_index: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)
     )
+
+    # Fase 6: AI personalization flags
+    is_ai_generated: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    generated_for_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=True
+    )
+    student_level: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
     # Relationships
     topic = relationship("Topic", backref="coding_challenges")

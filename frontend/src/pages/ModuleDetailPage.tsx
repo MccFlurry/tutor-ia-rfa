@@ -66,7 +66,7 @@ export default function ModuleDetailPage() {
             <Icon className="w-7 h-7" style={{ color: module.color_hex }} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">{module.title}</h1>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-institutional-700">{module.title}</h1>
             <p className="text-sm text-gray-500">{module.description}</p>
           </div>
         </div>

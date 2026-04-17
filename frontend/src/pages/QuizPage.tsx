@@ -185,7 +185,8 @@ export default function QuizPage() {
       </nav>
 
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Autoevaluación</h1>
+        <span className="heritage-accent-bar mb-3" aria-hidden="true" />
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 mb-2">Autoevaluación</h1>
         <p className="text-gray-500 text-sm">
           {topic?.title} — Responde todas las preguntas y obtén al menos 60% para aprobar.
         </p>

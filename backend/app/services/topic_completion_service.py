@@ -46,9 +46,9 @@ async def check_and_complete_topic(
 
     # Check coding challenge requirement
     coding_ok = True
-    challenges = await _get_topic_challenges(topic_id, db)
-    if challenges:
-        coding_ok = await _has_passed_all_challenges(user_id, challenges, db)
+    coding_required = await _topic_has_coding(topic_id, db)
+    if coding_required:
+        coding_ok = await _has_passed_any_coding(user_id, topic_id, db)
 
     # Both must be satisfied
     is_complete = quiz_ok and coding_ok
@@ -76,13 +76,15 @@ async def get_topic_completion_status(
         return {"quiz_required": False, "quiz_passed": False, "coding_required": False, "coding_passed": False}
 
     quiz_passed = await _has_passed_quiz(user_id, topic_id, db) if topic.has_quiz else False
-    challenges = await _get_topic_challenges(topic_id, db)
-    coding_passed = await _has_passed_all_challenges(user_id, challenges, db) if challenges else False
+    coding_required = await _topic_has_coding(topic_id, db)
+    coding_passed = (
+        await _has_passed_any_coding(user_id, topic_id, db) if coding_required else False
+    )
 
     return {
         "quiz_required": topic.has_quiz,
         "quiz_passed": quiz_passed,
-        "coding_required": len(challenges) > 0,
+        "coding_required": coding_required,
         "coding_passed": coding_passed,
     }
 
@@ -99,31 +101,40 @@ async def _has_passed_quiz(user_id: uuid.UUID, topic_id: int, db: AsyncSession) 
     return (result.scalar() or 0) > 0
 
 
-async def _get_topic_challenges(topic_id: int, db: AsyncSession) -> list:
-    """Get all coding challenges for a topic."""
+async def _topic_has_coding(topic_id: int, db: AsyncSession) -> bool:
+    """
+    A topic "requires coding" when it has at least one challenge in the
+    catalogue (static, not per-student AI copies).
+    """
     result = await db.execute(
-        select(CodingChallenge).where(CodingChallenge.topic_id == topic_id)
+        select(func.count(CodingChallenge.id)).where(
+            CodingChallenge.topic_id == topic_id,
+            CodingChallenge.is_ai_generated == False,
+        )
     )
-    return result.scalars().all()
+    return (result.scalar() or 0) > 0
 
 
-async def _has_passed_all_challenges(
+async def _has_passed_any_coding(
     user_id: uuid.UUID,
-    challenges: list,
+    topic_id: int,
     db: AsyncSession,
 ) -> bool:
-    """Check if user has passed all coding challenges (score >= 60 in at least one submission each)."""
-    for challenge in challenges:
-        result = await db.execute(
-            select(func.count(CodingSubmission.id)).where(
-                CodingSubmission.user_id == user_id,
-                CodingSubmission.challenge_id == challenge.id,
-                CodingSubmission.score >= CODING_PASS_SCORE,
-            )
+    """
+    Topic's coding requirement is met when the user has at least one
+    submission with score >= 60 on any challenge tied to this topic
+    (either a static catalogue challenge or an AI challenge generated for them).
+    """
+    result = await db.execute(
+        select(func.count(CodingSubmission.id))
+        .join(CodingChallenge, CodingChallenge.id == CodingSubmission.challenge_id)
+        .where(
+            CodingSubmission.user_id == user_id,
+            CodingChallenge.topic_id == topic_id,
+            CodingSubmission.score >= CODING_PASS_SCORE,
         )
-        if (result.scalar() or 0) == 0:
-            return False
-    return True
+    )
+    return (result.scalar() or 0) > 0
 
 
 async def _mark_completed(user_id: uuid.UUID, topic_id: int, db: AsyncSession) -> None:

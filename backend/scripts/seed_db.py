@@ -24,6 +24,7 @@ from app.models.topic import Topic
 from app.models.achievement import Achievement
 from app.models.quiz import QuizQuestion
 from app.models.coding import CodingChallenge
+from app.models.assessment_bank import EntryAssessmentBank
 from app.utils.security import hash_password
 
 
@@ -3175,6 +3176,232 @@ QUIZ_QUESTIONS = {
 }
 
 
+# ──────────────────────────────────────────────
+# BANCO DE EVALUACIÓN DE ENTRADA (fallback si Ollama falla)
+# ──────────────────────────────────────────────
+# {module_order: [{question_text, options, correct_index, difficulty}]}
+ASSESSMENT_BANK_BY_MODULE = {
+    1: [
+        {
+            "question_text": "¿Qué es Android Studio?",
+            "options": [
+                "El IDE oficial para desarrollo Android",
+                "Un emulador de celulares",
+                "Un lenguaje de programación",
+                "Una base de datos",
+            ],
+            "correct_index": 0,
+            "difficulty": "easy",
+        },
+        {
+            "question_text": "¿Cuál es el lenguaje recomendado por Google para desarrollar apps Android modernas?",
+            "options": ["Java", "Kotlin", "C++", "Swift"],
+            "correct_index": 1,
+            "difficulty": "easy",
+        },
+        {
+            "question_text": "¿Qué es el AVD Manager?",
+            "options": [
+                "Administrador de dispositivos virtuales para emular Android",
+                "Un gestor de versiones de Android",
+                "Un compilador de Kotlin",
+                "Una herramienta de diseño UI",
+            ],
+            "correct_index": 0,
+            "difficulty": "medium",
+        },
+        {
+            "question_text": "En Gradle, ¿qué archivo contiene dependencias del módulo app?",
+            "options": [
+                "settings.gradle",
+                "build.gradle del proyecto",
+                "build.gradle del módulo app",
+                "AndroidManifest.xml",
+            ],
+            "correct_index": 2,
+            "difficulty": "hard",
+        },
+    ],
+    2: [
+        {
+            "question_text": "En Kotlin, ¿qué keyword declara una variable inmutable?",
+            "options": ["var", "val", "let", "const"],
+            "correct_index": 1,
+            "difficulty": "easy",
+        },
+        {
+            "question_text": "¿Cuál es la sintaxis correcta para una función en Kotlin que suma dos enteros?",
+            "options": [
+                "fun suma(a: Int, b: Int): Int { return a + b }",
+                "function suma(a, b) { return a + b }",
+                "def suma(a: Int, b: Int) -> Int: a + b",
+                "int suma(int a, int b) { return a + b; }",
+            ],
+            "correct_index": 0,
+            "difficulty": "easy",
+        },
+        {
+            "question_text": "¿Qué hace el operador Elvis `?:` en Kotlin?",
+            "options": [
+                "Crea una lista vacía",
+                "Retorna el valor izquierdo si no es null, si no el derecho",
+                "Compara dos objetos",
+                "Lanza una excepción",
+            ],
+            "correct_index": 1,
+            "difficulty": "medium",
+        },
+        {
+            "question_text": "En Kotlin, una `data class` genera automáticamente:",
+            "options": [
+                "Solo el constructor",
+                "equals(), hashCode(), toString() y copy()",
+                "Getters y setters para Java",
+                "Solo toString()",
+            ],
+            "correct_index": 1,
+            "difficulty": "medium",
+        },
+        {
+            "question_text": "¿Cuál es la diferencia entre `lateinit` y `lazy` en Kotlin?",
+            "options": [
+                "Son equivalentes",
+                "`lateinit` solo aplica a `var` no-nulables; `lazy` inicializa al primer acceso y aplica a `val`",
+                "`lazy` solo aplica a tipos primitivos",
+                "`lateinit` se inicializa al compilar",
+            ],
+            "correct_index": 1,
+            "difficulty": "hard",
+        },
+    ],
+    3: [
+        {
+            "question_text": "¿Qué archivo define el layout visual de una pantalla en Android?",
+            "options": ["Un archivo XML en res/layout", "El archivo Kotlin de la Activity", "AndroidManifest.xml", "build.gradle"],
+            "correct_index": 0,
+            "difficulty": "easy",
+        },
+        {
+            "question_text": "¿Qué ViewGroup organiza elementos en filas y columnas flexibles?",
+            "options": ["LinearLayout", "ConstraintLayout", "FrameLayout", "ScrollView"],
+            "correct_index": 1,
+            "difficulty": "medium",
+        },
+        {
+            "question_text": "¿Qué patrón implementa RecyclerView para mostrar listas grandes eficientemente?",
+            "options": [
+                "Singleton",
+                "ViewHolder + Adapter con reciclaje de vistas",
+                "Observer",
+                "Factory",
+            ],
+            "correct_index": 1,
+            "difficulty": "medium",
+        },
+        {
+            "question_text": "Al usar ConstraintLayout, ¿qué logra el atributo `app:layout_constraintHorizontal_bias=\"0.3\"`?",
+            "options": [
+                "Mueve la vista 30 pixeles a la derecha",
+                "Posiciona la vista al 30% entre las restricciones izquierda y derecha",
+                "Hace la vista 30% más ancha",
+                "No es un atributo válido",
+            ],
+            "correct_index": 1,
+            "difficulty": "hard",
+        },
+    ],
+    4: [
+        {
+            "question_text": "¿Qué componente representa una pantalla en Android?",
+            "options": ["Fragment", "Activity", "Service", "BroadcastReceiver"],
+            "correct_index": 1,
+            "difficulty": "easy",
+        },
+        {
+            "question_text": "Para pasar datos entre dos Activities se usa:",
+            "options": [
+                "SharedPreferences",
+                "Un Intent con extras (putExtra/getExtra)",
+                "Variables globales",
+                "Archivos en almacenamiento interno",
+            ],
+            "correct_index": 1,
+            "difficulty": "easy",
+        },
+        {
+            "question_text": "¿Cuándo conviene usar SharedPreferences en lugar de SQLite?",
+            "options": [
+                "Cuando se guardan miles de registros",
+                "Para preferencias pequeñas tipo clave-valor",
+                "Para datos relacionales con múltiples tablas",
+                "Nunca; SQLite es siempre mejor",
+            ],
+            "correct_index": 1,
+            "difficulty": "medium",
+        },
+        {
+            "question_text": "En Retrofit, ¿qué anotación define un endpoint GET?",
+            "options": ["@Post", "@GET", "@Endpoint", "@Fetch"],
+            "correct_index": 1,
+            "difficulty": "medium",
+        },
+        {
+            "question_text": "¿Qué estrategia es más apropiada para operaciones de red en Android moderno?",
+            "options": [
+                "AsyncTask sincrónico",
+                "Thread.sleep en el hilo principal",
+                "Corrutinas (suspend fun) + Retrofit",
+                "Ejecutar en onCreate directamente",
+            ],
+            "correct_index": 2,
+            "difficulty": "hard",
+        },
+    ],
+    5: [
+        {
+            "question_text": "¿Qué herramienta permite ver mensajes de log en tiempo real?",
+            "options": ["Profiler", "Logcat", "Layout Inspector", "APK Analyzer"],
+            "correct_index": 1,
+            "difficulty": "easy",
+        },
+        {
+            "question_text": "JUnit se usa principalmente para:",
+            "options": [
+                "Diseñar layouts",
+                "Escribir y ejecutar pruebas unitarias",
+                "Compilar el APK",
+                "Monitorear la memoria",
+            ],
+            "correct_index": 1,
+            "difficulty": "easy",
+        },
+        {
+            "question_text": "Para publicar en Google Play el APK/AAB debe estar:",
+            "options": [
+                "Firmado con una keystore",
+                "Solo compilado en modo debug",
+                "Sin dependencias externas",
+                "Menor a 1MB",
+            ],
+            "correct_index": 0,
+            "difficulty": "medium",
+        },
+        {
+            "question_text": "¿Qué tipo de build se recomienda subir a Play Store hoy en día?",
+            "options": ["APK debug", "APK release sin firmar", "Android App Bundle (.aab) firmado", "Archivo ZIP con el código fuente"],
+            "correct_index": 2,
+            "difficulty": "medium",
+        },
+        {
+            "question_text": "Al analizar un crash con Logcat, ¿qué nivel filtra solo errores graves?",
+            "options": ["V (Verbose)", "D (Debug)", "E (Error)", "I (Info)"],
+            "correct_index": 2,
+            "difficulty": "hard",
+        },
+    ],
+}
+
+
 async def seed():
     async with AsyncSessionLocal() as db:
         # Check if already seeded
@@ -3289,6 +3516,27 @@ async def seed():
         await db.flush()
         print(f"  {len(ACHIEVEMENTS)} logros creados")
 
+        # 7. Create entry assessment bank (fallback for Fase 6 personalization)
+        total_bank = 0
+        for module_order, items in ASSESSMENT_BANK_BY_MODULE.items():
+            module = module_map.get(module_order)
+            if not module:
+                continue
+            for item in items:
+                bank_item = EntryAssessmentBank(
+                    module_id=module.id,
+                    question_text=item["question_text"],
+                    options=item["options"],
+                    correct_index=item["correct_index"],
+                    difficulty=item["difficulty"],
+                    created_by=admin.id,
+                    is_active=True,
+                )
+                db.add(bank_item)
+                total_bank += 1
+        await db.flush()
+        print(f"  {total_bank} preguntas en banco de evaluación de entrada")
+
         await db.commit()
         print("\nSeed completado exitosamente.")
         print(f"  {len(MODULES)} módulos")
@@ -3296,6 +3544,7 @@ async def seed():
         print(f"  {total_questions} preguntas de quiz")
         print(f"  {total_challenges} desafíos de programación")
         print(f"  {len(ACHIEVEMENTS)} logros")
+        print(f"  {total_bank} preguntas banco evaluación entrada")
         print(f"  1 usuario admin ({settings.ADMIN_EMAIL})")
 
 

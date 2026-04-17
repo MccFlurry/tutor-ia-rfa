@@ -27,7 +27,19 @@
       "Bash(docker cp:*)",
       "Bash(xargs -I {} basename {})",
       "Read(//tmp/**)",
-      "Bash(python -m scripts \"C:/tutor-ia-rfa/CLAUDE.md\")"
+      "Bash(python -m scripts \"C:/tutor-ia-rfa/CLAUDE.md\")",
+      "Bash(python -c \"from app.models import UserLevel, EntryAssessmentSession, EntryAssessmentBank; from app.services.leveling_service import compute_level, get_user_level, check_reassessment; from app.services.entry_assessment_service import generate_assessment; from app.routers import assessment, admin; from app.main import app; print\\('OK', len\\(app.routes\\), 'routes'\\)\")",
+      "Bash(python -m py_compile app/models/user_level.py app/models/entry_assessment.py app/models/assessment_bank.py app/services/leveling_service.py app/services/entry_assessment_service.py app/routers/assessment.py app/routers/admin.py alembic/versions/003_add_personalization.py app/schemas/assessment.py app/schemas/user_level.py app/schemas/admin_bank.py app/services/llm_service.py app/services/code_eval_service.py app/routers/quiz.py app/routers/coding.py app/routers/users.py app/main.py)",
+      "Bash(python -m py_compile app/routers/admin.py app/routers/dashboard.py app/schemas/admin.py app/schemas/dashboard.py app/services/challenge_generator_service.py app/main.py)",
+      "Bash(python \"/c/Users/meenc/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/src/ui-ux-pro-max/scripts/search.py\" \"education learning platform institute technical Peru Spanish trust professional\" --design-system -p \"Tutor IA RFA\")",
+      "Bash(python \"/c/Users/meenc/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/src/ui-ux-pro-max/scripts/search.py\" \"higher education institute academic professional trust engineering blue formal\" --design-system -p \"Tutor IA RFA\")",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(echo \"TSC_EXIT=$?\")",
+      "Bash(python -m py_compile app/models/coding.py app/routers/coding.py app/routers/modules.py app/services/coding_generator_service.py app/services/topic_completion_service.py app/schemas/coding.py alembic/versions/004_add_ai_challenge_flags.py)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/health)",
+      "Bash(docker compose *)",
+      "Bash(curl -s http://localhost:8000/api/v1/health)",
+      "Bash(curl -s -X POST http://localhost:8000/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"test.student@test.pe\",\"password\":\"Test1234!\"}')"
     ]
   }
 }

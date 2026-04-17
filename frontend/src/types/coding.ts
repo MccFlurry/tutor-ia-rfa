@@ -1,3 +1,5 @@
+import type { StudentLevel } from './assessment'
+
 export interface CodingChallenge {
   id: number
   topic_id: number
@@ -8,12 +10,14 @@ export interface CodingChallenge {
   difficulty: 'easy' | 'medium' | 'hard'
   hints: string | null
   order_index: number
+  is_ai_generated?: boolean
+  student_level?: StudentLevel | null
 }
 
-export interface TopicChallengesResponse {
-  topic_id: number
-  challenges: CodingChallenge[]
-  has_challenges: boolean
+export interface TopicChallengeForStudent {
+  challenge: CodingChallenge
+  source: 'ai' | 'fallback'
+  student_level: StudentLevel
 }
 
 export interface CodingEvaluation {

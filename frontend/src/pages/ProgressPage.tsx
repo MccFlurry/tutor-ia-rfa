@@ -51,7 +51,11 @@ export default function ProgressPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Mi Progreso</h1>
+      <header className="mb-6">
+        <span className="heritage-accent-bar mb-3" aria-hidden="true" />
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700">Mi Progreso</h1>
+        <p className="text-gray-600 mt-1">Avance, tiempo invertido y desempeño por módulo.</p>
+      </header>
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

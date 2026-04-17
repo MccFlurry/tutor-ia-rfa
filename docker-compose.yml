@@ -86,6 +86,7 @@ services:
     volumes:
       - ./backend/app:/app/app
       - ./backend/scripts:/app/scripts
+      - ./backend/alembic:/app/alembic
       - uploads_data:/app/uploads
     command: >
       sh -c "alembic upgrade head &&

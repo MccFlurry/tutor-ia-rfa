@@ -350,7 +350,7 @@ Frontend: `CodingChallengePage` split (izq: problem Markdown + hints + resultado
 
 7 desafíos seeded. `topic_completion_service.py`: tema con quiz+coding → AMBOS deben aprobarse (quiz ≥60%, coding ≥60pts). Quiz submit y coding submit ambos llaman `check_and_complete_topic()`. `TopicListItem` muestra ícono "Desafío de Código". `has_coding_challenge` en TopicBrief schema con query agrupada.
 
-### ⏳ FASE 6 — Personalización vía CRISP-DM (NUEVA)
+### ✅ FASE 6 — Personalización vía CRISP-DM (completada 2026-04-17)
 
 **Objetivo:** Evaluación de entrada generada por IA asigna nivel (`beginner` | `intermediate` | `advanced`). LLM adapta dificultad de quizzes + coding challenges al nivel del estudiante. Re-asignación dinámica según desempeño.
 
@@ -448,11 +448,38 @@ entry_assessment_bank(id SERIAL PK, module_id FK, question_text, options JSONB, 
 - Si Ollama down durante evaluación → fallback usa banco del docente
 - Admin ve tabla niveles + puede hacer override manual
 
-### ⏳ FASE 7 — Dashboard Completo y Admin
-- `routers/dashboard.py` con agregación (último tema, recomendaciones, logros recientes, **nivel del estudiante**)
-- `DashboardPage` mejorado: banner "Continuar...", recomendaciones **por nivel**, progreso
-- `routers/admin.py`: CRUD módulos/temas/quiz/coding, **botón "Generar desafío con IA"** (LLM analiza tema+nivel→genera→profesor aprueba), upload docs multipart + BackgroundTasks, gestión users (incluye nivel), reprocesar docs error
-- `AdminPage` tabs [Corpus RAG | Contenido | Usuarios | Banco Fallback | Niveles] con árbol colapsable y drag&drop
+### ✅ FASE 7 — Dashboard Completo y Admin (completada 2026-04-17)
+- `schemas/dashboard.py` + `routers/dashboard.py` con agregación (último tema, recomendaciones por nivel, logros recientes, **nivel del estudiante**)
+- `DashboardPage` rediseñado: hero `bg-brand-hero` "Continuar...", recomendaciones por nivel, 3 logros recientes, stats tabulares
+- `routers/admin.py` extendido: CRUD completo módulos/temas/quiz/coding, `services/challenge_generator_service.py` + `POST /admin/coding-challenges/generate` (LLM propone → admin aprueba), upload docs multipart + BackgroundTasks + reprocess, gestión users con rol+estado
+- `services/challenge_generator_service.py` para IA preview en admin
+- `AdminPage` 5 tabs [Corpus RAG | Contenido | Usuarios | Banco Fallback | Niveles] con árbol colapsable + tabla + upload drag & click
+
+### ✅ FASE 7.5 — Rebrand institucional + Desafíos IA per-estudiante (completada 2026-04-17)
+- **Rebrand IESTP RFA Chiclayo:**
+  - `tailwind.config.js` paleta: `primary` azul institucional, `institutional` navy, `heritage` oro (academia + Alemania), `peru` rojo. Shadows `brand-sm/md/lg`, gradientes `bg-brand-hero` + `bg-heritage-accent`, animación `fade-in-up`
+  - `index.css` CSS vars HSL + focus-visible global + prefers-reduced-motion + skip-link
+  - `public/favicon.svg` escudo navy + oro + monograma "RFA"
+  - `components/brand/BrandLogo.tsx` (compact/full/stacked + onDark)
+  - Sidebar con brand header + barra heritage + footer institucional
+  - Navbar con eyebrow "IESTP RFA · Chiclayo" + avatar iniciales + rol español
+  - Footer institucional en AppLayout
+  - LoginPage split 2-col desktop con panel hero navy + bullets + formulario card
+  - DashboardPage hero gradiente navy + logros con chips heritage
+  - Skip link WCAG + focus rings consistentes + touch 44×44
+- **Diferenciación admin (no evaluación):**
+  - `LevelGuard` bypass para rol admin
+  - `useAuth.useLogin` redirige admin → `/admin`, estudiante → `/dashboard`
+  - `LevelBadge` + `ReassessmentModal` + `EntryAssessmentPage` gated por `!isAdmin`
+- **Desafíos IA per-estudiante (migración 004):**
+  - `coding_challenges` gana `is_ai_generated`, `generated_for_user_id`, `student_level` + índices
+  - `services/coding_generator_service.py`: `get_or_generate_for_student()` genera por LLM adaptado a nivel (beginner→easy, intermediate→medium, advanced→hard); `regenerate_for_student()` fuerza uno nuevo; fallback clona catálogo seed si Ollama cae
+  - `GET /coding/topic/{id}` retorna un desafío del estudiante (AI o fallback) en vez de lista
+  - `POST /coding/topic/{id}/regenerate` genera nuevo
+  - `topic_completion_service` actualizado: coding_required = tema tiene catálogo; coding_passed = user tiene submission ≥60 en cualquier challenge del tema
+  - `routers/modules.py` + `routers/topics.py` calculan `has_coding_challenge` filtrando `is_ai_generated=false` (solo catálogo marca tema)
+  - `TopicResponse.has_coding_challenge` añadido
+  - Frontend: `TopicPage` botón llama `getForTopic` → toast si fallback → navega; `CodingChallengePage` chip "Generado con IA · nivel X" + botón "Regenerar con IA" con confirm
 
 ### ⏳ FASE 8 — Calidad y Piloto
 - slowapi global 100 req/min/IP
@@ -480,13 +507,16 @@ entry_assessment_bank(id SERIAL PK, module_id FK, question_text, options JSONB, 
 - [x] Coding con eval IA (score+feedback+strengths+improvements)
 - [x] Temas con coding requieren quiz+coding AMBOS
 - [x] Indicador "Desafío Código" en lista temas
-- [ ] Admin sube PDF→procesa→chunks en BD
-- [ ] Admin CRUD desafíos coding
-- [ ] Evaluación entrada IA genera preguntas únicas → asigna nivel
-- [ ] Fallback banco docente activa si Ollama cae
-- [ ] Quizzes y coding adaptan dificultad al nivel del estudiante
-- [ ] Re-asignación automática tras 3 quizzes consecutivos ≥90% o <50%
-- [ ] Admin ve tabla niveles + override manual
+- [x] Admin sube PDF→procesa→chunks en BD
+- [x] Admin CRUD desafíos coding (+ generador IA con preview/aprobación)
+- [x] Evaluación entrada IA genera preguntas únicas → asigna nivel
+- [x] Fallback banco docente activa si Ollama cae
+- [x] Quizzes y coding adaptan dificultad al nivel del estudiante
+- [x] Desafíos coding generados per-estudiante según nivel (fallback clona catálogo)
+- [x] Re-asignación automática tras 3 quizzes consecutivos ≥90% o <50%
+- [x] Admin ve tabla niveles + override manual
+- [x] Admin bypass de evaluación de entrada + level UI oculta
+- [x] Identidad institucional IESTP RFA Chiclayo (logo, paleta, tipografía)
 - [ ] Lighthouse Performance ≥70 en ModulesPage
 - [ ] Funcional en 375px
 - [x] Textos UI en español
@@ -516,4 +546,208 @@ entry_assessment_bank(id SERIAL PK, module_id FK, question_text, options JSONB, 
 
 ---
 
-*v2.0 — Stack optimizado presupuesto pregrado individual.*
+## 🧪 VALIDACIONES DEL SISTEMA
+
+Matriz de pruebas por flujo. Cada ítem debe reproducirse end-to-end antes de declarar piloto listo.
+
+### ✅ Resultados de validación end-to-end (ejecutada 2026-04-17)
+
+Stack levantado (`docker compose up -d postgres redis backend`) + migración 004 aplicada manualmente (nota: `docker-compose.yml` ahora monta `./backend/alembic` para evitar perder migraciones futuras) + curl contra `http://localhost:8000/api/v1`:
+
+| Ítem | Estado | Evidencia |
+|------|--------|-----------|
+| V1.1 Registro estudiante | ✅ | `POST /auth/register` → user uuid + access_token |
+| V1.2 Level null pre-evaluación | ✅ | `GET /users/me/level` → `{level:null, history:[]}` |
+| V1.3 IA genera 12 preguntas M1-M5 | ✅ | `POST /assessment/start` → `source:"ai"`, 12 preguntas etiquetadas con `module_id` + `difficulty` |
+| V1.4 Submit calcula nivel ponderado | ✅ | `POST /assessment/submit` → `level:"beginner"`, `score:4.74`, `confidence:1.0`, breakdown por módulo |
+| V1.5 UserLevel persiste con history | ✅ | `GET /users/me/level` tras submit → nivel asignado |
+| V2.1 Dashboard agrega datos estudiante | ✅ | `GET /dashboard` → `user_level`, 22 temas total, recomendaciones por nivel |
+| V2.2 Módulos con lock progresivo | ✅ | `GET /modules` → M1 unlocked, M2-M5 locked |
+| V2.3 Topic content Markdown | ✅ | `GET /topics/1` → content_markdown renderizable |
+| V4.2 Coding IA adaptado al nivel | ✅ | `GET /coding/topic/6` → challenge generado con `difficulty="easy"` (beginner→easy mapping verificado en BD) |
+| V4.3 Flags AI en BD | ✅ | `coding_challenges`: `is_ai_generated=t`, `student_level='beginner'` |
+| V5.1 Crear sesión chat | ✅ | `POST /chat/sessions` → uuid + título default |
+| V5.2 Rate limit contador | ✅ | `GET /chat/remaining` → `{remaining:20, limit:20}` |
+| V5.3 RAG responde con corpus | ✅ | "¿Qué es una Activity en Android?" → respuesta grounded en corpus |
+| V8.1 Admin login + redirect lógico | ✅ | `POST /auth/login` admin → token |
+| V9 Documentos corpus listados | ✅ | `GET /admin/documents` → 1 doc `active` con chunks |
+| V10 Admin genera desafío IA (preview) | ✅ | `POST /admin/coding-challenges/generate` → JSON con title/description/hints/solution sin persistir |
+| V11 Admin lista usuarios + niveles | ✅ | `GET /admin/users` → array con role+level+is_active |
+| V12 Admin CRUD banco fallback | ✅ | `POST /admin/assessment-bank` creó item id=1 |
+| V13 Admin niveles estudiantes | ✅ | `GET /admin/user-levels` → tabla con fechas + scores |
+
+**Pendiente runtime** (requiere 3+ quiz attempts o simular Ollama caído): V3 (adaptación prompt quiz a nivel — verificado en código `llm_service.py:160`), V6 (reassessment 3 consecutivos — verificado `leveling_service.py:156`), V7 (logros auto — verificado `achievement_service.py:64-148`), fallbacks de Ollama down.
+
+**Hallazgos + fixes aplicados:**
+- Migración 004 no aplicaba por volumen docker faltante → fix en `docker-compose.yml` (ahora monta `./backend/alembic`)
+- Banco fallback evaluación inicialmente vacío (seed principal skip-first blocking) → nuevo script idempotente `backend/scripts/seed_assessment_bank.py`; ejecutado → 23 preguntas M1-M5 sembradas
+
+---
+
+### 👨‍🎓 Flujos de estudiante
+
+#### V1. Registro + Evaluación de entrada
+- [ ] Registrar con email+nombre+password válidos → JWT + redirect
+- [ ] LevelGuard detecta `user.level == null` → fuerza redirect a `/assessment`
+- [ ] IA genera ~12 preguntas cubriendo M1–M5 con dificultad mixta
+- [ ] Si Ollama cae durante generación → fallback muestrea `entry_assessment_bank` (verificar log "Fallback banco")
+- [ ] Responder preguntas + submit → score ponderado (pesos módulo × dificultad)
+- [ ] Nivel asignado según umbrales (<40 beginner · 40–75 intermediate · >75 advanced)
+- [ ] `user_levels` persiste con `history=[{level,score,reason:"entry"}]`
+- [ ] Pantalla resultado muestra nivel + score + confianza + breakdown por módulo + feedback motivacional
+- [ ] Botón "Ir al panel" redirige a `/dashboard`
+
+#### V2. Navegación de contenido
+- [ ] Dashboard carga: greeting + nivel badge + hero "Continuar..." (solo si último tema incompleto) + 3 recomendaciones por nivel + 3 logros recientes + stats tabulares
+- [ ] `/modules` grid responsivo 1/2/3 cols con barras de progreso
+- [ ] Módulos bloqueados con grayscale + candado + tooltip
+- [ ] Módulo 1 siempre desbloqueado; resto espera a 100% del anterior
+- [ ] Abrir tema → `POST /topics/{id}/visit` registra primer visit + last_accessed
+- [ ] `time_spent_seconds` incrementa cada 30s
+- [ ] Markdown renderiza con react-syntax-highlighter + botón copiar código
+- [ ] Iframe YouTube 16:9 si `video_url`
+
+#### V3. Autoevaluación adaptativa
+- [ ] "Ir a Autoevaluación" → Ollama genera con `student_level` en prompt
+- [ ] Preguntas varían en tono/dificultad según nivel (beginner=conceptual con pistas; advanced=edge cases sin pistas)
+- [ ] Sesión Redis TTL 30min; única activa por user+topic
+- [ ] 410 expirado → frontend auto-regenera preguntas NUEVAS
+- [ ] Si Ollama cae → fallback BD `quiz_questions` estáticas
+- [ ] Submit califica, crea `QuizAttempt`, single-use (session eliminada)
+- [ ] score ≥60% marca `is_passed=true`
+- [ ] `check_and_complete_topic` dispara si tema sin coding
+- [ ] Logro "Quiz Perfecto" si score=100%
+
+#### V4. Desafío de código per-estudiante
+- [ ] Tema con `has_coding_challenge=true` muestra botón "Desafío de Código"
+- [ ] Click → backend invoca `get_or_generate_for_student` con nivel actual
+- [ ] Dificultad mapeada: beginner→easy, intermediate→medium, advanced→hard
+- [ ] Si existe AI challenge no resuelto para este user+topic → reusa mismo
+- [ ] Si LLM falla → clona desafío del catálogo seed filtrando por dificultad preferida (marca título `[Fallback]`)
+- [ ] Toast "Usando desafío del banco (IA no disponible)" en caso fallback
+- [ ] Navega a `/coding/:id` con chip "Generado con IA · nivel X"
+- [ ] Editor precarga `initial_code` si lo hay
+- [ ] Submit → LLM evalúa con `student_level` (más estricto para advanced)
+- [ ] Respuesta: score 0-100 + Markdown feedback + strengths + improvements
+- [ ] score ≥60 cuenta para completación del tema
+- [ ] Botón "Regenerar con IA" con confirm → `POST /coding/topic/{id}/regenerate`
+- [ ] `CodingSubmission` previas permanecen (audit)
+
+#### V5. Chat con Tutor IA (RAG)
+- [ ] `/chat` sidebar sesiones + área mensajes
+- [ ] Enter envía, Shift+Enter nueva línea, textarea auto-grow
+- [ ] `POST /chat/sessions/{id}/message` con `content`
+- [ ] RAG: embed question → pgvector cosine top5 con threshold 0.70 → build prompt con historial (5 rondas) → qwen2.5 temp=0.3
+- [ ] Fuentes ≥0.75 similarity aparecen colapsables con `%relevancia`
+- [ ] Cache Redis `rag:{hash(q)}` TTL 3600s (segunda pregunta igual es instantánea)
+- [ ] Rate limit 20/h → 429 con mensaje + contador "X de 20"
+- [ ] Off-topic → rechazo educativo en vez de invención
+- [ ] Título sesión auto-generado desde primer mensaje
+- [ ] Logro "Explorador Tutor IA" al 10° mensaje
+
+#### V6. Re-asignación automática de nivel
+- [ ] Tras cada quiz submit: `check_reassessment` evalúa últimos 3 attempts
+- [ ] 3 quizzes consecutivos ≥90% → proposal `direction=up` (no si ya advanced)
+- [ ] 3 quizzes consecutivos <50% → proposal `direction=down` (no si ya beginner)
+- [ ] Frontend `ReassessmentModal` aparece (poll cada 60s `GET /users/me/reassessment`)
+- [ ] Aceptar → `user_levels.level` actualiza, entry añadido a `history` con reason `reassess_up` / `reassess_down`
+- [ ] "Ahora no" → localStorage `reassess_dismissed_at` silencia 1h
+- [ ] Nuevo nivel aplica a generaciones IA subsiguientes
+
+#### V7. Progreso y logros
+- [ ] 7 logros auto-otorgan en submits/completes: first_topic=1, module_completed=1, streak_days=7, chat_messages=10, Maestro Kotlin (module_id=2 completado), quiz_perfect=100, course_completed=100
+- [ ] Racha = días consecutivos con ≥1 visit
+- [ ] `ProgressPage` muestra 4 cards métricas + barras por módulo + logros grid + actividad últimas 20
+- [ ] `AchievementsPage` separa ganados/pendientes con fecha
+
+### 👨‍💼 Flujos de administrador
+
+#### V8. Login + acceso admin
+- [ ] Admin login → `useLogin` redirige directo a `/admin` (NO pasa por `/dashboard`)
+- [ ] `LevelGuard` bypass: admin nunca redirige a `/assessment`
+- [ ] Si admin visita `/assessment` manualmente → redirige a `/admin`
+- [ ] Sidebar muestra link "Administración" solo si `role=admin`
+- [ ] Navbar: sin `LevelBadge`
+- [ ] `ReassessmentModal` no poll para admin (`enabled: !isAdmin`)
+
+#### V9. Tab Corpus RAG
+- [ ] Lista documentos (tabla: archivo, estado, chunks, tamaño, acciones)
+- [ ] Auto-refresh cada 5s mientras procesando
+- [ ] Subir PDF/DOCX/TXT/MD → validación MIME + tamaño ≤ `MAX_UPLOAD_SIZE_MB`
+- [ ] Estados: pending → processing → active (o error con mensaje)
+- [ ] `process_document` pipeline: parse → clean → RecursiveCharacterTextSplitter (500/50) → mxbai-embed-large → inserta `document_chunks` con vector[1024]
+- [ ] Botón "Reintentar" si status=error
+- [ ] Borrar elimina row + archivo físico + chunks (cascade)
+
+#### V10. Tab Contenido
+- [ ] Árbol colapsable Módulo → Tema → Quiz + Coding
+- [ ] CRUD módulos: crear/editar/eliminar (cascade tira temas)
+- [ ] CRUD temas: asignar has_quiz, estimated_minutes, content Markdown
+- [ ] CRUD preguntas quiz estáticas (4 opciones + explicación + correct_option_index)
+- [ ] CRUD desafíos coding (catálogo, NO per-estudiante)
+- [ ] Botón "Generar con IA": input dificultad + nivel objetivo → LLM produce preview → admin descarta o "Aprobar y guardar" persiste
+- [ ] Tras aprobar: `is_ai_generated=false` (es catálogo del docente)
+
+#### V11. Tab Usuarios
+- [ ] Lista todos usuarios + rol + nivel + estado + fecha creación
+- [ ] Cambiar rol `student ↔ admin` via select inline
+- [ ] Toggle activo/inactivo
+- [ ] Admin no puede auto-desactivarse (400 del backend)
+
+#### V12. Tab Banco Fallback (evaluación entrada)
+- [ ] Filtros: módulo + dificultad
+- [ ] CRUD preguntas (4 opciones + correct_index + difficulty easy/medium/hard)
+- [ ] Toggle `is_active`
+- [ ] Seed inicial carga ~22 preguntas distribuidas M1-M5
+
+#### V13. Tab Niveles
+- [ ] Tabla estudiantes con nivel + score + evaluado
+- [ ] "sin evaluar" si `UserLevel` no existe
+- [ ] Botón "Override" → prompt nivel + razón → `upsert_user_level` con `reason="admin_override: {razón}"` anexa history
+
+### 🔒 Checks seguridad / datos / borde
+
+- [ ] JWT access 60min, refresh 7 días (rotación en `/refresh`)
+- [ ] bcrypt para passwords
+- [ ] `AuthGuard` en todas rutas salvo `/login`
+- [ ] `AuthGuard requireAdmin` en `/admin`
+- [ ] `LevelGuard` en rutas estudiante (admin bypass)
+- [ ] Brute-force login: 3 intentos → lockout 5min (frontend localStorage + countdown)
+- [ ] Rate limit chat 20/h Redis → 429
+- [ ] CORS restrictivo a `BACKEND_CORS_ORIGINS`
+- [ ] pgvector threshold 0.70 filtra contexto irrelevante en RAG
+- [ ] Vector literal inline en SQL (asyncpg no soporta `::vector` parametrizado)
+- [ ] Ollama `format="json"` con wrapper `{"questions":[...]}`
+- [ ] Quiz sesión Redis single-use (evita re-submit)
+- [ ] Entry assessment sesión única: `score is not None` bloquea re-submit (409)
+- [ ] Topic completion chequea quiz + coding juntos (AMBOS deben cumplir)
+- [ ] Reassessment requiere 3 consecutivos (no 2)
+- [ ] 3 niveles de fallback IA → catálogo: entry_assessment_bank, quiz_questions, coding_challenges seed
+- [ ] `CodingSubmission` preserva FK a `CodingChallenge` (no se borra al regenerar)
+- [ ] UI 100% español peruano (todos los strings)
+- [ ] Sin APIs pagas (solo Ollama local)
+- [ ] Sin emojis como iconos estructurales (SVG Lucide exclusivamente)
+- [ ] `focus-visible` ring visible global
+- [ ] `prefers-reduced-motion` honrado
+- [ ] Touch targets ≥44×44 en botones/links
+- [ ] Skip-link para keyboard users
+- [ ] `min-h-dvh` en vez de `100vh` (evita pestañas fantasma móvil)
+- [ ] Contraste texto ≥4.5:1 sobre surfaces
+- [ ] `aria-label` en iconos solos (menu, logout, avatar, shield)
+- [ ] `role="banner"` / `role="contentinfo"` / `role="alert"` donde corresponde
+
+### ⚠️ Casos que deben fallar graciosamente
+
+- [ ] Ollama down → quiz estático, coding clonado, evaluación banco, RAG respuesta "no hay info"
+- [ ] Redis down → quiz no genera nuevas (503), chat sin cache, rate limit ausente (fail-open)
+- [ ] PDF corrupto → `documents.status=error` + `error_message` legible
+- [ ] Estudiante sin nivel intenta `/dashboard` → redirect `/assessment`
+- [ ] Admin sin role intenta `/admin` → redirect `/dashboard`
+- [ ] Sesión de evaluación ya enviada → 409 en submit
+- [ ] Tema sin catálogo coding → botón "Desafío" oculto
+- [ ] Código vacío en submit → LLM puntúa 0 con explicación
+- [ ] Override admin a nivel inválido → 422 (pattern validator)
+
+---
+
+*v2.1 — Fases 1 a 7.5 completadas. Fase 8 (quality + piloto) pendiente.*

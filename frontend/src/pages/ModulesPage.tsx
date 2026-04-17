@@ -11,12 +11,15 @@ export default function ModulesPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Módulos del Curso</h1>
-        <p className="text-gray-500 mt-1">
-          Curso de Aplicaciones Móviles — IESTP RFA
+      <header className="mb-8">
+        <span className="heritage-accent-bar mb-3" aria-hidden="true" />
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700">
+          Módulos del Curso
+        </h1>
+        <p className="text-gray-600 mt-1">
+          Curso de Aplicaciones Móviles · IESTP "República Federal de Alemania" · Chiclayo
         </p>
-      </div>
+      </header>
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ChevronRight, ChevronLeft, ArrowRight, CheckCircle2, FileQuestion, Code2 } from 'lucide-react'
+import { ChevronRight, ChevronLeft, ArrowRight, CheckCircle2, FileQuestion, Code2, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { topicsApi } from '@/api/topics'
 import { codingApi } from '@/api/coding'
@@ -25,11 +25,18 @@ export default function TopicPage() {
     enabled: !!id,
   })
 
-  // Check for coding challenges
-  const { data: codingData } = useQuery({
-    queryKey: ['coding-topic', topicId],
-    queryFn: () => codingApi.getChallengesForTopic(topicId).then((r) => r.data),
-    enabled: !!id,
+  // On-demand AI challenge fetch for this topic (only when user clicks button)
+  const startCodingMutation = useMutation({
+    mutationFn: () => codingApi.getForTopic(topicId).then((r) => r.data),
+    onSuccess: (data) => {
+      if (data.source === 'fallback') {
+        toast('Usando desafío del banco (IA no disponible)', { icon: '⚠️' })
+      }
+      navigate(`/coding/${data.challenge.id}`)
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.detail || 'No se pudo preparar el desafío')
+    },
   })
 
   // Get sibling topics for prev/next navigation
@@ -124,7 +131,7 @@ export default function TopicPage() {
 
       {/* Topic header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{topic.title}</h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 mb-2">{topic.title}</h1>
         <div className="flex items-center gap-4 text-sm text-gray-500">
           <span>{topic.estimated_minutes} min de lectura</span>
           {topic.has_quiz && (
@@ -181,17 +188,26 @@ export default function TopicPage() {
             Ir a la Autoevaluación
           </Button>
         )}
-        {codingData?.has_challenges && codingData.challenges.map((ch) => (
+        {topic.has_coding_challenge && (
           <Button
-            key={ch.id}
-            onClick={() => navigate(`/coding/${ch.id}`)}
+            onClick={() => startCodingMutation.mutate()}
+            disabled={startCodingMutation.isPending}
             variant="outline"
-            className="border-primary-300 text-primary-700 hover:bg-primary-50"
+            className="border-heritage-300 text-heritage-700 hover:bg-heritage-50"
           >
-            <Code2 className="w-4 h-4 mr-2" />
-            {ch.title}
+            {startCodingMutation.isPending ? (
+              <>
+                <Sparkles className="w-4 h-4 mr-2 animate-pulse" />
+                Preparando desafío con IA...
+              </>
+            ) : (
+              <>
+                <Code2 className="w-4 h-4 mr-2" />
+                Desafío de Código
+              </>
+            )}
           </Button>
-        ))}
+        )}
       </div>
 
       {/* Prev / Next navigation */}

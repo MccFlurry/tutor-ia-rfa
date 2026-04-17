@@ -13,8 +13,17 @@ class CodingChallengeResponse(BaseModel):
     difficulty: str
     hints: str | None
     order_index: int
+    is_ai_generated: bool = False
+    student_level: str | None = None
 
     model_config = {"from_attributes": True}
+
+
+class TopicChallengeForStudent(BaseModel):
+    """Single coding challenge served to a student (AI or fallback)."""
+    challenge: CodingChallengeResponse
+    source: str  # "ai" | "fallback"
+    student_level: str
 
 
 class CodingSubmitRequest(BaseModel):

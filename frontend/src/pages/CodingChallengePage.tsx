@@ -7,7 +7,6 @@ import {
   Sparkles,
   AlertTriangle,
   CheckCircle2,
-  XCircle,
   Lightbulb,
   Trophy,
   ArrowUp,
@@ -90,6 +89,28 @@ export default function CodingChallengePage() {
     },
   })
 
+  // Regenerate AI challenge for this topic
+  const regenerateMutation = useMutation({
+    mutationFn: async () => {
+      if (!challenge?.topic_id) throw new Error('Tema no disponible')
+      const { data } = await codingApi.regenerateForTopic(challenge.topic_id)
+      return data
+    },
+    onSuccess: (data) => {
+      if (data.source === 'fallback') {
+        toast('Se usó desafío del banco (IA no disponible)', { icon: '⚠️' })
+      } else {
+        toast.success('Nuevo desafío generado')
+      }
+      setCode('')
+      setResult(null)
+      navigate(`/coding/${data.challenge.id}`, { replace: true })
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.detail || 'No se pudo regenerar')
+    },
+  })
+
   const handleSubmit = () => {
     if (!code.trim()) {
       toast.error('Escribe tu código antes de enviar')
@@ -152,20 +173,56 @@ export default function CodingChallengePage() {
       </nav>
 
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-2xl font-bold text-gray-900">{challenge.title}</h1>
-          {diff && (
-            <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${diff.color}`}>
-              {diff.label}
-            </span>
+      <div className="mb-6 flex items-start justify-between flex-wrap gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-3 mb-2 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700">{challenge.title}</h1>
+            {diff && (
+              <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${diff.color}`}>
+                {diff.label}
+              </span>
+            )}
+            {challenge.is_ai_generated && (
+              <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-heritage-100 text-heritage-700">
+                <Sparkles className="w-3 h-3" aria-hidden="true" />
+                Generado con IA
+                {challenge.student_level && (
+                  <span className="ml-1 text-heritage-600">· nivel {challenge.student_level}</span>
+                )}
+              </span>
+            )}
+          </div>
+          {bestSubmission && (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Trophy className="w-4 h-4 text-amber-500" />
+              <span>Mejor puntuación: {bestSubmission.score}/100</span>
+            </div>
           )}
         </div>
-        {bestSubmission && (
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Trophy className="w-4 h-4 text-amber-500" />
-            <span>Mejor puntuación: {bestSubmission.score}/100</span>
-          </div>
+
+        {challenge.is_ai_generated && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (confirm('¿Generar un desafío nuevo? Perderás el código actual.')) {
+                regenerateMutation.mutate()
+              }
+            }}
+            disabled={regenerateMutation.isPending}
+          >
+            {regenerateMutation.isPending ? (
+              <>
+                <Sparkles className="w-4 h-4 mr-1 animate-pulse" />
+                Regenerando...
+              </>
+            ) : (
+              <>
+                <RotateCcw className="w-4 h-4 mr-1" />
+                Regenerar con IA
+              </>
+            )}
+          </Button>
         )}
       </div>
 

@@ -107,10 +107,13 @@ async def get_module(
     )
     progress_map = {p.topic_id: p for p in progress_result.scalars().all()} if topics else {}
 
-    # Get coding challenge counts per topic
+    # Coding challenge presence per topic (catalogue only, exclude per-student AI copies)
     coding_result = await db.execute(
         select(CodingChallenge.topic_id, func.count(CodingChallenge.id))
-        .where(CodingChallenge.topic_id.in_([t.id for t in topics]) if topics else False)
+        .where(
+            CodingChallenge.topic_id.in_([t.id for t in topics]) if topics else False,
+            CodingChallenge.is_ai_generated == False,
+        )
         .group_by(CodingChallenge.topic_id)
     )
     coding_map = {row[0]: row[1] for row in coding_result.all()} if topics else {}

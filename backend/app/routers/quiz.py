@@ -22,6 +22,7 @@ from app.schemas.quiz import (
 )
 from app.services.llm_service import generate_quiz_questions, QuizGenerationError
 from app.services.topic_completion_service import check_and_complete_topic
+from app.services.leveling_service import get_user_level, check_reassessment
 from app.utils.logger import logger
 
 router = APIRouter(prefix="/quiz", tags=["quiz"])
@@ -143,9 +144,10 @@ async def get_quiz(
     if existing:
         return existing
 
-    # Try AI generation
+    # Try AI generation (adapted to student level)
+    student_level = await get_user_level(db, current_user.id)
     try:
-        generated = await generate_quiz_questions(topic.content)
+        generated = await generate_quiz_questions(topic.content, student_level=student_level)
 
         session_id = str(uuid.uuid4())
         session_data = {"topic_id": topic_id, "questions": {}}
@@ -247,6 +249,17 @@ async def submit_quiz(
     # If passed, check if topic can be fully completed (quiz + coding if needed)
     if is_passed:
         await check_and_complete_topic(current_user.id, topic_id, db)
+
+    # Check reassessment proposal (logs only; frontend fetches via GET /users/me/reassessment)
+    try:
+        proposal = await check_reassessment(db, current_user.id)
+        if proposal.get("should_reassess"):
+            logger.info(
+                f"Propuesta re-asignación usuario {current_user.id}: "
+                f"{proposal['current_level']} → {proposal['proposed_level']} ({proposal['reason']})"
+            )
+    except Exception as e:
+        logger.warning(f"Error evaluando re-asignación: {e}")
 
     await db.commit()
 

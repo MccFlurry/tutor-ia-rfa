@@ -10,38 +10,109 @@ from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.models.coding import CodingChallenge, CodingSubmission
+from app.models.topic import Topic
 from app.schemas.coding import (
     CodingChallengeResponse,
     CodingSubmitRequest,
     CodingEvaluationResponse,
     CodingSubmissionHistory,
     TopicChallengesResponse,
+    TopicChallengeForStudent,
 )
 from app.services.code_eval_service import evaluate_code
 from app.services.topic_completion_service import check_and_complete_topic, get_topic_completion_status
+from app.services.leveling_service import get_user_level
+from app.services.coding_generator_service import (
+    get_or_generate_for_student,
+    regenerate_for_student,
+)
 from app.utils.logger import logger
 
 router = APIRouter(prefix="/coding", tags=["coding"])
 
 
-@router.get("/topic/{topic_id}", response_model=TopicChallengesResponse)
-async def get_challenges_for_topic(
+@router.get("/topic/{topic_id}", response_model=TopicChallengeForStudent)
+async def get_or_generate_challenge_for_topic(
     topic_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get all coding challenges for a topic."""
-    result = await db.execute(
-        select(CodingChallenge)
-        .where(CodingChallenge.topic_id == topic_id)
-        .order_by(CodingChallenge.order_index)
+    """
+    Get a coding challenge for the current student on this topic.
+    If one already exists (AI-generated for this user+topic), return it.
+    Otherwise ask the LLM to build one adapted to the student's level.
+    Falls back to cloning from the teacher's seeded catalogue when LLM fails.
+    """
+    topic_result = await db.execute(
+        select(Topic).where(Topic.id == topic_id, Topic.is_active == True)
     )
-    challenges = result.scalars().all()
+    topic = topic_result.scalar_one_or_none()
+    if not topic:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tema no encontrado")
 
-    return TopicChallengesResponse(
-        topic_id=topic_id,
-        challenges=[CodingChallengeResponse.model_validate(c) for c in challenges],
-        has_challenges=len(challenges) > 0,
+    # Ensure the topic has at least a fallback catalogue OR content worth generating from
+    fallback_result = await db.execute(
+        select(func.count(CodingChallenge.id)).where(
+            CodingChallenge.topic_id == topic_id,
+            CodingChallenge.is_ai_generated == False,
+        )
+    )
+    has_fallback = (fallback_result.scalar() or 0) > 0
+    if not topic.content and not has_fallback:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Este tema no tiene desafíos de programación disponibles",
+        )
+
+    student_level = await get_user_level(db, current_user.id)
+
+    try:
+        challenge = await get_or_generate_for_student(db, topic, current_user, student_level)
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e),
+        )
+    await db.commit()
+
+    source = "ai" if challenge.title and not challenge.title.startswith("[Fallback]") else "fallback"
+    return TopicChallengeForStudent(
+        challenge=CodingChallengeResponse.model_validate(challenge),
+        source=source,
+        student_level=student_level,
+    )
+
+
+@router.post("/topic/{topic_id}/regenerate", response_model=TopicChallengeForStudent)
+async def regenerate_challenge_for_topic(
+    topic_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Force a fresh AI-generated coding challenge for this student+topic."""
+    topic_result = await db.execute(
+        select(Topic).where(Topic.id == topic_id, Topic.is_active == True)
+    )
+    topic = topic_result.scalar_one_or_none()
+    if not topic:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tema no encontrado")
+
+    student_level = await get_user_level(db, current_user.id)
+
+    try:
+        challenge = await regenerate_for_student(db, topic, current_user, student_level)
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e),
+        )
+    await db.commit()
+
+    source = "ai" if challenge.title and not challenge.title.startswith("[Fallback]") else "fallback"
+    return TopicChallengeForStudent(
+        challenge=CodingChallengeResponse.model_validate(challenge),
+        source=source,
+        student_level=student_level,
     )
 
 
@@ -78,7 +149,8 @@ async def submit_code(
     if not challenge:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Desafío no encontrado")
 
-    # Evaluate code with LLM
+    # Evaluate code with LLM (adapted to student level)
+    student_level = await get_user_level(db, current_user.id)
     try:
         evaluation = await evaluate_code(
             title=challenge.title,
@@ -86,6 +158,7 @@ async def submit_code(
             student_code=body.code,
             language=challenge.language,
             solution_code=challenge.solution_code,
+            student_level=student_level,
         )
     except Exception as e:
         logger.error(f"Error evaluando código para desafío {challenge_id}: {e}")

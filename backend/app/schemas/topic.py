@@ -25,6 +25,7 @@ class TopicResponse(BaseModel):
     video_url: str | None = None
     estimated_minutes: int
     has_quiz: bool
+    has_coding_challenge: bool = False
     order_index: int
     module: TopicModuleInfo
     progress_info: TopicProgressInfo | None = None

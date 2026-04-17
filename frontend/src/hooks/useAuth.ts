@@ -14,7 +14,7 @@ export function useLogin() {
     onSuccess: ({ data }) => {
       setAuth(data.user, data.access_token, data.refresh_token)
       toast.success(`¡Bienvenido, ${data.user.full_name}!`)
-      navigate('/dashboard')
+      navigate(data.user.role === 'admin' ? '/admin' : '/dashboard')
     },
   })
 }

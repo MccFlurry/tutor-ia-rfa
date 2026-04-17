@@ -17,6 +17,7 @@ export interface Topic {
   video_url: string | null
   estimated_minutes: number
   has_quiz: boolean
+  has_coding_challenge: boolean
   order_index: number
   module: TopicModuleInfo
   progress_info: TopicProgressInfo | null

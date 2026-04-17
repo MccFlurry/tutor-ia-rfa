@@ -7,6 +7,9 @@ from app.models.achievement import Achievement, UserAchievement
 from app.models.chat import ChatSession, ChatMessage
 from app.models.document import Document, DocumentChunk
 from app.models.coding import CodingChallenge, CodingSubmission
+from app.models.user_level import UserLevel
+from app.models.entry_assessment import EntryAssessmentSession
+from app.models.assessment_bank import EntryAssessmentBank
 
 __all__ = [
     "User",
@@ -23,4 +26,7 @@ __all__ = [
     "DocumentChunk",
     "CodingChallenge",
     "CodingSubmission",
+    "UserLevel",
+    "EntryAssessmentSession",
+    "EntryAssessmentBank",
 ]

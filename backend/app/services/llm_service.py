@@ -27,11 +27,39 @@ class QuizGenerationError(Exception):
     pass
 
 
+LEVEL_GUIDANCE = {
+    "beginner": (
+        "NIVEL DEL ESTUDIANTE: Principiante.\n"
+        "- Enfócate en preguntas conceptuales y sintaxis básica.\n"
+        "- Un solo concepto por pregunta.\n"
+        "- Usa lenguaje sencillo y ejemplos directos.\n"
+        "- Evita edge cases, optimizaciones o combinaciones complejas.\n"
+        "- Incluye pistas contextuales dentro del enunciado cuando sea apropiado."
+    ),
+    "intermediate": (
+        "NIVEL DEL ESTUDIANTE: Intermedio.\n"
+        "- Combina hasta 2 conceptos relacionados por pregunta.\n"
+        "- Aplica situaciones prácticas realistas del desarrollo Android.\n"
+        "- Menos pistas explícitas; el estudiante debe razonar.\n"
+        "- Incluye preguntas de lectura de código de complejidad moderada."
+    ),
+    "advanced": (
+        "NIVEL DEL ESTUDIANTE: Avanzado.\n"
+        "- Incluye edge cases, trampas sutiles y consideraciones de eficiencia.\n"
+        "- Pregunta sobre diseño, refactorización y trade-offs arquitectónicos.\n"
+        "- Exige que el estudiante combine múltiples conceptos y detecte errores no obvios.\n"
+        "- Sin pistas; las opciones distractoras deben ser plausibles."
+    ),
+}
+
+
 QUIZ_SYSTEM_PROMPT = """Eres un generador de autoevaluaciones para un curso de Aplicaciones Móviles \
 del IESTP República Federal de Alemania (RFA) en Chiclayo, Perú.
 
 Tu tarea es generar preguntas de opción múltiple basadas EXCLUSIVAMENTE en el contenido \
-de la lección que se te proporciona.
+de la lección que se te proporciona, adaptadas al nivel del estudiante.
+
+{level_guidance}
 
 REGLAS ESTRICTAS:
 1. Genera exactamente {num_questions} preguntas.
@@ -41,7 +69,7 @@ REGLAS ESTRICTAS:
 5. La explicación debe ser breve y clara (1-2 oraciones).
 6. Todo debe estar en español.
 7. Las preguntas deben evaluar comprensión, no memorización textual.
-8. Varía la dificultad: incluye preguntas fáciles, intermedias y difíciles.
+8. Ajusta la dificultad al nivel del estudiante indicado arriba.
 9. Responde ÚNICAMENTE con un objeto JSON con la clave "questions".
 
 FORMATO DE RESPUESTA (JSON objeto):
@@ -129,10 +157,12 @@ def _parse_llm_response(raw: str, num_questions: int) -> list[GeneratedQuestion]
 async def generate_quiz_questions(
     topic_content: str,
     num_questions: int | None = None,
+    student_level: str = "intermediate",
 ) -> list[GeneratedQuestion]:
     """
-    Generate quiz questions using Ollama LLM based on topic content.
+    Generate quiz questions using Ollama LLM based on topic content, adapted to student level.
 
+    student_level: "beginner" | "intermediate" | "advanced"
     Raises QuizGenerationError if generation fails.
     """
     if num_questions is None:
@@ -143,8 +173,16 @@ async def generate_quiz_questions(
 
     truncated = _truncate_content(topic_content, max_chars=2500)
 
-    system_prompt = QUIZ_SYSTEM_PROMPT.format(num_questions=num_questions)
-    human_prompt = f"--- CONTENIDO DE LA LECCIÓN ---\n\n{truncated}\n\n--- FIN DEL CONTENIDO ---\n\nGenera {num_questions} preguntas de autoevaluación basadas en este contenido."
+    level_guidance = LEVEL_GUIDANCE.get(student_level, LEVEL_GUIDANCE["intermediate"])
+    system_prompt = QUIZ_SYSTEM_PROMPT.format(
+        num_questions=num_questions,
+        level_guidance=level_guidance,
+    )
+    human_prompt = (
+        f"--- CONTENIDO DE LA LECCIÓN ---\n\n{truncated}\n\n--- FIN DEL CONTENIDO ---\n\n"
+        f"Genera {num_questions} preguntas de autoevaluación basadas en este contenido, "
+        f"adaptadas al nivel {student_level}."
+    )
 
     try:
         llm = ChatOllama(
@@ -156,7 +194,7 @@ async def generate_quiz_questions(
             format="json",
         )
 
-        logger.info(f"Generando {num_questions} preguntas via Ollama...")
+        logger.info(f"Generando {num_questions} preguntas via Ollama (nivel={student_level})...")
         response = await llm.ainvoke([
             SystemMessage(content=system_prompt),
             HumanMessage(content=human_prompt),

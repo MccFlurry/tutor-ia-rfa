@@ -28,8 +28,9 @@ export default function AchievementsPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Logros e Insignias</h1>
-        <p className="text-gray-500 mt-1">
+        <span className="heritage-accent-bar mb-3" aria-hidden="true" />
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700">Logros e Insignias</h1>
+        <p className="text-gray-600 mt-1">
           {earned} de {total} logros obtenidos
         </p>
       </div>

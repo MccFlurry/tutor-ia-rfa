@@ -14,9 +14,35 @@ from app.config import settings
 from app.utils.logger import logger
 
 
+LEVEL_EVAL_GUIDANCE = {
+    "beginner": (
+        "NIVEL DEL ESTUDIANTE: Principiante.\n"
+        "- Prioriza celebrar lo que hizo bien, aun cuando el código sea imperfecto.\n"
+        "- Sé indulgente con convenciones de estilo y eficiencia si la lógica es correcta.\n"
+        "- Explica los errores con ejemplos muy concretos y pasos pequeños.\n"
+        "- El feedback debe ser motivador y evitar vocabulario técnico excesivo."
+    ),
+    "intermediate": (
+        "NIVEL DEL ESTUDIANTE: Intermedio.\n"
+        "- Evalúa con equilibrio entre corrección y buenas prácticas.\n"
+        "- Espera nombres descriptivos, funciones cortas y manejo razonable de errores.\n"
+        "- Señala ineficiencias moderadas pero no exijas optimizaciones avanzadas."
+    ),
+    "advanced": (
+        "NIVEL DEL ESTUDIANTE: Avanzado.\n"
+        "- Aplica criterios estrictos en buenas prácticas, eficiencia y patrones.\n"
+        "- Penaliza soluciones verbosas, redundancias y diseños poco extensibles.\n"
+        "- Espera manejo correcto de edge cases, uso idiomático del lenguaje y código testeable.\n"
+        "- El feedback puede ser técnico y exigente, siempre profesional."
+    ),
+}
+
+
 CODE_EVAL_PROMPT = """Eres un evaluador experto de código para un curso de Aplicaciones Móviles \
 del IESTP República Federal de Alemania (RFA) en Chiclayo, Perú. \
 Tu rol es revisar el código que envían los estudiantes y darles retroalimentación constructiva.
+
+{level_guidance}
 
 DESAFÍO:
 Título: {title}
@@ -38,7 +64,7 @@ Evalúa el código del estudiante y responde con un objeto JSON con esta estruct
   "improvements": ["<mejora sugerida 1>", "<mejora sugerida 2>"]
 }}
 
-CRITERIOS DE EVALUACIÓN:
+CRITERIOS DE EVALUACIÓN (pondera según el nivel indicado arriba):
 1. **Corrección** (40%): ¿El código resuelve el problema correctamente?
 2. **Buenas prácticas** (25%): ¿Sigue convenciones de {language}? Nombres descriptivos, código limpio.
 3. **Eficiencia** (20%): ¿Es una solución eficiente? ¿Hay redundancias?
@@ -47,7 +73,7 @@ CRITERIOS DE EVALUACIÓN:
 REGLAS:
 - Responde SOLO con el JSON, sin texto adicional.
 - El feedback debe estar en español peruano claro y académico.
-- Sé motivador pero honesto. Señala errores con amabilidad.
+- Ajusta el tono y exigencia al nivel del estudiante.
 - Si el código está vacío o no tiene sentido, puntúa 0 y explica por qué.
 - Incluye ejemplos de cómo mejorar cuando sea posible (dentro de bloques ```{language}).
 - Los strengths e improvements deben ser listas de 2-4 elementos cada una."""
@@ -59,16 +85,22 @@ async def evaluate_code(
     student_code: str,
     language: str = "kotlin",
     solution_code: str | None = None,
+    student_level: str = "intermediate",
 ) -> dict:
     """
-    Evaluate student code using the LLM.
+    Evaluate student code using the LLM, adapted to the student's level.
+
+    student_level: "beginner" | "intermediate" | "advanced"
     Returns: {"score": float, "feedback": str, "strengths": list, "improvements": list}
     """
     solution_section = ""
     if solution_code:
         solution_section = f"SOLUCIÓN DE REFERENCIA (usa como guía, no como única respuesta válida):\n```{language}\n{solution_code}\n```"
 
+    level_guidance = LEVEL_EVAL_GUIDANCE.get(student_level, LEVEL_EVAL_GUIDANCE["intermediate"])
+
     prompt_text = CODE_EVAL_PROMPT.format(
+        level_guidance=level_guidance,
         title=title,
         description=description,
         language=language,
@@ -85,7 +117,7 @@ async def evaluate_code(
         format="json",
     )
 
-    logger.info(f"Evaluando código para: {title}")
+    logger.info(f"Evaluando código para: {title} (nivel={student_level})")
     response = await llm.ainvoke([
         SystemMessage(content="Eres un evaluador de código experto. Responde solo en JSON."),
         HumanMessage(content=prompt_text),

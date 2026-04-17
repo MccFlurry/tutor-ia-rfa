@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="navy" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#1e3a8a"/>
+      <stop offset="1" stop-color="#0b1845"/>
+    </linearGradient>
+  </defs>
+  <!-- Shield -->
+  <path d="M32 4 L58 12 V30 C58 45 46 56 32 60 C18 56 6 45 6 30 V12 Z"
+        fill="url(#navy)" stroke="#f59e0b" stroke-width="2"/>
+  <!-- Heritage gold bar -->
+  <rect x="14" y="40" width="36" height="3" rx="1.5" fill="#f59e0b"/>
+  <!-- Monogram RFA -->
+  <text x="32" y="34"
+        font-family="Plus Jakarta Sans, system-ui, sans-serif"
+        font-size="18" font-weight="800" fill="#ffffff"
+        text-anchor="middle">RFA</text>
+</svg>
