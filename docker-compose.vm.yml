@@ -1,31 +1,77 @@
-version: '3.9'
+# docker-compose.vm.yml — Overlay producción VM GCP e2-standard-4
+# Uso: docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d
+#
+# v4.0: stack completo en una VM (sin Cloud Run/Cloud SQL).
+# Incluye Ollama en contenedor (dev Windows usa nativo; prod Ubuntu usa contenedor).
 
-# Compose para el VM de Compute Engine (solo Ollama + Redis)
 services:
+  postgres:
+    restart: unless-stopped
+    volumes:
+      - /data/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports: []  # NO exponer al host en prod
+
+  redis:
+    restart: unless-stopped
+    volumes:
+      - /data/redis:/data
+    ports: []
+
+  backend:
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+asyncpg://tutor_user:${POSTGRES_PASSWORD}@postgres:5432/tutordb
+      OLLAMA_BASE_URL: http://ollama:11434
+      SECRET_KEY: ${SECRET_KEY}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      BACKEND_CORS_ORIGINS: '["https://${DOMAIN}","https://${FRONTEND_DOMAIN}"]'
+      LOG_DIR: /var/log/tutor
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/scripts:/app/scripts
+      - ./backend/alembic:/app/alembic
+      - /data/uploads:/app/uploads
+      - /var/log/tutor:/var/log/tutor
+    ports: []  # expuesto via Caddy, no directo
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"
+
   ollama:
     image: ollama/ollama:latest
     container_name: tutor_ollama
-    ports:
-      - "11434:11434"
+    restart: unless-stopped
     volumes:
       - ollama_data:/root/.ollama
-    restart: unless-stopped
+    # Ollama solo accesible desde red interna; sin --gpus porque e2-standard-4 no tiene GPU
+    # (si futura VM tiene GPU: añadir deploy.resources.reservations.devices)
 
-  redis:
-    image: redis:7-alpine
-    container_name: tutor_redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+  caddy:
+    image: caddy:2-alpine
+    container_name: tutor_caddy
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      - /var/log/caddy:/var/log/caddy
+
+  # frontend omitido: se despliega en Firebase Hosting (firebase deploy)
+  frontend:
+    profiles: ["disabled"]
 
 volumes:
   ollama_data:
-  redis_data:
+  caddy_data:
+  caddy_config:

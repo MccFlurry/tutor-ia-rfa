@@ -1,0 +1,18 @@
+id,module,type,difficulty,question,answer,n_contexts,faithfulness,answer_relevancy,context_precision,context_recall,elapsed_s,error
+1,M1,conceptual,easy,¿Cuáles son los requisitos mínimos de hardware para instalar Android Studio?,"Para instalar Android Studio, es importante tener en cuenta los requisitos mínimos de hardware recomendados por Google. Según el contexto proporcionado, estos son:
+
+- **Sistema Operativo**: Windows 10/11 (64 bits) o macOS 10.14 (Mojave) o superior.
+- **Procesador**: El sistema operativo debe soportar procesadores de 64 bits.
+- **Memoria RAM**: Al menos 8 GB, aunque se recomienda 16 GB para una mejor experiencia.
+- **Espacio en Disco**: Al menos 8 GB de espacio libre.
+
+Además, es recomendable ten",5,0.833,,,,31.6,'bool' object has no attribute 'get'
+2,M1,conceptual,easy,¿Qué carpeta del proyecto Android contiene los recursos XML de layouts?,"En un proyecto Android, los archivos XML que definen los layouts se encuentran en la carpeta `res/layout`. Esta carpeta es donde se almacenan los archivos `.xml` que describen cómo se verá la interfaz de usuario de cada actividad (`Activity`) o fragmento (`Fragment`) de tu aplicación.
+
+Por ejemplo, el archivo `activity_main.xml` que mencionaste anteriormente probablemente esté ubicado en esta carpeta. Aquí tienes un ejemplo típico de su estructura:
+
+```
+src
+└── main
+    └── res
+        └── layou",5,0.833,,,,23.9,'bool' object has no attribute 'get'

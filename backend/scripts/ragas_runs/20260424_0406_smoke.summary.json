@@ -1,0 +1,54 @@
+{
+  "label": "smoke",
+  "timestamp": "20260424_0406",
+  "n_questions": 2,
+  "config": {
+    "chunk_size": 500,
+    "chunk_overlap": 50,
+    "threshold": 0.7,
+    "top_k": 5,
+    "llm": "qwen2.5:7b-instruct-q4_K_M",
+    "embed": "mxbai-embed-large"
+  },
+  "global": {
+    "faithfulness": 0.7,
+    "answer_relevancy": 0.908,
+    "context_precision": 0.225,
+    "context_recall": 0.75
+  },
+  "thresholds": {
+    "faithfulness_required": 0.75,
+    "answer_relevancy_required": 0.7
+  },
+  "pass": {
+    "faithfulness": false,
+    "answer_relevancy": true
+  },
+  "by_module": {
+    "M1": {
+      "n": 2,
+      "faithfulness": 0.7,
+      "answer_relevancy": 0.908,
+      "context_precision": 0.225,
+      "context_recall": 0.75
+    }
+  },
+  "by_type": {
+    "conceptual": {
+      "n": 2,
+      "faithfulness": 0.7,
+      "answer_relevancy": 0.908,
+      "context_precision": 0.225,
+      "context_recall": 0.75
+    }
+  },
+  "by_difficulty": {
+    "easy": {
+      "n": 2,
+      "faithfulness": 0.7,
+      "answer_relevancy": 0.908,
+      "context_precision": 0.225,
+      "context_recall": 0.75
+    }
+  }
+}

@@ -1,0 +1,322 @@
+{
+  "meta": {
+    "description": "Golden set RAGAS para validación pipeline RAG · Sprint 4 CRISP-DM Evaluation",
+    "version": "1.1",
+    "created": "2026-04-23",
+    "modules_covered": ["M1", "M2", "M3"],
+    "total_questions": 30,
+    "distribution": {
+      "conceptual": 16,
+      "code": 8,
+      "application": 6
+    },
+    "difficulty": {
+      "easy": 10,
+      "medium": 16,
+      "hard": 4
+    },
+    "notes_v1_1": "Las preguntas type=code PIDEN generar snippets que no están literalmente en el corpus. Son aptas para medir answer_relevancy pero NO para faithfulness (por diseño, ningún chunk puede respaldar código recién creado). Para la métrica faithfulness se usa el subconjunto de 22 preguntas (conceptual+application)."
+  },
+  "questions": [
+    {
+      "id": 1,
+      "module": "M1",
+      "topic": "Instalación de Android Studio",
+      "question": "¿Cuáles son los requisitos mínimos de hardware para instalar Android Studio?",
+      "ground_truth": "Android Studio requiere mínimo 8 GB de RAM (16 GB recomendado), 8 GB de espacio libre en disco, procesador x86_64 de 64 bits y resolución de pantalla mínima 1280×800.",
+      "expected_context_keywords": ["Android Studio", "RAM", "requisitos", "instalación"],
+      "difficulty": "easy",
+      "type": "conceptual"
+    },
+    {
+      "id": 2,
+      "module": "M1",
+      "topic": "Estructura de un proyecto Android",
+      "question": "¿Qué carpeta del proyecto Android contiene los recursos XML de layouts?",
+      "ground_truth": "La carpeta `res/layout/` contiene los archivos XML que definen las interfaces de usuario de las Activities y Fragments.",
+      "expected_context_keywords": ["res", "layout", "XML", "recursos"],
+      "difficulty": "easy",
+      "type": "conceptual"
+    },
+    {
+      "id": 3,
+      "module": "M1",
+      "topic": "Activity y ciclo de vida",
+      "question": "¿Qué es una Activity en Android y cuál es su rol principal?",
+      "ground_truth": "Una Activity es un componente fundamental de Android que representa una única pantalla con interfaz de usuario. Su rol es gestionar la interacción con el usuario y manejar su ciclo de vida (onCreate, onStart, onResume, onPause, onStop, onDestroy).",
+      "expected_context_keywords": ["Activity", "pantalla", "ciclo de vida", "onCreate"],
+      "difficulty": "medium",
+      "type": "conceptual"
+    },
+    {
+      "id": 4,
+      "module": "M1",
+      "topic": "Activity y ciclo de vida",
+      "question": "¿En qué método del ciclo de vida debo liberar recursos pesados como conexiones de red antes de que la Activity se destruya?",
+      "ground_truth": "En `onPause()` para pausas temporales o `onDestroy()` para la destrucción final. `onPause()` siempre se llama cuando la Activity pierde foco; `onDestroy()` solo cuando termina definitivamente.",
+      "expected_context_keywords": ["onPause", "onDestroy", "recursos", "ciclo"],
+      "difficulty": "medium",
+      "type": "application"
+    },
+    {
+      "id": 5,
+      "module": "M1",
+      "topic": "AVD y emulador",
+      "question": "¿Cómo creo un nuevo emulador Android (AVD) desde Android Studio?",
+      "ground_truth": "Desde Android Studio: Tools → Device Manager → Create Device. Selecciona un hardware (ej. Pixel 6), una imagen de sistema (API level), y configura opciones como RAM e internal storage.",
+      "expected_context_keywords": ["AVD", "Device Manager", "emulador", "API level"],
+      "difficulty": "easy",
+      "type": "application"
+    },
+    {
+      "id": 6,
+      "module": "M1",
+      "topic": "Gradle",
+      "question": "¿Qué es el archivo build.gradle.kts (Module) y qué contiene?",
+      "ground_truth": "El archivo build.gradle.kts a nivel de módulo contiene la configuración de compilación del módulo: SDK versions, dependencias (implementation), plugins Kotlin/Android, y configuración de buildTypes.",
+      "expected_context_keywords": ["build.gradle", "Gradle", "dependencies", "SDK"],
+      "difficulty": "medium",
+      "type": "conceptual"
+    },
+    {
+      "id": 7,
+      "module": "M2",
+      "topic": "Variables y tipos de datos",
+      "question": "¿Cuál es la diferencia entre `val` y `var` en Kotlin?",
+      "ground_truth": "`val` declara una variable de solo lectura (inmutable tras asignación, equivalente a final en Java). `var` declara una variable mutable que puede ser reasignada. Siempre preferir `val` cuando sea posible.",
+      "expected_context_keywords": ["val", "var", "inmutable", "mutable"],
+      "difficulty": "easy",
+      "type": "conceptual"
+    },
+    {
+      "id": 8,
+      "module": "M2",
+      "topic": "Variables y tipos de datos",
+      "question": "Escribe un programa Kotlin que declare una variable `nombre` inmutable con tu nombre y la imprima.",
+      "ground_truth": "```kotlin\nfun main() {\n    val nombre = \"Roger\"\n    println(\"Hola, $nombre\")\n}\n```",
+      "expected_context_keywords": ["val", "println", "string template"],
+      "difficulty": "easy",
+      "type": "code"
+    },
+    {
+      "id": 9,
+      "module": "M2",
+      "topic": "Condicionales",
+      "question": "¿Cómo se usa el `when` en Kotlin y qué ventaja tiene sobre `switch` de Java?",
+      "ground_truth": "`when` es la expresión condicional multi-rama de Kotlin. Ventajas: puede ser usado como expresión retornando valor, soporta rangos (`in 1..10`), tipos (`is String`), y no requiere `break`. Cualquier valor es válido, no solo constantes.",
+      "expected_context_keywords": ["when", "expression", "rangos", "is"],
+      "difficulty": "medium",
+      "type": "conceptual"
+    },
+    {
+      "id": 10,
+      "module": "M2",
+      "topic": "Condicionales",
+      "question": "Escribe una función `clasificarEdad(edad: Int): String` que retorne \"Niño\" si <12, \"Adolescente\" si 12-17, \"Adulto\" si >=18.",
+      "ground_truth": "```kotlin\nfun clasificarEdad(edad: Int): String = when {\n    edad < 12 -> \"Niño\"\n    edad < 18 -> \"Adolescente\"\n    else -> \"Adulto\"\n}\n```",
+      "expected_context_keywords": ["when", "función", "return"],
+      "difficulty": "medium",
+      "type": "code"
+    },
+    {
+      "id": 11,
+      "module": "M2",
+      "topic": "Bucles",
+      "question": "¿Qué diferencia hay entre `for (i in 1..10)` y `for (i in 1 until 10)` en Kotlin?",
+      "ground_truth": "`1..10` es un rango cerrado que incluye ambos extremos (1 al 10 inclusive, 10 iteraciones). `1 until 10` es semi-abierto y excluye el extremo superior (1 al 9, 9 iteraciones). Usar `until` equivale a `<` en bucles tradicionales.",
+      "expected_context_keywords": ["rango", "until", "for", "iteración"],
+      "difficulty": "medium",
+      "type": "conceptual"
+    },
+    {
+      "id": 12,
+      "module": "M2",
+      "topic": "Funciones y lambdas",
+      "question": "¿Qué es una función lambda en Kotlin y cómo se declara?",
+      "ground_truth": "Una lambda es una función anónima que puede pasarse como argumento. Sintaxis: `{ parámetros -> cuerpo }`. Ejemplo: `val suma = { a: Int, b: Int -> a + b }`. Si el último argumento de una función es lambda, se puede pasar fuera de paréntesis.",
+      "expected_context_keywords": ["lambda", "función anónima", "->", "argumento"],
+      "difficulty": "medium",
+      "type": "conceptual"
+    },
+    {
+      "id": 13,
+      "module": "M2",
+      "topic": "Funciones de orden superior",
+      "question": "Usando `filter` y `map`, transforma la lista `[1,2,3,4,5]` para obtener los cuadrados de los números pares.",
+      "ground_truth": "```kotlin\nval nums = listOf(1,2,3,4,5)\nval resultado = nums.filter { it % 2 == 0 }.map { it * it }\n// [4, 16]\n```",
+      "expected_context_keywords": ["filter", "map", "lambda", "it"],
+      "difficulty": "medium",
+      "type": "code"
+    },
+    {
+      "id": 14,
+      "module": "M2",
+      "topic": "POO — Clases",
+      "question": "¿Cómo se declara una clase con constructor primario en Kotlin?",
+      "ground_truth": "```kotlin\nclass Persona(val nombre: String, var edad: Int)\n```\nEl constructor primario va en la cabecera de la clase. Los parámetros con `val`/`var` se convierten automáticamente en propiedades.",
+      "expected_context_keywords": ["class", "constructor", "propiedad", "val var"],
+      "difficulty": "easy",
+      "type": "code"
+    },
+    {
+      "id": 15,
+      "module": "M2",
+      "topic": "POO — Herencia",
+      "question": "¿Por qué las clases en Kotlin son `final` por defecto y cómo las hago heredables?",
+      "ground_truth": "Kotlin promueve composición sobre herencia, por eso las clases son `final` por defecto (más seguro, evita herencia no planificada). Para permitir herencia usar `open class`. Los métodos también requieren `open` para ser sobrescritos.",
+      "expected_context_keywords": ["open", "final", "herencia", "override"],
+      "difficulty": "medium",
+      "type": "conceptual"
+    },
+    {
+      "id": 16,
+      "module": "M2",
+      "topic": "POO — Data class",
+      "question": "¿Qué beneficios da una `data class` en Kotlin y cuándo usarla?",
+      "ground_truth": "Una `data class` genera automáticamente: `equals()`, `hashCode()`, `toString()`, `copy()` y componentes para desestructuración. Se usa para clases cuyo propósito principal es contener datos (modelos, DTOs, entidades).",
+      "expected_context_keywords": ["data class", "equals", "copy", "modelo"],
+      "difficulty": "medium",
+      "type": "conceptual"
+    },
+    {
+      "id": 17,
+      "module": "M2",
+      "topic": "POO — Interfaces",
+      "question": "Diseña una interfaz `Vehiculo` con método `arrancar()` y crea dos clases `Auto` y `Moto` que la implementen.",
+      "ground_truth": "```kotlin\ninterface Vehiculo {\n    fun arrancar()\n}\n\nclass Auto : Vehiculo {\n    override fun arrancar() = println(\"Auto arrancando con llave\")\n}\n\nclass Moto : Vehiculo {\n    override fun arrancar() = println(\"Moto arrancando con pedal\")\n}\n```",
+      "expected_context_keywords": ["interface", "override", "implements"],
+      "difficulty": "hard",
+      "type": "code"
+    },
+    {
+      "id": 18,
+      "module": "M2",
+      "topic": "POO — Polimorfismo",
+      "question": "¿Qué es el polimorfismo y cómo lo aplicarías en una app Android?",
+      "ground_truth": "Polimorfismo permite que objetos de distintas clases sean tratados con la misma interfaz. En Android: tener una lista de `View` con `Button`, `TextView`, `ImageView` tratados uniformemente, o un array de `Figura` con `Circulo`, `Cuadrado` llamando `area()`.",
+      "expected_context_keywords": ["polimorfismo", "interface", "herencia", "override"],
+      "difficulty": "hard",
+      "type": "application"
+    },
+    {
+      "id": 19,
+      "module": "M2",
+      "topic": "Null safety",
+      "question": "¿Qué es el operador `?.` (safe call) en Kotlin?",
+      "ground_truth": "El operador `?.` ejecuta la llamada solo si el receptor no es `null`; de lo contrario retorna `null`. Ejemplo: `nombre?.length` retorna la longitud si `nombre` no es null, si no retorna null. Evita NullPointerException.",
+      "expected_context_keywords": ["safe call", "null", "NullPointerException"],
+      "difficulty": "medium",
+      "type": "conceptual"
+    },
+    {
+      "id": 20,
+      "module": "M3",
+      "topic": "Layouts XML",
+      "question": "¿Cuáles son los layouts más comunes en Android y sus usos?",
+      "ground_truth": "LinearLayout (elementos en línea horizontal/vertical), ConstraintLayout (posicionamiento con restricciones, flexible y performante, recomendado), RelativeLayout (relativo a otros views), FrameLayout (superposición de elementos), CoordinatorLayout (coordinación de behaviors).",
+      "expected_context_keywords": ["LinearLayout", "ConstraintLayout", "RelativeLayout", "layout"],
+      "difficulty": "medium",
+      "type": "conceptual"
+    },
+    {
+      "id": 21,
+      "module": "M3",
+      "topic": "ConstraintLayout",
+      "question": "¿Por qué se recomienda ConstraintLayout sobre LinearLayout anidados?",
+      "ground_truth": "ConstraintLayout evita jerarquías profundas de vistas que degradan el rendimiento. Permite diseños complejos en un solo nivel usando restricciones (constraints) entre elementos, mejora la performance del layout rendering y simplifica el mantenimiento.",
+      "expected_context_keywords": ["ConstraintLayout", "performance", "jerarquía", "constraint"],
+      "difficulty": "medium",
+      "type": "application"
+    },
+    {
+      "id": 22,
+      "module": "M3",
+      "topic": "Views y Widgets",
+      "question": "Escribe el XML para un Button con id `btnEnviar`, texto \"Enviar\" y ancho que ocupe todo el padre.",
+      "ground_truth": "```xml\n<Button\n    android:id=\"@+id/btnEnviar\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"wrap_content\"\n    android:text=\"Enviar\" />\n```",
+      "expected_context_keywords": ["Button", "match_parent", "wrap_content", "id"],
+      "difficulty": "easy",
+      "type": "code"
+    },
+    {
+      "id": 23,
+      "module": "M3",
+      "topic": "findViewById y View Binding",
+      "question": "¿Qué es View Binding y por qué es superior a findViewById?",
+      "ground_truth": "View Binding genera una clase de binding por cada archivo XML de layout, dando acceso a todas las vistas con null-safety y type-safety en tiempo de compilación. Elimina NullPointerException y ClassCastException comunes con `findViewById`. Se habilita en build.gradle con `viewBinding = true`.",
+      "expected_context_keywords": ["View Binding", "findViewById", "null-safety", "type-safe"],
+      "difficulty": "medium",
+      "type": "conceptual"
+    },
+    {
+      "id": 24,
+      "module": "M3",
+      "topic": "Event listeners",
+      "question": "¿Cómo asigno un OnClickListener a un botón `btnEnviar` en Kotlin?",
+      "ground_truth": "```kotlin\nbinding.btnEnviar.setOnClickListener {\n    // código a ejecutar\n    Toast.makeText(this, \"Clic!\", Toast.LENGTH_SHORT).show()\n}\n```\nCon lambda al ser una SAM interface.",
+      "expected_context_keywords": ["setOnClickListener", "lambda", "Toast"],
+      "difficulty": "easy",
+      "type": "code"
+    },
+    {
+      "id": 25,
+      "module": "M3",
+      "topic": "Jetpack Compose",
+      "question": "¿Qué es Jetpack Compose y qué lo diferencia del sistema de Views tradicional?",
+      "ground_truth": "Jetpack Compose es el toolkit moderno de UI declarativo para Android usando Kotlin. A diferencia del sistema imperativo de Views con XML, Compose declara cómo debe verse la UI para un estado dado; el framework se encarga de la recomposición automática cuando cambia el estado. Menos código, más reactivo.",
+      "expected_context_keywords": ["Compose", "declarativo", "Composable", "recomposición"],
+      "difficulty": "medium",
+      "type": "conceptual"
+    },
+    {
+      "id": 26,
+      "module": "M3",
+      "topic": "Jetpack Compose",
+      "question": "Escribe un composable `@Composable fun Saludo(nombre: String)` que muestre \"Hola, {nombre}\" en un Text.",
+      "ground_truth": "```kotlin\n@Composable\nfun Saludo(nombre: String) {\n    Text(text = \"Hola, $nombre\")\n}\n```",
+      "expected_context_keywords": ["@Composable", "Text", "string template"],
+      "difficulty": "easy",
+      "type": "code"
+    },
+    {
+      "id": 27,
+      "module": "M3",
+      "topic": "Navegación",
+      "question": "¿Cuál es el componente recomendado para navegar entre pantallas en apps Android modernas?",
+      "ground_truth": "Navigation Component de Jetpack, configurado con un NavHostFragment (Views) o NavHost (Compose) y un navigation graph XML que define destinos y acciones. Ofrece manejo consistente de back stack, paso de argumentos type-safe (Safe Args) y animaciones.",
+      "expected_context_keywords": ["Navigation", "NavHost", "navigation graph", "Safe Args"],
+      "difficulty": "medium",
+      "type": "conceptual"
+    },
+    {
+      "id": 28,
+      "module": "M3",
+      "topic": "RecyclerView",
+      "question": "¿Cuáles son los componentes principales de un RecyclerView y su responsabilidad?",
+      "ground_truth": "RecyclerView (contenedor), Adapter (vincula datos con vistas, crea y recicla ViewHolders), ViewHolder (referencia a las vistas de un ítem, evita findViewById repetitivo), LayoutManager (maneja el posicionamiento y scroll: Linear, Grid, Staggered), ItemDecoration (dividers, spacing).",
+      "expected_context_keywords": ["RecyclerView", "Adapter", "ViewHolder", "LayoutManager"],
+      "difficulty": "hard",
+      "type": "conceptual"
+    },
+    {
+      "id": 29,
+      "module": "M3",
+      "topic": "Recursos — strings.xml",
+      "question": "¿Por qué debo usar strings.xml en lugar de hardcodear textos en el layout?",
+      "ground_truth": "Para soportar internacionalización (distintos idiomas en carpetas values-xx/), mantenibilidad (un solo lugar para cambiar textos), y buenas prácticas. Hardcodear textos dispara un warning de lint. Ejemplo: `android:text=\"@string/bienvenida\"`.",
+      "expected_context_keywords": ["strings.xml", "internacionalización", "recursos", "@string"],
+      "difficulty": "easy",
+      "type": "application"
+    },
+    {
+      "id": 30,
+      "module": "M3",
+      "topic": "Temas y estilos",
+      "question": "¿Cómo aplico Material Design 3 a mi aplicación Android y qué beneficios trae?",
+      "ground_truth": "Usar la librería Material Components (`com.google.android.material:material`) con tema base `Theme.Material3.DayNight` en themes.xml. Beneficios: componentes consistentes (Button, TextField, Card), dynamic color (Android 12+), accesibilidad integrada, dark theme automático y patrones modernos de UX.",
+      "expected_context_keywords": ["Material", "theme", "DayNight", "dynamic color"],
+      "difficulty": "hard",
+      "type": "application"
+    }
+  ]
+}

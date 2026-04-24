@@ -69,8 +69,8 @@ services:
       MAX_UPLOAD_SIZE_MB: "50"
       CHAT_RATE_LIMIT_PER_HOUR: "20"
       API_RATE_LIMIT_PER_MINUTE: "100"
-      RAG_TOP_K: "5"
-      RAG_SIMILARITY_THRESHOLD: "0.70"
+      RAG_TOP_K: "7"
+      RAG_SIMILARITY_THRESHOLD: "0.65"
       RAG_CONTEXT_WINDOW: "5"
       CHUNK_SIZE: "500"
       CHUNK_OVERLAP: "50"
@@ -87,6 +87,10 @@ services:
       - ./backend/app:/app/app
       - ./backend/scripts:/app/scripts
       - ./backend/alembic:/app/alembic
+      - ./backend/tests:/app/tests
+      - ./backend/notebooks:/app/notebooks
+      - ./backend/pytest.ini:/app/pytest.ini
+      - ./docs:/app/docs
       - uploads_data:/app/uploads
     command: >
       sh -c "alembic upgrade head &&

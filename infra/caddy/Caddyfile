@@ -1,0 +1,52 @@
+# Caddyfile — Tutor IA RFA · producción VM
+# TLS automático vía Let's Encrypt.
+# Reemplazar {$DOMAIN} con el dominio real vía variable de entorno.
+
+{$DOMAIN:tutor.iestprfa.edu.pe} {
+    encode zstd gzip
+
+    # Backend API FastAPI
+    handle /api/* {
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Health check
+    handle /health {
+        reverse_proxy backend:8000
+    }
+
+    # Cabeceras de seguridad
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "geolocation=(), microphone=(), camera=()"
+        -Server
+    }
+
+    # Logs estructurados
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size 100mb
+            roll_keep 5
+        }
+        format json
+    }
+
+    # El frontend se sirve desde Firebase Hosting (no en este Caddy).
+    # Si en el futuro se sirve localmente, descomentar:
+    # handle {
+    #     root * /srv/frontend
+    #     try_files {path} /index.html
+    #     file_server
+    # }
+
+    handle {
+        respond "Tutor IA — IESTP RFA · API endpoint" 200
+    }
+}

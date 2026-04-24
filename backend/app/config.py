@@ -33,8 +33,8 @@ class Settings(BaseSettings):
     API_RATE_LIMIT_PER_MINUTE: int = 100
 
     # RAG
-    RAG_TOP_K: int = 5
-    RAG_SIMILARITY_THRESHOLD: float = 0.70
+    RAG_TOP_K: int = 7  # Sprint 4 iter v2: 5 → 7 (más contexto, mejor recall)
+    RAG_SIMILARITY_THRESHOLD: float = 0.65  # Sprint 4 iter v2: 0.70 → 0.65 (permite más chunks relevantes)
     RAG_CONTEXT_WINDOW: int = 5
     CHUNK_SIZE: int = 500
     CHUNK_OVERLAP: int = 50

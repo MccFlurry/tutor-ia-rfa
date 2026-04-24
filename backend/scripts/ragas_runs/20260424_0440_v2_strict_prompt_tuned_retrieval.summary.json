@@ -1,0 +1,96 @@
+{
+  "label": "v2_strict_prompt_tuned_retrieval",
+  "timestamp": "20260424_0440",
+  "n_questions": 30,
+  "config": {
+    "chunk_size": 500,
+    "chunk_overlap": 50,
+    "threshold": 0.7,
+    "top_k": 5,
+    "llm": "qwen2.5:7b-instruct-q4_K_M",
+    "embed": "mxbai-embed-large"
+  },
+  "global": {
+    "faithfulness": 0.633,
+    "answer_relevancy": 0.863,
+    "context_precision": 0.286,
+    "context_recall": 0.532
+  },
+  "thresholds": {
+    "faithfulness_required": 0.75,
+    "answer_relevancy_required": 0.7
+  },
+  "pass": {
+    "faithfulness": false,
+    "answer_relevancy": true
+  },
+  "by_module": {
+    "M1": {
+      "n": 6,
+      "faithfulness": 0.822,
+      "answer_relevancy": 0.875,
+      "context_precision": 0.4,
+      "context_recall": 0.817
+    },
+    "M2": {
+      "n": 13,
+      "faithfulness": 0.683,
+      "answer_relevancy": 0.87,
+      "context_precision": 0.291,
+      "context_recall": 0.419
+    },
+    "M3": {
+      "n": 11,
+      "faithfulness": 0.472,
+      "answer_relevancy": 0.848,
+      "context_precision": 0.218,
+      "context_recall": 0.509
+    }
+  },
+  "by_type": {
+    "application": {
+      "n": 6,
+      "faithfulness": 0.638,
+      "answer_relevancy": 0.883,
+      "context_precision": 0.297,
+      "context_recall": 0.836
+    },
+    "code": {
+      "n": 8,
+      "faithfulness": 0.353,
+      "answer_relevancy": 0.841,
+      "context_precision": 0.217,
+      "context_recall": 0.392
+    },
+    "conceptual": {
+      "n": 16,
+      "faithfulness": 0.772,
+      "answer_relevancy": 0.866,
+      "context_precision": 0.317,
+      "context_recall": 0.487
+    }
+  },
+  "by_difficulty": {
+    "easy": {
+      "n": 10,
+      "faithfulness": 0.585,
+      "answer_relevancy": 0.856,
+      "context_precision": 0.352,
+      "context_recall": 0.585
+    },
+    "hard": {
+      "n": 4,
+      "faithfulness": 0.545,
+      "answer_relevancy": 0.892,
+      "context_precision": 0.0,
+      "context_recall": 0.567
+    },
+    "medium": {
+      "n": 16,
+      "faithfulness": 0.686,
+      "answer_relevancy": 0.86,
+      "context_precision": 0.317,
+      "context_recall": 0.49
+    }
+  }
+}

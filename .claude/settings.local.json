@@ -39,7 +39,23 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/health)",
       "Bash(docker compose *)",
       "Bash(curl -s http://localhost:8000/api/v1/health)",
-      "Bash(curl -s -X POST http://localhost:8000/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"test.student@test.pe\",\"password\":\"Test1234!\"}')"
+      "Bash(curl -s -X POST http://localhost:8000/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"test.student@test.pe\",\"password\":\"Test1234!\"}')",
+      "Bash(python -c \"from app.utils.logger import logger; from app.main import app, limiter; print\\('OK main imports'\\)\")",
+      "Bash(python -m pytest tests/unit/ --collect-only -q)",
+      "Bash(python -m py_compile app/main.py app/utils/logger.py tests/conftest.py tests/unit/test_leveling_service.py tests/unit/test_entry_assessment_parser.py tests/integration/test_iso25010.py)",
+      "Bash(python -c \"import json; json.load\\(open\\('notebooks/ragas_validation.ipynb', encoding='utf-8'\\)\\); print\\('ipynb JSON OK'\\)\")",
+      "Bash(python -c \"import json; d = json.load\\(open\\('tests/fixtures/golden_set.json', encoding='utf-8'\\)\\); print\\(f'{d[\\\\\"meta\\\\\"][\\\\\"total_questions\\\\\"]} questions, {len\\(d[\\\\\"questions\\\\\"]\\)} actual'\\)\")",
+      "Bash(python -c \"import json; d=json.load\\(open\\('package.json', encoding='utf-8'\\)\\); print\\('monaco:', d['dependencies'].get\\('@monaco-editor/react'\\)\\)\")",
+      "Bash(curl -s http://localhost:11434/api/tags)",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Bash(grep -E \"^\\(Q|RAGAS|config|output|={5,}|RESUMEN|faithfulness|answer_relevancy|context_precision|context_recall|pass|CSV|Summary|\\\\s*\\\\[\\)\")",
+      "Bash(tee /tmp/ragas_output.log)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)",
+      "Bash(curl -s -o /tmp/f.html -w \"HTTP %{http_code} | size=%{size_download}\\\\n\" http://localhost:5173)",
+      "Bash(curl -s -o /tmp/cc.js -w \"HTTP %{http_code} | size=%{size_download}\\\\n\" \"http://localhost:5173/src/pages/CodingChallengePage.tsx?t=1\")",
+      "Bash(tee /tmp/ragas_v2.log)",
+      "Bash(python -c ' *)",
+      "Bash(tee /tmp/ragas_v3.log)"
     ]
   }
 }

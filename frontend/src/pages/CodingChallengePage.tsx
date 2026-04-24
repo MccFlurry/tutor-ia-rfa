@@ -16,6 +16,7 @@ import {
 import toast from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import Editor from '@monaco-editor/react'
 import CodeBlock from '@/components/topics/CodeBlock'
 import { Button } from '@/components/ui/button'
 import { codingApi } from '@/api/coding'
@@ -347,14 +348,29 @@ export default function CodingChallengePage() {
                 <div className="w-3 h-3 rounded-full bg-green-500/80" />
               </div>
             </div>
-            {/* Textarea editor */}
-            <textarea
+            {/* Monaco editor */}
+            <Editor
               value={code}
-              onChange={(e) => setCode(e.target.value)}
-              disabled={submitMutation.isPending}
-              spellCheck={false}
-              className="w-full min-h-[400px] bg-gray-900 text-gray-100 font-mono text-sm p-4 resize-y focus:outline-none placeholder:text-gray-600 disabled:opacity-50"
-              placeholder="// Escribe tu código aquí..."
+              onChange={(value) => setCode(value ?? '')}
+              language={challenge.language?.toLowerCase() === 'kotlin' ? 'kotlin' : 'plaintext'}
+              theme="vs-dark"
+              height="480px"
+              loading={<div className="p-4 text-sm text-gray-500">Cargando editor...</div>}
+              options={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: 14,
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                wordWrap: 'on',
+                tabSize: 4,
+                insertSpaces: true,
+                automaticLayout: true,
+                readOnly: submitMutation.isPending,
+                renderLineHighlight: 'gutter',
+                smoothScrolling: true,
+                cursorBlinking: 'smooth',
+                padding: { top: 12, bottom: 12 },
+              }}
             />
           </div>
 

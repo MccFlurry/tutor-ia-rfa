@@ -1,0 +1,238 @@
+id,module,type,difficulty,question,answer,n_contexts,faithfulness,answer_relevancy,context_precision,context_recall,elapsed_s,error
+1,M1,conceptual,easy,¿Cuáles son los requisitos mínimos de hardware para instalar Android Studio?,"Para instalar Android Studio, es importante tener en cuenta los requisitos mínimos de hardware recomendados por Google. Según el contexto proporcionado:
+
+- **Sistema Operativo**: Windows 10/11 (64 bits) o macOS 10.14 (Mojave) o superior.
+- **Procesador**: El sistema operativo debe ser compatible con el procesador, ya sea Apple Silicon o Intel para macOS, y no hay especificaciones adicionales del procesador mencionadas.
+- **Memoria RAM**: Al menos 8 GB de RAM son necesarios. Se recomienda tener 1",5,1.0,0.903,0.25,0.75,35.0,
+2,M1,conceptual,easy,¿Qué carpeta del proyecto Android contiene los recursos XML de layouts?,"En un proyecto Android, los archivos de diseño XML para los layouts se encuentran en la carpeta `res/layout/`. Esta carpeta es donde defines cómo se verán las interfaces de usuario de tus actividades (`Activities`). Cada archivo XML en esta carpeta representa una pantalla o fragmento de pantalla que tu aplicación mostrará.
+
+Por ejemplo, el archivo `activity_main.xml` que mencionaste anteriormente probablemente se encuentra en la ruta `res/layout/activity_main.xml`.
+
+Aquí tienes un ejemplo prácti",5,1.0,0.908,0.2,0.75,26.2,
+3,M1,conceptual,medium,¿Qué es una Activity en Android y cuál es su rol principal?,"Una **Activity** en Android representa una pantalla interactiva en tu aplicación, similar a las páginas de un sitio web. Su rol principal es proporcionar una interfaz de usuario para que el usuario interactúe con la aplicación.
+
+En términos más técnicos, cada Activity se encarga de mostrar contenido y responder a los eventos del usuario, como toques en pantalla o acciones específicas. Por ejemplo, si tu aplicación tiene una pantalla de inicio, una pantalla de detalles de producto y un menú princ",5,1.0,0.873,0.367,1.0,24.8,
+4,M1,application,medium,¿En qué método del ciclo de vida debo liberar recursos pesados como conexiones de red antes de que la Activity se destruya?,"Para liberar recursos pesados como conexiones de red, es recomendable hacerlo en el método `onPause()` o `onDestroy()`. Sin embargo, generalmente es una práctica más segura y eficiente realizar esta operación en `onPause()` ya que este método se llama incluso si la Activity vuelve a estar en primer plano. Aquí te muestro un ejemplo de cómo podrías liberar una conexión de red en el método `onPause()`:
+
+```kotlin
+override fun onPause() {
+    super.onPause()
+    
+    // Ejemplo de liberación de rec",5,0.5,0.799,0.25,1.0,37.5,
+5,M1,application,easy,¿Cómo creo un nuevo emulador Android (AVD) desde Android Studio?,"Para crear un nuevo emulador Android (AVD) en Android Studio, sigue estos pasos detallados:
+
+1. **Abre el AVD Manager**:
+   - Ve a `Tools → Device Manager` o busca la opción ""Device Manager"" en la barra lateral de Android Studio.
+
+2. **Haz clic en 'Create Virtual Device'**:
+   - En el AVD Manager, encontrarás un botón que dice ""Create Virtual Device"". Haz clic en él para iniciar el proceso de creación del emulador.
+
+3. **Selecciona un dispositivo virtual**:
+   - En la ventana que se abre, selecc",5,0.875,0.919,0.333,0.8,42.4,
+6,M1,conceptual,medium,¿Qué es el archivo build.gradle.kts (Module) y qué contiene?,"El archivo `build.gradle.kts` (Module) es un archivo de configuración crucial en la construcción y gestión del proyecto Android. Este archivo define las dependencias, propiedades y tareas que se requieren para compilar y ejecutar tu aplicación.
+
+En el contexto de nuestro curso, este archivo contiene información sobre cómo se va a compilar y ejecutar tu módulo de aplicación. Aquí te explico su contenido básico:
+
+1. **Dependencias**: Especifica las bibliotecas externas que tu proyecto necesita par",5,0.75,0.888,1.0,0.6,49.4,
+7,M2,conceptual,easy,¿Cuál es la diferencia entre `val` y `var` en Kotlin?,"En Kotlin, `val` y `var` son palabras clave utilizadas para declarar variables, pero con diferencias cruciales en cuanto a su mutabilidad.
+
+`val` se utiliza para declarar una variable inmutable. Una vez que se inicializa, el valor de la variable no puede ser cambiado. Esto significa que una vez asignada, `val` permanece constante durante toda la ejecución del programa. Por ejemplo:
+
+```kotlin
+val nombre = ""María""    // Inmutable (no se puede cambiar)
+```
+
+`var`, por otro lado, se utiliza para de",5,0.875,0.897,1.0,1.0,32.0,
+8,M2,code,easy,Escribe un programa Kotlin que declare una variable `nombre` inmutable con tu nombre y la imprima.,"Claro! Vamos a escribir un pequeño programa en Kotlin donde declararemos una variable `nombre` como inmutable (`val`) con tu nombre, y luego la imprimiremos.
+
+Aquí tienes el código:
+
+```kotlin
+// Declaramos la variable nombre como inmutable (val) y le asignamos tu nombre
+val nombre = ""Juan Pérez""
+
+// Imprimimos el valor de la variable nombre
+println(""Mi nombre es $nombre"")
+```
+
+Este programa declara una variable `nombre` con tu nombre, que en este caso es ""Juan Pérez"". Como se declaró como inmut",5,0.5,0.891,0.5,0.333,23.8,
+9,M2,conceptual,medium,¿Cómo se usa el `when` en Kotlin y qué ventaja tiene sobre `switch` de Java?,"¡Hola! En Kotlin, el operador `when` es una estructura condicional muy poderosa que ofrece varias ventajas sobre el `switch` de Java. Permite realizar múltiples comprobaciones de manera concisa y elegante.
+
+El `when` en Kotlin puede funcionar como un `switch`, pero también puede ser utilizado para patrones más complejos, como comparaciones de objetos o listas de valores. Aquí te muestro cómo se usa y cuáles son sus ventajas:
+
+### Sintaxis básica del `when`
+
+```kotlin
+val dia = 3
+
+// Similar a un",5,0.857,0.88,0.5,0.2,43.8,
+10,M2,code,medium,"Escribe una función `clasificarEdad(edad: Int): String` que retorne ""Niño"" si <12, ""Adolescente"" si 12-17, ""Adulto"" si >=18.","¡Claro! Vamos a implementar la función `clasificarEdad` utilizando el lenguaje Kotlin y las estructuras de control que hemos estudiado.
+
+Podemos usar un `when` para este caso, ya que es una forma versátil y legible de manejar múltiples condiciones. Aquí tienes el código:
+
+```kotlin
+fun clasificarEdad(edad: Int): String {
+    return when (edad) {
+        in 0..11 -> ""Niño""
+        in 12..17 -> ""Adolescente""
+        else -> ""Adulto""
+    }
+}
+```
+
+### Explicación:
+- `when` se utiliza para evaluar un",5,0.714,0.681,0.333,1.0,40.7,
+11,M2,conceptual,medium,¿Qué diferencia hay entre `for (i in 1..10)` y `for (i in 1 until 10)` en Kotlin?,"En Kotlin, tanto `for (i in 1..10)` como `for (i in 1 until 10)` se utilizan para iterar sobre un rango de valores. Sin embargo, hay una diferencia clave entre ambos:
+
+- **`for (i in 1..10)`**: Este ciclo incluye el valor final en el rango. Es decir, `i` tomará los valores desde 1 hasta 10, inclusive.
+
+- **`for (i in 1 until 10)`**: Este ciclo excluye el valor final del rango. En este caso, `i` tomará los valores desde 1 hasta 9, es decir, no incluirá el número 10.
+
+Aquí tienes un ejemplo prácti",5,1.0,0.859,0.167,0.0,42.2,
+12,M2,conceptual,medium,¿Qué es una función lambda en Kotlin y cómo se declara?,"Una función lambda en Kotlin es una forma concisa de definir funciones anónimas, es decir, funciones sin nombre que pueden ser asignadas a variables o pasadas como argumentos a otras funciones. Las lambdas son muy útiles para manejar tareas cortas y se integran bien con el paradigma funcional de Kotlin.
+
+En Kotlin, una función lambda se declara usando la sintaxis `{ parámetros -> cuerpo }`. Aquí te muestro un ejemplo básico:
+
+```kotlin
+val duplicar = { numero: Int -> numero * 2 }
+println(duplica",5,0.833,0.951,0.5,0.75,31.3,
+13,M2,code,medium,"Usando `filter` y `map`, transforma la lista `[1,2,3,4,5]` para obtener los cuadrados de los números pares.","Claro! Vamos a usar las funciones `filter` y `map` en conjunto para lograr lo que necesitas. Primero, filtraremos la lista para保留请回答。",2,0.0,0.838,0.0,0.333,16.9,
+14,M2,code,easy,¿Cómo se declara una clase con constructor primario en Kotlin?,"Para declarar una clase con un constructor primario en Kotlin, puedes seguir el ejemplo que ya has visto. El constructor primario es el que recibe los parámetros al momento de crear la instancia de la clase.
+
+Aquí tienes un ejemplo basado en la clase `Alumno` que mencionaste:
+
+```kotlin
+class Alumno(val nombre: String, val edad: Int) {
+    var carrera: String = ""Sin asignar""
+
+    // Constructor secundario
+    constructor(nombre: String, edad: Int, carrera: String) : this(nombre, edad) {
+        ",5,1.0,0.872,0.2,0.667,30.7,
+15,M2,conceptual,medium,¿Por qué las clases en Kotlin son `final` por defecto y cómo las hago heredables?,"En Kotlin, las clases son `final` o cerradas por defecto para proteger la integridad de los objetos y evitar que se modifiquen accidentalmente. Sin embargo, si necesitas permitir la herencia, puedes usar la palabra clave `open`.
+
+Aquí te muestro un ejemplo basado en el contexto del curso:
+
+```kotlin
+// Definimos una clase Animal como open para permitir herencia
+open class Animal(val nombre: String) {
+    // La función hacerSonido() es también abierta para ser sobreescrita por las clases hijas
+  ",5,0.667,0.904,0.5,0.5,31.8,
+16,M2,conceptual,medium,¿Qué beneficios da una `data class` en Kotlin y cuándo usarla?,"Una `data class` en Kotlin es un tipo de clase que proporciona automáticamente varios métodos útiles, como constructor, getters, setters, equals(), hashCode() y toString(). Estos métodos son especialmente útiles para clases que se utilizan principalmente para almacenar datos. Aquí te explico los beneficios y el momento adecuado para usar una `data class`:
+
+### Beneficios de las `data classes`
+
+1. **Constructor automático**: Se genera un constructor con todos los parámetros requeridos por los cam",5,0.625,0.86,0.0,0.0,31.8,
+17,M2,code,hard,Diseña una interfaz `Vehiculo` con método `arrancar()` y crea dos clases `Auto` y `Moto` que la implementen.,"¡Claro! Vamos a diseñar la interfaz `Vehiculo` con el método `arrancar()`. Luego, crearemos las clases `Auto` y `Moto`, ambas implementando esta interfaz.
+
+### Interfaz Vehiculo
+
+```kotlin
+interface Vehiculo {
+    fun arrancar()
+}
+```
+
+### Clase Auto que implementa la interfaz Vehiculo
+
+```kotlin
+class Auto : Vehiculo {
+    override fun arrancar() {
+        println(""El auto está arrancando..."")
+    }
+}
+```
+
+### Clase Moto que implementa la interfaz Vehiculo
+
+```kotlin
+class Moto : Vehiculo {
+   ",5,0.0,0.893,0.0,0.0,27.7,
+18,M2,application,hard,¿Qué es el polimorfismo y cómo lo aplicarías en una app Android?,"El polimorfismo es un concepto fundamental en la programación orientada a objetos que permite que un objeto se comporte de diferentes formas dependiendo del contexto en el que se utilice. En el desarrollo de aplicaciones Android, especialmente utilizando Kotlin, el polimorfismo se puede implementar para mejorar la flexibilidad y reutilización del código.
+
+### Ejemplo práctico: Polimorfismo con Interfaces
+
+Supongamos que estamos desarrollando una aplicación que maneja diferentes tipos de usuarios",5,0.0,0.857,0.0,0.667,46.9,
+19,M2,conceptual,medium,¿Qué es el operador `?.` (safe call) en Kotlin?,"El operador `?.` en Kotlin se conoce como safe call y es una característica muy útil para manejar posibles nulidades de objetos sin generar excepciones. Este operador permite acceder a propiedades o llamar a métodos de un objeto que podría ser nulo, evitando así el error `NullPointerException`.
+
+Por ejemplo, supongamos que tienes una variable `persona` que puede ser `null`, y quieres acceder a su propiedad `nombre`. Sin el safe call, intentar acceder a `persona.nombre` generaría una excepción si",5,0.833,0.856,0.0,0.0,29.1,
+20,M3,conceptual,medium,¿Cuáles son los layouts más comunes en Android y sus usos?,"En el desarrollo de aplicaciones Android, se utilizan varios tipos de layouts para organizar la interfaz de usuario. Los layouts más comunes incluyen `LinearLayout`, `RelativeLayout` y `ConstraintLayout`. Cada uno tiene características específicas que los hacen adecuados para diferentes situaciones.
+
+### 1. LinearLayout
+El `LinearLayout` es el layout más básico y se utiliza para organizar los elementos en una línea horizontal o vertical. Es fácil de usar y perfecto cuando necesitas colocar eleme",5,0.857,0.859,0.167,0.8,42.6,
+21,M3,application,medium,¿Por qué se recomienda ConstraintLayout sobre LinearLayout anidados?,"Se recomienda usar `ConstraintLayout` sobre `LinearLayout` anidados por varias razones de eficiencia y flexibilidad en la elaboración de interfaces de usuario (UI) para aplicaciones Android. Aquí te explico con más detalle:
+
+1. **Eficiencia**: `ConstraintLayout` es más ligero y consume menos recursos que layouts anidados, ya que el sistema no necesita renderizar tantos componentes.
+
+2. **Flexibilidad**: Con `ConstraintLayout`, puedes establecer restricciones (constraints) entre los elementos y e",5,0.625,0.943,0.867,0.75,41.5,
+22,M3,code,easy,"Escribe el XML para un Button con id `btnEnviar`, texto ""Enviar"" y ancho que ocupe todo el padre.","Claro, te proporcionaré el código XML necesario para definir un botón con las características que mencionaste. El botón tendrá el ID `btnEnviar`, el texto ""Enviar"", y ocupará todo el ancho del elemento padre.
+
+Aquí está el fragmento de XML:
+
+```xml
+<Button
+    android:id=""@+id/btnEnviar""
+    android:layout_width=""match_parent""
+    android:layout_height=""wrap_content""
+    android:text=""Enviar"" />
+```
+
+Este código define un botón que se ajustará horizontalmente a todo el ancho del elemento padre (",5,0.167,0.833,0.5,0.8,27.6,
+23,M3,conceptual,medium,¿Qué es View Binding y por qué es superior a findViewById?,"View Binding es una técnica que permite vincular variables de Kotlin a los elementos de interfaz de usuario (Views) en un archivo XML, lo cual simplifica el acceso y manipulación de estos elementos. En comparación con `findViewById`, View Binding ofrece varias ventajas:
+
+1. **Seguridad**: Evita errores comunes como `NullPointerException` al asegurarse de que el elemento existe antes de acceder a él.
+2. **Eficiencia**: Reduce la sobrecarga en tiempo de ejecución ya que no requiere realizar búsque",5,0.429,0.869,0.333,0.25,34.5,
+24,M3,code,easy,¿Cómo asigno un OnClickListener a un botón `btnEnviar` en Kotlin?,"Para asignar un `OnClickListener` a un botón llamado `btnEnviar` en Kotlin, puedes seguir el ejemplo que te proporcioné anteriormente. Aquí tienes cómo hacerlo paso a paso:
+
+1. Primero, asegúrate de que tu botón esté correctamente definido en tu archivo XML con el id `btnEnviar`.
+2. Luego, en tu clase `MainActivity`, encuentra el botón y asigna un `OnClickListener` a él.
+
+Aquí te muestro un ejemplo completo:
+
+```kotlin
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedIn",5,0.8,0.903,0.2,0.5,26.6,
+25,M3,conceptual,medium,¿Qué es Jetpack Compose y qué lo diferencia del sistema de Views tradicional?,"Jetpack Compose es un framework para la creación de interfaces de usuario en Android que se introdujo por primera vez en 2021 como una alternativa al sistema de vistas tradicional. En el contexto de tu curso, Jetpack Compose ofrece una forma más moderna y declarativa de construir interfaces de usuario.
+
+### Diferencias entre Jetpack Compose y la interfaz de usuario basada en Views:
+
+1. **Enfoque Declarativo**:
+   - **Views**: El enfoque tradicional es imperativo, donde tienes que especificar cad",3,0.75,0.841,0.0,0.0,39.3,
+26,M3,code,easy,"Escribe un composable `@Composable fun Saludo(nombre: String)` que muestre ""Hola, {nombre}"" en un Text.","¡Claro! Vamos a crear una función composable `@Composable` llamada `Saludo` que tome el nombre como parámetro y muestre un mensaje con ese nombre utilizando un `Text`.
+
+Primero, necesitaremos importar las dependencias necesarias para usar composables en Android. Asegúrate de tener las siguientes importaciones:
+
+```kotlin
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.material3.Text
+```
+
+Ahora, podemos escribir la función composable `Saludo`:
+
+```kotlin
+@Composable
+fun Sa",5,0.0,0.726,0.0,0.0,28.4,
+27,M3,conceptual,medium,¿Cuál es el componente recomendado para navegar entre pantallas en apps Android modernas?,"En apps Android modernas, el componente recomendado para navegar entre pantallas es la **Activity** junto con los **Intents** explícitos o implícitos. Los Intents son especialmente útiles para comunicar acciones entre Activities y pasar datos.
+
+Por ejemplo, si quieres navegar desde una `MainActivity` a una `DetalleActivity`, puedes utilizar un Intent explícito de la siguiente manera:
+
+```kotlin
+// En MainActivity.kt
+val intent = Intent(this, DetalleActivity::class.java)
+startActivity(intent)
+```",5,0.8,0.823,0.0,0.4,26.6,
+28,M3,conceptual,hard,¿Cuáles son los componentes principales de un RecyclerView y su responsabilidad?,"En el desarrollo de aplicaciones Android, `RecyclerView` es un componente crucial para mostrar listas dinámicas y eficientes. Los componentes principales de un `RecyclerView` incluyen:
+
+1. **Layout Manager**: Este se encarga de cómo se organiza la lista en la pantalla. Por ejemplo, puedes usar `LinearLayoutManager`, `GridLayoutManager`, o `StaggeredGridLayoutManager`. Cada uno tiene sus propias características y es útil para diferentes tipos de diseño.
+
+2. **Adapter**: Es el puente entre los dat",5,0.833,0.837,0.2,1.0,31.8,
+29,M3,application,easy,¿Por qué debo usar strings.xml en lugar de hardcodear textos en el layout?,"En desarrollo Android, es una buena práctica no hardcodear los textos directamente en el archivo XML del layout. Usar `strings.xml` para almacenar estos textos tiene múltiples beneficios:
+
+1. **Localización**: Permite traducir fácilmente tu aplicación a diferentes idiomas sin modificar el código fuente.
+2. **Consistencia**: Evita errores de ortografía y garantiza que todos los textos utilizados en la aplicación sean consistentes.
+3. **Mantenibilidad**: Facilita la modificación de texto, ya que s",5,0.857,0.866,0.333,0.75,40.9,
+30,M3,application,hard,¿Cómo aplico Material Design 3 a mi aplicación Android y qué beneficios trae?,"Para aplicar Material Design 3 (MD3) en tu aplicación Android, es importante entender que MD3 es la última actualización del diseño de Google para las aplicaciones móviles. Aunque no se ha especificado una versión exacta en el contexto proporcionado, MD3 introduce mejoras visuales y experiencias de usuario que pueden ser muy beneficiosas.
+
+### Pasos para Aplicar Material Design 3
+
+1. **Configuración del Tema**: Primero, necesitas asegurarte de que tu aplicación esté utilizando un tema compatible",5,0.75,0.867,0.2,0.8,57.2,
