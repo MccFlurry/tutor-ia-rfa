@@ -1,0 +1,27 @@
+{
+  "_comment": "Golden set de 20 consultas para benchmark de embeddings. Cada consulta trae 'expected_keywords': términos que deben aparecer en los chunks relevantes del corpus (M1-M3). El chunk se considera relevante si contiene al menos 2 de esos términos (insensible a mayúsculas, substring match). Ajusta las keywords si tu corpus usa terminología específica distinta.",
+  "k": 5,
+  "min_keywords_match": 2,
+  "queries": [
+    {"id": "Q01", "query": "¿Qué es Android Studio?", "expected_keywords": ["Android Studio", "IDE", "desarrollo"]},
+    {"id": "Q02", "query": "Ciclo de vida de una Activity en Android", "expected_keywords": ["Activity", "onCreate", "ciclo de vida"]},
+    {"id": "Q03", "query": "¿Qué contiene el AndroidManifest.xml?", "expected_keywords": ["AndroidManifest", "permisos", "actividad"]},
+    {"id": "Q04", "query": "Diferencia entre val y var en Kotlin", "expected_keywords": ["val", "var", "inmutable"]},
+    {"id": "Q05", "query": "¿Qué es un tipo nullable en Kotlin?", "expected_keywords": ["null", "nullable", "seguridad"]},
+    {"id": "Q06", "query": "Data class en Kotlin", "expected_keywords": ["data class", "equals", "copy"]},
+    {"id": "Q07", "query": "Programación Orientada a Objetos en Kotlin", "expected_keywords": ["herencia", "encapsulamiento", "polimorfismo"]},
+    {"id": "Q08", "query": "Clase abstracta versus interface en Kotlin", "expected_keywords": ["abstracta", "interface", "implementar"]},
+    {"id": "Q09", "query": "Operador safe call en Kotlin", "expected_keywords": ["?.", "safe call", "null"]},
+    {"id": "Q10", "query": "Función scope let en Kotlin", "expected_keywords": ["let", "scope", "it"]},
+    {"id": "Q11", "query": "¿Qué es un RecyclerView?", "expected_keywords": ["RecyclerView", "lista", "ViewHolder"]},
+    {"id": "Q12", "query": "LinearLayout versus ConstraintLayout", "expected_keywords": ["LinearLayout", "ConstraintLayout", "orientation"]},
+    {"id": "Q13", "query": "¿Qué es un CardView en Android?", "expected_keywords": ["CardView", "elevación", "tarjeta"]},
+    {"id": "Q14", "query": "wrap_content y match_parent en Android", "expected_keywords": ["wrap_content", "match_parent", "layout"]},
+    {"id": "Q15", "query": "density-independent pixels dp", "expected_keywords": ["dp", "densidad", "píxeles"]},
+    {"id": "Q16", "query": "strings.xml en proyecto Android", "expected_keywords": ["strings.xml", "recursos", "internacionalización"]},
+    {"id": "Q17", "query": "¿Qué es un Intent en Android?", "expected_keywords": ["Intent", "actividad", "comunicación"]},
+    {"id": "Q18", "query": "Gradle en Android Studio", "expected_keywords": ["Gradle", "build", "dependencias"]},
+    {"id": "Q19", "query": "ViewHolder pattern en RecyclerView", "expected_keywords": ["ViewHolder", "recycle", "findViewById"]},
+    {"id": "Q20", "query": "findViewById para acceder a una vista", "expected_keywords": ["findViewById", "R.id", "vista"]}
+  ]
+}

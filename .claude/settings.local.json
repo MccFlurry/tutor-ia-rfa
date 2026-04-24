@@ -55,7 +55,17 @@
       "Bash(curl -s -o /tmp/cc.js -w \"HTTP %{http_code} | size=%{size_download}\\\\n\" \"http://localhost:5173/src/pages/CodingChallengePage.tsx?t=1\")",
       "Bash(tee /tmp/ragas_v2.log)",
       "Bash(python -c ' *)",
-      "Bash(tee /tmp/ragas_v3.log)"
+      "Bash(tee /tmp/ragas_v3.log)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('Disponibles:', [m['name'] for m in d['models']]\\)\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\([m['name'] for m in d['models']]\\)\")",
+      "Bash(pip install *)",
+      "Bash(python *)",
+      "Bash(DATABASE_URL=\"postgresql://tutor_user:tutor_pass_dev@localhost:5432/tutordb\" python export_corpus.py)",
+      "Bash(PYTHONIOENCODING=utf-8 DATABASE_URL=\"postgresql://tutor_user:tutor_pass_dev@localhost:5432/tutordb\" python export_corpus.py)",
+      "Bash(PYTHONIOENCODING=utf-8 python run_llm_benchmark.py)",
+      "Bash(tasklist)",
+      "Bash(taskkill //F //IM python.exe)",
+      "Bash(tee /tmp/bench_llm.log)"
     ]
   }
 }

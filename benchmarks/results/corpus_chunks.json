@@ -1,0 +1,817 @@
+[
+  {
+    "id": "01dbfba9-8ff6-4b39-b603-5611bfacb52a",
+    "text": "## Inferencia de tipos\n\nKotlin puede deducir el tipo automáticamente:\n\n```kotlin\nval mensaje = \"Hola\"      // Kotlin infiere: String\nval numero = 42            // Kotlin infiere: Int\nval decimal = 3.14         // Kotlin infiere: Double\nval esValido = true        // Kotlin infiere: Boolean\n```\n\n## String templates\n\nKotlin permite insertar variables dentro de cadenas de texto:\n\n```kotlin\nval nombre = \"Carlos\"\nval edad = 22",
+    "document_name": "Lógica de Programación en Kotlin > Variables, Tipos de Datos y Operadores en Kotlin"
+  },
+  {
+    "id": "01f37830-2649-4d9d-aa7b-dacbdbc3ba6e",
+    "text": "```\n💡 Tip: Si tu computadora tiene recursos limitados, puedes usar\nun dispositivo físico Android conectado por USB en modo desarrollador.\n```\n\n## Activar modo desarrollador en un dispositivo físico\n\n1. Ve a **Ajustes → Acerca del teléfono**\n2. Toca **\"Número de compilación\"** 7 veces\n3. Regresa y entra a **\"Opciones de desarrollador\"**\n4. Activa **\"Depuración por USB\"**\n\n## Estructura de Android Studio",
+    "document_name": "Fundamentos y Preparación del Entorno > Instalación y Configuración de Android Studio"
+  },
+  {
+    "id": "02c830b4-aee6-480c-899f-40553ee6e01c",
+    "text": "```xml\n<LinearLayout\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"wrap_content\"\n    android:orientation=\"horizontal\">\n\n    <Button android:text=\"Botón 1\"\n        android:layout_width=\"0dp\"\n        android:layout_height=\"wrap_content\"\n        android:layout_weight=\"1\" />\n\n    <Button android:text=\"Botón 2\"\n        android:layout_width=\"0dp\"\n        android:layout_height=\"wrap_content\"\n        android:layout_weight=\"1\" />\n\n</LinearLayout>\n```",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Fundamentos de XML para Layouts Android"
+  },
+  {
+    "id": "069037b0-2a4e-4a31-bbfe-8cac94d345e9",
+    "text": "// Tu código aquí\n        println(\"¡Hola desde Android!\")\n    }\n}\n```\n\n## Tipos de aplicaciones móviles\n\n| Tipo | Descripción | Ejemplo |\n|------|-------------|---------|\n| **Nativa** | Desarrollada específicamente para una plataforma | Apps de Google |\n| **Híbrida** | Usa tecnologías web empaquetadas | Ionic, React Native |\n| **PWA** | Aplicación web progresiva | Twitter Lite |",
+    "document_name": "Fundamentos y Preparación del Entorno > Introducción al Desarrollo Móvil y Android"
+  },
+  {
+    "id": "0a186fe2-d159-4706-bd0f-7acae621f04a",
+    "text": "<LinearLayout\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:orientation=\"horizontal\"\n        android:padding=\"16dp\"\n        android:gravity=\"center_vertical\">\n\n        <ImageView\n            android:id=\"@+id/ivFoto\"\n            android:layout_width=\"48dp\"\n            android:layout_height=\"48dp\" />",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > RecyclerView y CardView para Listas de Datos"
+  },
+  {
+    "id": "0ad3119d-8e1d-4ee4-a3da-9bfa497ef0a7",
+    "text": "@Test\n    fun dividir_entreCero_lanzaExcepcion() {\n        assertThrows(ArithmeticException::class.java) {\n            Calculadora.dividir(10, 0)\n        }\n    }\n}\n```\n\n## Assertions principales",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Pruebas Unitarias con JUnit en Android"
+  },
+  {
+    "id": "0b9b334c-d36b-4642-a1cc-88aa4908c5e3",
+    "text": "<EditText\n        android:id=\"@+id/etBuscar\"\n        android:layout_width=\"0dp\"\n        android:layout_height=\"wrap_content\"\n        android:hint=\"Buscar...\"\n        app:layout_constraintTop_toBottomOf=\"@id/tvTitulo\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintEnd_toStartOf=\"@id/btnBuscar\"\n        android:layout_marginTop=\"16dp\"\n        android:layout_marginEnd=\"8dp\" />",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Layouts: ConstraintLayout y RelativeLayout"
+  },
+  {
+    "id": "0c27cfed-dca2-4892-98d8-0c881fad6dc2",
+    "text": "# Views básicos: TextView, Button, EditText e ImageView\nMódulo: Elaboración de Interfaces de Usuario (UI)\n\n# Views básicos: TextView, Button, EditText e ImageView\n\n## TextView — Mostrar texto",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Views básicos: TextView, Button, EditText e ImageView"
+  },
+  {
+    "id": "0d725c72-ee2c-4380-97cf-692d16b451ae",
+    "text": "En `AndroidManifest.xml`:\n\n```xml\n<manifest>\n    <uses-permission android:name=\"android.permission.INTERNET\" />\n    <application ...>\n```\n\n## Parseo de JSON con Gson\n\n```kotlin\n// Dependencia: implementation(\"com.google.code.gson:gson:2.10.1\")\n\ndata class Usuario(\n    val id: Int,\n    val nombre: String,\n    val email: String\n)",
+    "document_name": "Componentes Android y Gestión de Datos > Consumo de APIs REST y Manejo de JSON"
+  },
+  {
+    "id": "12c8c8f6-6cb5-4f16-8628-fb40d11798b1",
+    "text": "Tipos de `inputType`:\n| Valor | Teclado |\n|-------|---------|\n| `text` | Texto general |\n| `textPassword` | Contraseña (oculta caracteres) |\n| `textEmailAddress` | Teclado con @ |\n| `number` | Solo números |\n| `phone` | Teclado telefónico |\n\n```kotlin\nval email = findViewById<EditText>(R.id.etEmail)\nval texto = email.text.toString()  // Obtener el texto\n```\n\n## ImageView — Mostrar imágenes",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Views básicos: TextView, Button, EditText e ImageView"
+  },
+  {
+    "id": "13282641-d437-49c8-9947-875fff9d4205",
+    "text": "## ¿Por qué Android?\n\nAndroid es el sistema operativo móvil más utilizado en el mundo, y especialmente en Latinoamérica. Algunas ventajas de desarrollar para Android:\n\n1. **Código abierto**: Android es un proyecto de código abierto basado en Linux\n2. **Gran comunidad**: Millones de desarrolladores comparten recursos y soluciones\n3. **Mercado masivo**: Más de 3 mil millones de dispositivos activos\n4. **Herramientas gratuitas**: Android Studio y el SDK son completamente gratuitos",
+    "document_name": "Fundamentos y Preparación del Entorno > Introducción al Desarrollo Móvil y Android"
+  },
+  {
+    "id": "14529633-6635-4db9-ad35-7f65b5790cb2",
+    "text": "### Consultar datos\n\n```kotlin\nval db = BaseDatosHelper(this).readableDatabase\nval cursor = db.rawQuery(\"SELECT * FROM alumnos\", null)\n\nwhile (cursor.moveToNext()) {\n    val nombre = cursor.getString(cursor.getColumnIndexOrThrow(\"nombre\"))\n    val edad = cursor.getInt(cursor.getColumnIndexOrThrow(\"edad\"))\n    println(\"$nombre - $edad años\")\n}\ncursor.close()\n```\n\n## ¿Cuándo usar cada uno?",
+    "document_name": "Componentes Android y Gestión de Datos > Almacenamiento Local: SharedPreferences y SQLite"
+  },
+  {
+    "id": "14cc3b1a-f46b-4c40-82da-4360a6689bb2",
+    "text": "│   │   │   │   └── drawable/               ← Imágenes e íconos\n│   │   │   └── AndroidManifest.xml         ← Configuración de la app\n│   │   └── test/                           ← Tests unitarios\n│   └── build.gradle.kts                    ← Dependencias del módulo\n├── build.gradle.kts                        ← Configuración global\n└── settings.gradle.kts                     ← Proyectos incluidos\n```",
+    "document_name": "Fundamentos y Preparación del Entorno > Tu Primera Aplicación Android en Kotlin"
+  },
+  {
+    "id": "16c590c4-a9bc-475f-aae4-ff753d18a024",
+    "text": "</FrameLayout>\n```\n\n## Resumen\n\n- XML define la estructura visual de las pantallas Android\n- `dp` y `sp` son las unidades correctas para diseño responsive\n- `match_parent` ocupa todo el espacio disponible del padre\n- `wrap_content` se ajusta al tamaño del contenido",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Fundamentos de XML para Layouts Android"
+  },
+  {
+    "id": "17d83030-8877-41f5-88be-72256f2ce0cb",
+    "text": "fun presentarse(): String {\n        return \"Soy $nombre, tengo $edad años y estudio $carrera\"\n    }\n}\n\n// Crear un objeto (instancia)\nval alumno = Alumno()\nalumno.nombre = \"María\"\nalumno.edad = 20\nalumno.carrera = \"Sistemas\"\nprintln(alumno.presentarse())\n```\n\n## Constructor primario\n\n```kotlin\nclass Alumno(\n    val nombre: String,\n    val edad: Int,\n    val carrera: String\n) {\n    fun presentarse() = \"Soy $nombre, $edad años, $carrera\"\n}",
+    "document_name": "Lógica de Programación en Kotlin > POO: Clases, Objetos y Constructores"
+  },
+  {
+    "id": "1871b7f8-8a14-4b78-8162-619a505c006e",
+    "text": "@PUT(\"todos/{id}\")\n    suspend fun actualizarTarea(@Path(\"id\") id: Int, @Body tarea: Tarea): Tarea\n\n    @DELETE(\"todos/{id}\")\n    suspend fun eliminarTarea(@Path(\"id\") id: Int)\n}\n```\n\n## Paso 3: Crear la instancia de Retrofit\n\n```kotlin\nobject RetrofitClient {\n    private const val BASE_URL = \"https://jsonplaceholder.typicode.com/\"",
+    "document_name": "Componentes Android y Gestión de Datos > Retrofit para Servicios Web en Android"
+  },
+  {
+    "id": "192a5ddf-c03a-409e-af63-acd13c438dec",
+    "text": "## Resumen\n\n- `SharedPreferences` para datos simples clave-valor (configuraciones, tokens)\n- `SQLite` para datos relacionales y estructurados (listas, historiales)\n- Siempre usa `apply()` en vez de `commit()` para SharedPreferences",
+    "document_name": "Componentes Android y Gestión de Datos > Almacenamiento Local: SharedPreferences y SQLite"
+  },
+  {
+    "id": "1b020424-8180-40f4-a810-56c7f1e6dee1",
+    "text": "## Niveles de log\n\n```kotlin\nLog.v(\"MiTag\", \"Verbose: información detallada\")     // Más detallado\nLog.d(\"MiTag\", \"Debug: información de depuración\")    // Para desarrollo\nLog.i(\"MiTag\", \"Info: información general\")            // Información\nLog.w(\"MiTag\", \"Warning: algo podría estar mal\")       // Advertencia\nLog.e(\"MiTag\", \"Error: algo falló\")                    // Error\n```",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Depuración de Aplicaciones con Logcat"
+  },
+  {
+    "id": "1b9c68bb-b822-4b0d-8cb8-32d4b5f468ee",
+    "text": "| Tipo | Descripción | Ejemplo |\n|------|-------------|---------|\n| `Int` | Entero (32 bits) | `val edad: Int = 20` |\n| `Long` | Entero largo (64 bits) | `val poblacion: Long = 8_000_000L` |\n| `Double` | Decimal (64 bits) | `val precio: Double = 19.99` |\n| `Float` | Decimal (32 bits) | `val pi: Float = 3.14f` |\n| `Boolean` | Verdadero/falso | `val activo: Boolean = true` |\n| `String` | Cadena de texto | `val nombre: String = \"Ana\"` |\n| `Char` | Un solo carácter | `val letra: Char = 'A'` |",
+    "document_name": "Lógica de Programación en Kotlin > Variables, Tipos de Datos y Operadores en Kotlin"
+  },
+  {
+    "id": "1c7e3a86-533f-49fa-9a06-6467a7d0bb9f",
+    "text": "```kotlin\nval nombre = \"Carlos\"\nval edad = 22\n\nprintln(\"Me llamo $nombre y tengo $edad años\")\n// Salida: Me llamo Carlos y tengo 22 años\n\nprintln(\"El próximo año tendré ${edad + 1} años\")\n// Salida: El próximo año tendré 23 años\n```\n\n## Operadores aritméticos\n\n```kotlin\nval a = 10\nval b = 3\n\nprintln(a + b)    // 13 (suma)\nprintln(a - b)    // 7  (resta)\nprintln(a * b)    // 30 (multiplicación)\nprintln(a / b)    // 3  (división entera)\nprintln(a % b)    // 1  (módulo / residuo)\n```",
+    "document_name": "Lógica de Programación en Kotlin > Variables, Tipos de Datos y Operadores en Kotlin"
+  },
+  {
+    "id": "1c82f181-d416-4b3a-99b1-d001716a556a",
+    "text": "# Fundamentos de XML para Layouts Android\nMódulo: Elaboración de Interfaces de Usuario (UI)\n\n# Fundamentos de XML para Layouts Android\n\n## ¿Qué es XML en Android?\n\n**XML (eXtensible Markup Language)** es el lenguaje usado para definir las interfaces de usuario en Android. Cada pantalla de tu app se diseña en un archivo `.xml`.\n\n## Estructura básica de un layout",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Fundamentos de XML para Layouts Android"
+  },
+  {
+    "id": "21817687-90a9-48dc-919c-17ab9fa21ae4",
+    "text": "### Recursos gráficos necesarios\n\n| Recurso | Tamaño | Cantidad |\n|---------|--------|----------|\n| Ícono | 512 x 512 px | 1 |\n| Capturas de pantalla (móvil) | mín. 320px | 2-8 |\n| Gráfico de funciones | 1024 x 500 px | 1 |\n\n### Categorización\n- Selecciona la **categoría** (Educación, Productividad, etc.)\n- Completa el **cuestionario de clasificación de contenido**\n- Define los **países** donde estará disponible\n\n## Proceso de publicación",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Publicación en Google Play Store"
+  },
+  {
+    "id": "22c1b8c1-6a9a-43bb-825f-896bfdebcd7a",
+    "text": "@Test\n    fun validarEmail_sinArroba_retornaFalse() {\n        assertFalse(validador.esEmailValido(\"anagmail.com\"))\n    }\n\n    @Test\n    fun validarPassword_menosDe6Caracteres_retornaFalse() {\n        assertFalse(validador.esPasswordSeguro(\"123\"))\n    }\n\n    @Test\n    fun validarPassword_6oMasCaracteres_retornaTrue() {\n        assertTrue(validador.esPasswordSeguro(\"abc123\"))\n    }\n}\n```\n\n## Ejecutar pruebas",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Pruebas Unitarias con JUnit en Android"
+  },
+  {
+    "id": "25dd8411-9460-4f90-8bb0-0193f02e3b83",
+    "text": "```kotlin\nclass Alumno(val nombre: String, val edad: Int) {\n    val esAdulto: Boolean\n\n    init {\n        esAdulto = edad >= 18\n        println(\"Alumno $nombre creado\")\n    }\n}\n```\n\n## Propiedades con getters y setters personalizados\n\n```kotlin\nclass Alumno(val nombre: String, notas: List<Double>) {\n    var promedio: Double = 0.0\n        private set   // Solo se puede modificar dentro de la clase\n\n    val estado: String\n        get() = if (promedio >= 10.5) \"Aprobado\" else \"Desaprobado\"",
+    "document_name": "Lógica de Programación en Kotlin > POO: Clases, Objetos y Constructores"
+  },
+  {
+    "id": "2b17fcee-3881-47a2-a290-90d1aea611a1",
+    "text": "override fun onResume() {\n        super.onResume()\n        Log.d(\"CicloVida\", \"onResume - El usuario puede interactuar\")\n    }\n\n    override fun onPause() {\n        super.onPause()\n        Log.d(\"CicloVida\", \"onPause - Guardando datos temporales\")\n    }\n\n    override fun onStop() {\n        super.onStop()\n        Log.d(\"CicloVida\", \"onStop - Ya no es visible\")\n    }",
+    "document_name": "Componentes Android y Gestión de Datos > Activities y el Ciclo de Vida de Android"
+  },
+  {
+    "id": "2cbca857-7f58-4fc1-af46-4229db4e7f14",
+    "text": "## Filtrar en Logcat\n\n- Por **tag**: Escribe el tag en el campo de búsqueda\n- Por **nivel**: Selecciona el nivel mínimo (Debug, Info, etc.)\n- Por **proceso**: Filtra por tu app específica\n\n## Breakpoints (puntos de interrupción)\n\n1. Haz clic en el margen izquierdo del editor (aparece un punto rojo)\n2. Ejecuta en modo Debug (icono de insecto 🐛)\n3. La ejecución se detendrá en ese punto\n4. Puedes inspeccionar variables y avanzar paso a paso\n\n## Resumen",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Depuración de Aplicaciones con Logcat"
+  },
+  {
+    "id": "2d00cef8-42fb-4419-9f7c-bbc9c701af91",
+    "text": "## Conceptos clave aprendidos\n\n| Concepto | Descripción |\n|----------|-------------|\n| `Activity` | Pantalla de la aplicación |\n| `setContentView` | Conecta el XML con la Activity |\n| `findViewById` | Obtiene una referencia a un elemento del XML |\n| `setOnClickListener` | Define qué pasa al tocar un botón |\n| `R.layout.*` | Referencia a archivos de diseño |\n| `R.id.*` | Referencia a elementos con id |\n\n## Resumen",
+    "document_name": "Fundamentos y Preparación del Entorno > Tu Primera Aplicación Android en Kotlin"
+  },
+  {
+    "id": "34127fe5-d8c1-4b74-b180-c96c67b3da49",
+    "text": "| Nivel | Color | Uso |\n|-------|-------|-----|\n| V (Verbose) | — | Todo, muy detallado |\n| D (Debug) | Azul | Depuración durante desarrollo |\n| I (Info) | Verde | Eventos importantes |\n| W (Warn) | Amarillo | Situaciones potencialmente problemáticas |\n| E (Error) | Rojo | Errores que necesitan atención |\n\n## Ejemplo práctico\n\n```kotlin\nclass MainActivity : AppCompatActivity() {\n    private val TAG = \"MainActivity\"",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Depuración de Aplicaciones con Logcat"
+  },
+  {
+    "id": "35147500-21f2-4474-9351-8c2cb890ca0e",
+    "text": "# Consumo de APIs REST y Manejo de JSON\nMódulo: Componentes Android y Gestión de Datos\n\n# Consumo de APIs REST y Manejo de JSON\n\n## ¿Qué es una API REST?\n\nUna **API REST** es un servicio web que te permite obtener y enviar datos usando HTTP. Las aplicaciones móviles se comunican con servidores a través de APIs.\n\n## Métodos HTTP principales",
+    "document_name": "Componentes Android y Gestión de Datos > Consumo de APIs REST y Manejo de JSON"
+  },
+  {
+    "id": "37196b44-239e-4606-8cf1-1bb3901d0e2c",
+    "text": "<Button\n        android:id=\"@+id/btnBuscar\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:text=\"Buscar\"\n        app:layout_constraintTop_toTopOf=\"@id/etBuscar\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintBottom_toBottomOf=\"@id/etBuscar\" />\n\n</androidx.constraintlayout.widget.ConstraintLayout>\n```\n\n## Constraints principales",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Layouts: ConstraintLayout y RelativeLayout"
+  },
+  {
+    "id": "3838cd80-aaab-4a5d-b345-95868464a794",
+    "text": "## APK vs App Bundle\n\n| Formato | Extensión | Uso |\n|---------|-----------|-----|\n| APK | `.apk` | Distribución directa, testing |\n| AAB (App Bundle) | `.aab` | Google Play (recomendado) |\n\n> **Google Play ahora requiere App Bundles** (AAB) en lugar de APK.\n\n## Generar un Keystore (almacén de claves)",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Firma y Preparación de la APK para Producción"
+  },
+  {
+    "id": "386443fe-a159-47eb-b8d5-eff2a971ec0f",
+    "text": "## Bucle for\n\n```kotlin\n// Rango ascendente\nfor (i in 1..5) {\n    println(i)  // 1, 2, 3, 4, 5\n}\n\n// Rango descendente\nfor (i in 5 downTo 1) {\n    println(i)  // 5, 4, 3, 2, 1\n}\n\n// Con paso\nfor (i in 0..10 step 2) {\n    println(i)  // 0, 2, 4, 6, 8, 10\n}\n\n// Iterar una lista\nval frutas = listOf(\"Manzana\", \"Plátano\", \"Naranja\")\nfor (fruta in frutas) {\n    println(fruta)\n}\n```\n\n## Bucle while",
+    "document_name": "Lógica de Programación en Kotlin > Estructuras de Control: if/else, when y bucles"
+  },
+  {
+    "id": "3988a7f6-effa-4d92-aad1-9f3ee9f2caa1",
+    "text": "fun manejarResultado(resultado: ResultadoRed) {\n    when (resultado) {\n        is ResultadoRed.Exito -> println(\"Datos: ${resultado.datos}\")\n        is ResultadoRed.Error -> println(\"Error: ${resultado.mensaje}\")\n        ResultadoRed.Cargando -> println(\"Cargando...\")\n    }\n}\n```\n\n## Casting con `is` y `as`",
+    "document_name": "Lógica de Programación en Kotlin > POO: Herencia, Interfaces y Polimorfismo"
+  },
+  {
+    "id": "3996fb47-17d5-4c67-8be1-60b5a2e870c9",
+    "text": "### ¿Qué significan estos valores?\n\n| Propiedad | Significado |\n|-----------|-------------|\n| `compileSdk` | Versión del SDK usada para **compilar**. Usa la más reciente. |\n| `minSdk` | Versión **mínima** de Android que tu app soporta |\n| `targetSdk` | Versión para la cual tu app está **optimizada** |\n\n> **Regla práctica**: `minSdk 24` cubre aproximadamente el **95%** de dispositivos Android activos en Latinoamérica.\n\n## Gestión del SDK\n\nEn Android Studio, ve a **Tools → SDK Manager** para:",
+    "document_name": "Fundamentos y Preparación del Entorno > SDK de Android: Versiones y Compatibilidad"
+  },
+  {
+    "id": "3b3899e5-2f05-442d-846a-14cdebe9c309",
+    "text": "println(\"Hola Mundo\".contarVocales())  // 4\n```\n\n## Resumen\n\n- Las funciones usan `fun` y pueden tener valores por defecto\n- Las lambdas son funciones anónimas: `{ param -> cuerpo }`\n- `it` es el parámetro implícito cuando hay un solo argumento\n- `filter`, `map`, `forEach` son esenciales para trabajar con listas",
+    "document_name": "Lógica de Programación en Kotlin > Funciones, Lambdas y Alcance en Kotlin"
+  },
+  {
+    "id": "3bd072df-f2bc-451c-a9ad-b60c2b48cb6c",
+    "text": "## Ciclo de vida de una Activity\n\n```\nonCreate()  →  onStart()  →  onResume()  →  [ACTIVA]\n                                              ↓\n                                          onPause()\n                                              ↓\n                                          onStop()\n                                              ↓\n                                          onDestroy()\n```",
+    "document_name": "Componentes Android y Gestión de Datos > Activities y el Ciclo de Vida de Android"
+  },
+  {
+    "id": "3d3586b8-6396-4715-826c-6b7c23aad59a",
+    "text": "println(Calculadora.sumar(5, 3))  // 8\n```\n\n## Resumen\n\n- Las clases definen plantillas; los objetos son instancias\n- El constructor primario va en la declaración de la clase\n- `data class` genera automáticamente `equals`, `hashCode`, `toString` y `copy`\n- `companion object` es el equivalente a `static` en Java",
+    "document_name": "Lógica de Programación en Kotlin > POO: Clases, Objetos y Constructores"
+  },
+  {
+    "id": "3eff3b03-369f-43bd-b535-ae3d7f7e9ef5",
+    "text": "## EditText — Campo de entrada\n\n```xml\n<EditText\n    android:id=\"@+id/etEmail\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"wrap_content\"\n    android:hint=\"Correo electrónico\"\n    android:inputType=\"textEmailAddress\"\n    android:maxLength=\"100\" />\n```",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Views básicos: TextView, Button, EditText e ImageView"
+  },
+  {
+    "id": "4046833a-698a-4752-8777-c4d467f65dcf",
+    "text": "<TextView\n        android:id=\"@+id/tvSaludo\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:text=\"¡Hola Mundo!\"\n        android:textSize=\"24sp\"\n        android:textStyle=\"bold\" />\n\n    <EditText\n        android:id=\"@+id/etNombre\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:hint=\"Escribe tu nombre\"\n        android:layout_marginTop=\"16dp\" />",
+    "document_name": "Fundamentos y Preparación del Entorno > Tu Primera Aplicación Android en Kotlin"
+  },
+  {
+    "id": "43c9b02e-e744-4ef8-b802-5c2f5c3690fa",
+    "text": "## Resumen\n\n- Cada pantalla en Android es una `Activity`\n- El diseño se define en XML (`res/layout/`)\n- La lógica se escribe en Kotlin\n- `findViewById` conecta el XML con el código\n- Ejecutas la app con Run (▶) en un emulador o dispositivo real",
+    "document_name": "Fundamentos y Preparación del Entorno > Tu Primera Aplicación Android en Kotlin"
+  },
+  {
+    "id": "43eff409-828b-4551-a652-810aba89cc1c",
+    "text": "```kotlin\n// build.gradle (ya incluido por defecto)\ndependencies {\n    testImplementation(\"junit:junit:4.13.2\")\n}\n```\n\n## Tu primera prueba\n\n```kotlin\n// src/test/java/.../CalculadoraTest.kt\nimport org.junit.Assert.*\nimport org.junit.Test\n\nclass CalculadoraTest {\n\n    @Test\n    fun sumar_dosPositivos_retornaResultadoCorrecto() {\n        val resultado = Calculadora.sumar(3, 5)\n        assertEquals(8, resultado)\n    }",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Pruebas Unitarias con JUnit en Android"
+  },
+  {
+    "id": "465340a5-b3c9-49a6-891b-3efdc3fecc6f",
+    "text": "# Pruebas Unitarias con JUnit en Android\nMódulo: Funcionalidades Avanzadas y Despliegue\n\n# Pruebas Unitarias con JUnit en Android\n\n## ¿Qué son las pruebas unitarias?\n\nLas **pruebas unitarias** verifican que funciones individuales producen los resultados esperados. Son esenciales para garantizar la calidad del código.\n\n## Configuración\n\nJUnit ya viene incluido en los proyectos Android:",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Pruebas Unitarias con JUnit en Android"
+  },
+  {
+    "id": "4cf56074-ee38-43ae-a01a-9c2b25fafd10",
+    "text": "## Anotaciones de Retrofit\n\n| Anotación | Uso |\n|-----------|-----|\n| `@GET` | Petición GET |\n| `@POST` | Petición POST |\n| `@PUT` | Petición PUT |\n| `@DELETE` | Petición DELETE |\n| `@Path` | Parámetro en la URL |\n| `@Query` | Parámetro de consulta (?key=value) |\n| `@Body` | Cuerpo de la petición (JSON) |\n| `@Header` | Cabecera HTTP personalizada |\n\n## Resumen",
+    "document_name": "Componentes Android y Gestión de Datos > Retrofit para Servicios Web en Android"
+  },
+  {
+    "id": "4ddf4c34-7a80-443b-89f1-ada543e18042",
+    "text": "## Constraints principales\n\n| Constraint | Significado |\n|------------|-------------|\n| `constraintTop_toTopOf` | Mi borde superior se alinea al borde superior de... |\n| `constraintTop_toBottomOf` | Mi borde superior va debajo de... |\n| `constraintStart_toStartOf` | Mi borde izquierdo se alinea al izquierdo de... |\n| `constraintEnd_toEndOf` | Mi borde derecho se alinea al derecho de... |\n\n> **Importante**: `0dp` en ConstraintLayout significa \"expandir según las constraints\".",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Layouts: ConstraintLayout y RelativeLayout"
+  },
+  {
+    "id": "4e218b70-c187-4be6-8c04-dccc9de2fcab",
+    "text": "## Unidades de medida\n\n| Unidad | Uso |\n|--------|-----|\n| `dp` | Dimensiones de layouts y márgenes (density-independent pixels) |\n| `sp` | Tamaño de texto (scale-independent pixels) |\n| `px` | Píxeles absolutos (evitar) |\n\n> **Regla**: Usa siempre `dp` para dimensiones y `sp` para texto. Nunca uses `px`.\n\n## Tipos de Layout\n\n### LinearLayout\nOrganiza los elementos en una fila (horizontal) o columna (vertical):",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Fundamentos de XML para Layouts Android"
+  },
+  {
+    "id": "4f008178-a3aa-4e6e-9173-79405f3d9b38",
+    "text": "val animales = listOf(\n    Perro(\"Rex\"),\n    Gato(\"Misu\"),\n    Perro(\"Bobby\")\n)\n\nimprimirSonidos(animales)\n// Rex: ¡Guau!\n// Misu: ¡Miau!\n// Bobby: ¡Guau!\n```\n\n## Sealed classes (clases selladas)\n\nLimitan las subclases posibles — ideal para representar estados:\n\n```kotlin\nsealed class ResultadoRed {\n    data class Exito(val datos: String) : ResultadoRed()\n    data class Error(val mensaje: String) : ResultadoRed()\n    object Cargando : ResultadoRed()\n}",
+    "document_name": "Lógica de Programación en Kotlin > POO: Herencia, Interfaces y Polimorfismo"
+  },
+  {
+    "id": "503f4ea8-b235-440c-a05f-ec693b9454fc",
+    "text": "val c1 = Contacto(\"Ana\", \"987654321\", \"ana@email.com\")\nval c2 = c1.copy(nombre = \"María\")  // Copia modificando un campo\n\nprintln(c1)  // Contacto(nombre=Ana, telefono=987654321, email=ana@email.com)\nprintln(c1 == c2)  // false (compara por contenido)\n```\n\n## Companion object\n\nEquivalente a los métodos `static` de Java:\n\n```kotlin\nclass Calculadora {\n    companion object {\n        fun sumar(a: Int, b: Int) = a + b\n        fun restar(a: Int, b: Int) = a - b\n    }\n}",
+    "document_name": "Lógica de Programación en Kotlin > POO: Clases, Objetos y Constructores"
+  },
+  {
+    "id": "50f717fc-5c47-4feb-8b08-f0bb81c5b5d4",
+    "text": "<Button\n        android:id=\"@+id/btnSaludar\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:text=\"Saludar\"\n        android:layout_marginTop=\"16dp\" />\n\n</LinearLayout>\n```\n\n## El archivo `MainActivity.kt`\n\n```kotlin\npackage com.ejemplo.miprimeraapp\n\nimport android.os.Bundle\nimport android.widget.Button\nimport android.widget.EditText\nimport android.widget.TextView\nimport androidx.appcompat.app.AppCompatActivity",
+    "document_name": "Fundamentos y Preparación del Entorno > Tu Primera Aplicación Android en Kotlin"
+  },
+  {
+    "id": "5257dd11-29ee-44af-94ff-18983792bd53",
+    "text": "// Llamar por teléfono\nval intent = Intent(Intent.ACTION_DIAL, Uri.parse(\"tel:987654321\"))\nstartActivity(intent)\n```\n\n## Regresar a la Activity anterior\n\n```kotlin\n// En DetalleActivity: regresar\nfinish()\n```\n\n## Resumen\n\n- Los Intents conectan Activities y permiten pasar datos\n- `putExtra` envía datos, `getStringExtra`/`getIntExtra` los recibe\n- Toda Activity debe estar registrada en AndroidManifest.xml\n- Los Intents implícitos delegan acciones al sistema (abrir web, compartir, llamar)",
+    "document_name": "Componentes Android y Gestión de Datos > Navegación entre Pantallas con Intents"
+  },
+  {
+    "id": "54d99671-64fe-4fc6-a1ac-4a92b71cedf7",
+    "text": "</LinearLayout>\n```\n\n### FrameLayout\nApila los elementos uno sobre otro:\n\n```xml\n<FrameLayout\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"200dp\">\n\n    <ImageView ... />\n    <TextView\n        android:layout_gravity=\"bottom|center_horizontal\"\n        android:text=\"Texto sobre la imagen\" />\n\n</FrameLayout>\n```\n\n## Resumen",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Fundamentos de XML para Layouts Android"
+  },
+  {
+    "id": "55004382-3392-49eb-a788-b9cbfc8a2d7e",
+    "text": "<Button android:id=\"@+id/btn3\"\n    app:layout_constraintStart_toEndOf=\"@id/btn2\"\n    app:layout_constraintEnd_toEndOf=\"parent\" ... />\n```\n\n## RelativeLayout\n\nPosiciona elementos relativos a otros elementos o al padre:\n\n```xml\n<RelativeLayout\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\">\n\n    <TextView\n        android:id=\"@+id/tvCentro\"\n        android:layout_centerInParent=\"true\"\n        android:text=\"Centro\" />",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Layouts: ConstraintLayout y RelativeLayout"
+  },
+  {
+    "id": "5552b503-69e2-4cdf-af4f-42e0e8dad82b",
+    "text": "class Gato(nombre: String) : Animal(nombre) {\n    override fun hacerSonido(): String = \"¡Miau!\"\n}\n\nval perro = Perro(\"Rex\")\nprintln(perro.presentarse())   // Soy Rex\nprintln(perro.hacerSonido())   // ¡Guau!\n```\n\n## Clases abstractas\n\n```kotlin\nabstract class Figura(val nombre: String) {\n    abstract fun calcularArea(): Double\n\n    fun describir(): String = \"$nombre con área: ${calcularArea()}\"\n}",
+    "document_name": "Lógica de Programación en Kotlin > POO: Herencia, Interfaces y Polimorfismo"
+  },
+  {
+    "id": "560e0908-4a6e-443f-b7f9-ccdf64968590",
+    "text": "// JSON String → Objeto Kotlin\nval json = \"{\"id\": 1, \"nombre\": \"Ana\", \"email\": \"ana@email.com\"}\"\nval usuario = Gson().fromJson(json, Usuario::class.java)\nprintln(usuario.nombre)  // Ana\n\n// Objeto Kotlin → JSON String\nval jsonString = Gson().toJson(usuario)\nprintln(jsonString)\n```\n\n## Códigos de respuesta HTTP",
+    "document_name": "Componentes Android y Gestión de Datos > Consumo de APIs REST y Manejo de JSON"
+  },
+  {
+    "id": "579bf971-556e-4c9a-a5a2-9f74be8aa176",
+    "text": "val recyclerView = findViewById<RecyclerView>(R.id.rvContactos)\n        recyclerView.layoutManager = LinearLayoutManager(this)\n        recyclerView.adapter = ContactoAdapter(contactos) { contacto ->\n            Toast.makeText(this, \"Seleccionado: ${contacto.nombre}\", Toast.LENGTH_SHORT).show()\n        }\n    }\n}\n```\n\n## Resumen",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > RecyclerView y CardView para Listas de Datos"
+  },
+  {
+    "id": "588f3f4f-52d9-460e-90d3-84f84e22f637",
+    "text": "// filter: filtrar elementos\nval pares = numeros.filter { it % 2 == 0 }\nprintln(pares)  // [2, 4, 6, 8, 10]\n\n// map: transformar elementos\nval dobles = numeros.map { it * 2 }\nprintln(dobles)  // [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]\n\n// forEach: recorrer elementos\nnumeros.forEach { println(it) }\n```\n\n## Funciones de extensión\n\nPuedes agregar funciones a clases existentes:\n\n```kotlin\nfun String.contarVocales(): Int {\n    return this.count { it.lowercaseChar() in \"aeiouáéíóú\" }\n}",
+    "document_name": "Lógica de Programación en Kotlin > Funciones, Lambdas y Alcance en Kotlin"
+  },
+  {
+    "id": "5a65619d-1f07-4cf5-9f5f-1257fc0ca1bd",
+    "text": "buildTypes {\n        release {\n            isMinifyEnabled = true     // Activar ProGuard/R8\n            isShrinkResources = true   // Eliminar recursos no usados\n            proguardFiles(\n                getDefaultProguardFile(\"proguard-android-optimize.txt\"),\n                \"proguard-rules.pro\"\n            )\n            signingConfig = signingConfigs.getByName(\"release\")\n        }\n    }\n}\n```\n\n## ProGuard / R8",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Firma y Preparación de la APK para Producción"
+  },
+  {
+    "id": "5b6febe0-170b-4faf-b4b0-77949a5255aa",
+    "text": "class Circulo(val radio: Double) : Figura(\"Círculo\") {\n    override fun calcularArea(): Double = Math.PI * radio * radio\n}\n\nclass Rectangulo(val ancho: Double, val alto: Double) : Figura(\"Rectángulo\") {\n    override fun calcularArea(): Double = ancho * alto\n}\n```\n\n## Interfaces\n\n```kotlin\ninterface Reproducible {\n    fun reproducir()\n    fun pausar()\n    fun detener() {\n        println(\"Detenido\")  // Implementación por defecto\n    }\n}\n\ninterface Descargable {\n    fun descargar(url: String)\n}",
+    "document_name": "Lógica de Programación en Kotlin > POO: Herencia, Interfaces y Polimorfismo"
+  },
+  {
+    "id": "5e0050eb-1903-4022-a8dd-5997ce98d9b6",
+    "text": "override fun onBindViewHolder(holder: ViewHolder, position: Int) {\n        val contacto = contactos[position]\n        holder.tvNombre.text = contacto.nombre\n        holder.tvTelefono.text = contacto.telefono\n        holder.ivFoto.setImageResource(contacto.foto)\n        holder.itemView.setOnClickListener { onClick(contacto) }\n    }\n\n    override fun getItemCount() = contactos.size\n}\n```\n\n## Paso 4: Configurar en la Activity",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > RecyclerView y CardView para Listas de Datos"
+  },
+  {
+    "id": "60ec02df-8a07-4fe4-bd37-4eee15252270",
+    "text": "## SQLite — Base de datos relacional local\n\nPara datos estructurados y complejos, Android incluye SQLite.\n\n### Crear un Helper",
+    "document_name": "Componentes Android y Gestión de Datos > Almacenamiento Local: SharedPreferences y SQLite"
+  },
+  {
+    "id": "626cd9b1-1b43-40fa-99bc-4f16a1fbc990",
+    "text": "## Resumen\n\n- Las APIs REST usan HTTP para comunicar cliente y servidor\n- JSON es el formato estándar para intercambiar datos\n- Siempre necesitas el permiso `INTERNET` en el Manifest\n- Gson convierte entre JSON y objetos Kotlin fácilmente",
+    "document_name": "Componentes Android y Gestión de Datos > Consumo de APIs REST y Manejo de JSON"
+  },
+  {
+    "id": "659472e9-0820-4778-8987-d5d82b62135a",
+    "text": "## Pasar datos con Intent\n\n```kotlin\n// ENVIAR datos (desde MainActivity)\nval intent = Intent(this, DetalleActivity::class.java)\nintent.putExtra(\"nombre\", \"Carlos\")\nintent.putExtra(\"edad\", 22)\nintent.putExtra(\"promedio\", 15.5)\nstartActivity(intent)\n\n// RECIBIR datos (en DetalleActivity)\nclass DetalleActivity : AppCompatActivity() {\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        setContentView(R.layout.activity_detalle)",
+    "document_name": "Componentes Android y Gestión de Datos > Navegación entre Pantallas con Intents"
+  },
+  {
+    "id": "65d24130-bd8f-4730-a632-e5493a1126ae",
+    "text": "## Estructura básica de un layout\n\n```xml\n<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<LinearLayout\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    android:orientation=\"vertical\"\n    android:padding=\"16dp\">\n\n    <TextView\n        android:id=\"@+id/tvTitulo\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:text=\"¡Hola Mundo!\" />",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Fundamentos de XML para Layouts Android"
+  },
+  {
+    "id": "6a1600f3-e12c-417e-beb5-4faad7f6c7fd",
+    "text": "1. Ver los SDK instalados\n2. Descargar nuevas versiones\n3. Instalar herramientas adicionales (Build Tools, NDK, etc.)\n\n## Compatibilidad hacia atrás\n\nPara usar funciones nuevas en dispositivos antiguos, se usan las **bibliotecas AndroidX**:\n\n```kotlin\n// build.gradle (dependencias)\ndependencies {\n    implementation(\"androidx.core:core-ktx:1.12.0\")\n    implementation(\"androidx.appcompat:appcompat:1.6.1\")\n    implementation(\"com.google.android.material:material:1.11.0\")\n}\n```",
+    "document_name": "Fundamentos y Preparación del Entorno > SDK de Android: Versiones y Compatibilidad"
+  },
+  {
+    "id": "6bfef377-5bea-4c35-b77e-d754bd1b5085",
+    "text": "| Método | ¿Cuándo se ejecuta? |\n|--------|---------------------|\n| `onCreate()` | Al crear la Activity (una sola vez) |\n| `onStart()` | La Activity se hace visible |\n| `onResume()` | La Activity está en primer plano e interactiva |\n| `onPause()` | Otra Activity toma el foco parcialmente |\n| `onStop()` | La Activity ya no es visible |\n| `onDestroy()` | La Activity se destruye |\n\n## Ejemplo implementado",
+    "document_name": "Componentes Android y Gestión de Datos > Activities y el Ciclo de Vida de Android"
+  },
+  {
+    "id": "6c7601b3-1517-4447-bf3e-d0b7434499e7",
+    "text": "# Activities y el Ciclo de Vida de Android\nMódulo: Componentes Android y Gestión de Datos\n\n# Activities y el Ciclo de Vida de Android\n\n## ¿Qué es una Activity?\n\nUna **Activity** representa una pantalla en tu aplicación. Cada pantalla (login, lista de productos, detalle) es una Activity diferente.\n\n## Ciclo de vida de una Activity",
+    "document_name": "Componentes Android y Gestión de Datos > Activities y el Ciclo de Vida de Android"
+  },
+  {
+    "id": "6d8b351e-366c-4eec-ad66-9fb6d593501f",
+    "text": "## Registrar la Activity en AndroidManifest.xml\n\n```xml\n<manifest ...>\n    <application ...>\n        <activity android:name=\".MainActivity\" android:exported=\"true\">\n            <intent-filter>\n                <action android:name=\"android.intent.action.MAIN\" />\n                <category android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n        <activity android:name=\".DetalleActivity\" />\n    </application>\n</manifest>\n```",
+    "document_name": "Componentes Android y Gestión de Datos > Navegación entre Pantallas con Intents"
+  },
+  {
+    "id": "6e8ef55c-39d5-4e6c-a116-809904d5ecf3",
+    "text": "// Una clase puede implementar múltiples interfaces\nclass Cancion(val titulo: String) : Reproducible, Descargable {\n    override fun reproducir() = println(\"Reproduciendo: $titulo\")\n    override fun pausar() = println(\"Pausado: $titulo\")\n    override fun descargar(url: String) = println(\"Descargando desde $url\")\n}\n```\n\n## Polimorfismo\n\n```kotlin\nfun imprimirSonidos(animales: List<Animal>) {\n    for (animal in animales) {\n        println(\"${animal.nombre}: ${animal.hacerSonido()}\")\n    }\n}",
+    "document_name": "Lógica de Programación en Kotlin > POO: Herencia, Interfaces y Polimorfismo"
+  },
+  {
+    "id": "705b8186-e3ea-44e7-bed2-2e75a3d89593",
+    "text": "# Publicación en Google Play Store\nMódulo: Funcionalidades Avanzadas y Despliegue\n\n# Publicación en Google Play Store\n\n## Requisitos previos\n\n1. Cuenta de desarrollador en Google Play ($25 USD, pago único)\n2. App Bundle (.aab) firmado\n3. Ficha de la tienda completa (capturas, descripción, ícono)\n\n## Crear una cuenta de desarrollador",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Publicación en Google Play Store"
+  },
+  {
+    "id": "71e9a2a6-ff00-454a-904d-4304838d531d",
+    "text": "val alumno = Alumno(\"Carlos\", 22, \"Sistemas\")\nprintln(alumno.presentarse())\n```\n\n## Constructor secundario\n\n```kotlin\nclass Alumno(val nombre: String, val edad: Int) {\n    var carrera: String = \"Sin asignar\"\n\n    // Constructor secundario\n    constructor(nombre: String, edad: Int, carrera: String) : this(nombre, edad) {\n        this.carrera = carrera\n    }\n}\n```\n\n## Bloque init\n\nSe ejecuta justo después del constructor primario:",
+    "document_name": "Lógica de Programación en Kotlin > POO: Clases, Objetos y Constructores"
+  },
+  {
+    "id": "724476ad-5939-494f-9e7f-309495e26c38",
+    "text": "## Operadores de comparación\n\n```kotlin\nval x = 5\nval y = 10\n\nprintln(x == y)   // false (igualdad)\nprintln(x != y)   // true  (desigualdad)\nprintln(x > y)    // false (mayor que)\nprintln(x < y)    // true  (menor que)\nprintln(x >= 5)   // true  (mayor o igual)\n```\n\n## Operadores lógicos\n\n```kotlin\nval a = true\nval b = false",
+    "document_name": "Lógica de Programación en Kotlin > Variables, Tipos de Datos y Operadores en Kotlin"
+  },
+  {
+    "id": "74e8ce4a-0e75-49ca-ad6c-d3e8ddaaed29",
+    "text": "> **IMPORTANTE**: Guarda el keystore y las contraseñas en un lugar seguro. Si los pierdes, no podrás actualizar tu app en Google Play.\n\n## Configurar la firma en build.gradle\n\n```kotlin\nandroid {\n    signingConfigs {\n        create(\"release\") {\n            storeFile = file(\"mi-keystore.jks\")\n            storePassword = \"tu_password\"\n            keyAlias = \"mi_alias\"\n            keyPassword = \"tu_key_password\"\n        }\n    }",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Firma y Preparación de la APK para Producción"
+  },
+  {
+    "id": "75683ae0-24c9-4b28-838c-3ae5d2798a26",
+    "text": "## Resumen\n\n- Cada pantalla es una Activity con un ciclo de vida\n- `onCreate` → `onResume` es el flujo de inicio normal\n- Siempre guarda datos importantes en `onPause`\n- Libera recursos en `onStop` o `onDestroy`",
+    "document_name": "Componentes Android y Gestión de Datos > Activities y el Ciclo de Vida de Android"
+  },
+  {
+    "id": "78e021b8-2edf-4d92-919c-e9eda523f205",
+    "text": "fun esMayor(edad: Int): Boolean = edad >= 18\n```\n\n## Parámetros con valores por defecto\n\n```kotlin\nfun crearSaludo(nombre: String, titulo: String = \"Sr./Sra.\"): String {\n    return \"Estimado/a $titulo $nombre\"\n}\n\nprintln(crearSaludo(\"García\"))              // Estimado/a Sr./Sra. García\nprintln(crearSaludo(\"Ana\", \"Ing.\"))         // Estimado/a Ing. Ana\n```\n\n## Parámetros nombrados",
+    "document_name": "Lógica de Programación en Kotlin > Funciones, Lambdas y Alcance en Kotlin"
+  },
+  {
+    "id": "798268d4-1068-4bae-b746-76fea0641d03",
+    "text": "## ¿Cuándo usar cada método?\n\n| Método | Uso típico |\n|--------|------------|\n| `onCreate` | Inflar layout, inicializar variables, configurar RecyclerView |\n| `onResume` | Reconectar listeners, reanudar animaciones, actualizar datos |\n| `onPause` | Guardar datos temporales, pausar animaciones |\n| `onStop` | Liberar recursos costosos (GPS, cámara) |\n| `onDestroy` | Limpiar recursos finales |\n\n## Resumen",
+    "document_name": "Componentes Android y Gestión de Datos > Activities y el Ciclo de Vida de Android"
+  },
+  {
+    "id": "79f071dc-12d8-4d8d-aa5e-b4b5ea2556a4",
+    "text": "## Requisitos del sistema\n\n### Windows\n- Windows 10/11 (64 bits)\n- 8 GB de RAM mínimo (16 GB recomendado)\n- 8 GB de espacio en disco mínimo\n- Resolución de pantalla: 1280 x 800 mínimo\n\n### macOS\n- macOS 10.14 (Mojave) o superior\n- Procesador Apple Silicon o Intel\n- 8 GB de RAM mínimo\n\n## Pasos de instalación\n\n### 1. Descargar Android Studio\n\nVisita la página oficial de Android Developer y descarga la última versión estable.\n\n### 2. Ejecutar el instalador",
+    "document_name": "Fundamentos y Preparación del Entorno > Instalación y Configuración de Android Studio"
+  },
+  {
+    "id": "7c5b2633-4d44-4289-b351-6a56d0854bd9",
+    "text": "// continue: salta a la siguiente iteración\nfor (i in 1..10) {\n    if (i % 2 == 0) continue\n    println(i)  // 1, 3, 5, 7, 9\n}\n```\n\n## Resumen\n\n- `if/else` puede usarse como expresión que devuelve valor\n- `when` reemplaza a `switch` y es mucho más versátil\n- `for` trabaja con rangos (`..`), listas y `step`\n- `while` y `do-while` funcionan como en otros lenguajes",
+    "document_name": "Lógica de Programación en Kotlin > Estructuras de Control: if/else, when y bucles"
+  },
+  {
+    "id": "7cde1caf-6bb3-49dd-aadb-830fec10e694",
+    "text": "# Navegación entre Pantallas con Intents\nMódulo: Componentes Android y Gestión de Datos\n\n# Navegación entre Pantallas con Intents\n\n## ¿Qué es un Intent?\n\nUn **Intent** es un objeto que permite la comunicación entre componentes de Android. Se usa principalmente para navegar entre Activities y pasar datos.\n\n## Intent explícito — Navegar a otra pantalla\n\n```kotlin\n// En MainActivity.kt\nval intent = Intent(this, DetalleActivity::class.java)\nstartActivity(intent)\n```\n\n## Pasar datos con Intent",
+    "document_name": "Componentes Android y Gestión de Datos > Navegación entre Pantallas con Intents"
+  },
+  {
+    "id": "7f12718c-72a8-455b-9e98-aec812f98e5d",
+    "text": "// Configurar el evento click del botón\n        btnSaludar.setOnClickListener {\n            val nombre = etNombre.text.toString()\n            if (nombre.isNotBlank()) {\n                tvSaludo.text = \"¡Hola, $nombre! 👋\"\n            } else {\n                tvSaludo.text = \"Por favor, escribe tu nombre\"\n            }\n        }\n    }\n}\n```\n\n## Ejecutar la aplicación",
+    "document_name": "Fundamentos y Preparación del Entorno > Tu Primera Aplicación Android en Kotlin"
+  },
+  {
+    "id": "7f1fef91-bae0-45c7-a472-7d42f621a30f",
+    "text": "## Tipos de pruebas en Play Console\n\n| Tipo | Audiencia | Uso |\n|------|-----------|-----|\n| **Prueba interna** | Hasta 100 testers | Testing inicial rápido |\n| **Prueba cerrada** | Testers por email | Beta testing controlado |\n| **Prueba abierta** | Cualquier usuario | Beta pública |\n| **Producción** | Todos | Versión final |\n\n> **Recomendación**: Siempre prueba con \"Prueba interna\" antes de publicar en producción.\n\n## Políticas importantes de Google Play",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Publicación en Google Play Store"
+  },
+  {
+    "id": "81674e28-84ad-4011-ad43-684c37690f01",
+    "text": "## ¿Cuándo usar cada uno?\n\n| Tipo de dato | SharedPreferences | SQLite |\n|-------------|------------------|--------|\n| Configuración del usuario | ✅ | ❌ |\n| Token de sesión | ✅ | ❌ |\n| Lista de productos | ❌ | ✅ |\n| Historial de compras | ❌ | ✅ |\n| Tema (claro/oscuro) | ✅ | ❌ |\n\n## Resumen",
+    "document_name": "Componentes Android y Gestión de Datos > Almacenamiento Local: SharedPreferences y SQLite"
+  },
+  {
+    "id": "874439b1-8b7f-4a5a-98c4-8fa6cf11135c",
+    "text": "# Firma y Preparación de la APK para Producción\nMódulo: Funcionalidades Avanzadas y Despliegue\n\n# Firma y Preparación de la APK para Producción\n\n## ¿Por qué firmar una APK?\n\nGoogle Play requiere que todas las aplicaciones estén **firmadas digitalmente** con un certificado. La firma garantiza la identidad del desarrollador y la integridad de la app.\n\n## APK vs App Bundle",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Firma y Preparación de la APK para Producción"
+  },
+  {
+    "id": "8823fc57-798f-4620-901d-19429203f850",
+    "text": "```\nmetodo_escenario_resultadoEsperado\n```\n\nEjemplos:\n- `calcularPromedio_listaVacia_retornaCero`\n- `validarEmail_emailInvalido_retornaFalse`\n- `login_credencialesCorrectas_retornaTrue`\n\n## Ejemplo completo con validaciones\n\n```kotlin\nclass ValidadorTest {\n    private val validador = Validador()\n\n    @Test\n    fun validarEmail_emailCorrecto_retornaTrue() {\n        assertTrue(validador.esEmailValido(\"ana@gmail.com\"))\n    }",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Pruebas Unitarias con JUnit en Android"
+  },
+  {
+    "id": "887b02d5-866a-4213-b284-ecf2457588a0",
+    "text": "override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {\n        val view = LayoutInflater.from(parent.context)\n            .inflate(R.layout.item_contacto, parent, false)\n        return ViewHolder(view)\n    }",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > RecyclerView y CardView para Listas de Datos"
+  },
+  {
+    "id": "89470fe4-98b8-4ddc-a952-eda0706261b5",
+    "text": "## Paso 4: Configurar en la Activity\n\n```kotlin\nclass MainActivity : AppCompatActivity() {\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        setContentView(R.layout.activity_main)\n\n        val contactos = listOf(\n            Contacto(\"Ana García\", \"987654321\", R.drawable.avatar1),\n            Contacto(\"Carlos López\", \"912345678\", R.drawable.avatar2),\n        )",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > RecyclerView y CardView para Listas de Datos"
+  },
+  {
+    "id": "8b502367-ba82-46bc-9d62-be2aa9c8f1e0",
+    "text": "override fun onUpgrade(db: SQLiteDatabase, oldV: Int, newV: Int) {\n        db.execSQL(\"DROP TABLE IF EXISTS alumnos\")\n        onCreate(db)\n    }\n}\n```\n\n### Insertar datos\n\n```kotlin\nval db = BaseDatosHelper(this).writableDatabase\nval values = ContentValues().apply {\n    put(\"nombre\", \"Carlos\")\n    put(\"edad\", 22)\n    put(\"carrera\", \"Sistemas\")\n}\ndb.insert(\"alumnos\", null, values)\n```\n\n### Consultar datos",
+    "document_name": "Componentes Android y Gestión de Datos > Almacenamiento Local: SharedPreferences y SQLite"
+  },
+  {
+    "id": "8bca71dd-999d-4084-8944-d2ff0bd4ac91",
+    "text": "## Ejemplo implementado\n\n```kotlin\nclass MainActivity : AppCompatActivity() {\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        setContentView(R.layout.activity_main)\n        Log.d(\"CicloVida\", \"onCreate - Inicializando la pantalla\")\n    }\n\n    override fun onStart() {\n        super.onStart()\n        Log.d(\"CicloVida\", \"onStart - La pantalla es visible\")\n    }",
+    "document_name": "Componentes Android y Gestión de Datos > Activities y el Ciclo de Vida de Android"
+  },
+  {
+    "id": "8f1c67b8-9a37-4fe6-b055-cda756af7978",
+    "text": "## Proceso de publicación\n\n### 1. Crear un release\n1. Ve a **Producción** en el menú lateral\n2. Haz clic en **\"Crear nueva versión\"**\n3. Sube tu App Bundle (.aab)\n\n### 2. Revisión de Google\n- Google revisa tu app (puede tomar de horas a días)\n- Verifica que cumple con las políticas de la tienda\n\n### 3. Publicación\n- Una vez aprobada, tu app estará disponible en Play Store\n\n## Tipos de pruebas en Play Console",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Publicación en Google Play Store"
+  },
+  {
+    "id": "8fa54e73-17d6-4508-b375-48c422a53e07",
+    "text": "## Verificar la instalación\n\nDespués de instalar, verifica que todo funcione:\n\n```\nAndroid Studio > Help > About\n```\n\nDebes ver la versión instalada y la información del SDK.\n\n## Configurar un dispositivo virtual (AVD)\n\n1. Abre **AVD Manager** (Tools → Device Manager)\n2. Haz clic en **\"Create Device\"**\n3. Selecciona un modelo (recomendado: **Pixel 6**)\n4. Selecciona una imagen del sistema (recomendado: **API 33 - Tiramisu**)\n5. Configura la RAM (recomendado: 2 GB)\n6. Haz clic en **Finish**",
+    "document_name": "Fundamentos y Preparación del Entorno > Instalación y Configuración de Android Studio"
+  },
+  {
+    "id": "908f45dd-3064-4c5c-a48e-7e2ff9eeba74",
+    "text": "# Layouts: ConstraintLayout y RelativeLayout\nMódulo: Elaboración de Interfaces de Usuario (UI)\n\n# Layouts: ConstraintLayout y RelativeLayout\n\n## ConstraintLayout — El layout recomendado\n\n`ConstraintLayout` es el layout más potente y flexible de Android. Permite posicionar elementos con **restricciones (constraints)** relativas a otros elementos o al contenedor padre.",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Layouts: ConstraintLayout y RelativeLayout"
+  },
+  {
+    "id": "9421d633-bd6a-443a-95f5-a687ca9356f5",
+    "text": "## Resumen\n\n- Logcat es tu mejor aliado para depurar\n- Usa `Log.d` para desarrollo y `Log.e` para errores\n- Filtra por tag para encontrar tus logs rápidamente\n- Los breakpoints permiten inspeccionar el estado de la app en tiempo real",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Depuración de Aplicaciones con Logcat"
+  },
+  {
+    "id": "96255999-0939-491e-9550-985f2b76c698",
+    "text": "## Dependencia necesaria\n\n```kotlin\n// build.gradle\ndependencies {\n    implementation(\"androidx.recyclerview:recyclerview:1.3.2\")\n    implementation(\"androidx.cardview:cardview:1.0.0\")\n}\n```\n\n## Paso 1: Crear el modelo de datos\n\n```kotlin\ndata class Contacto(\n    val nombre: String,\n    val telefono: String,\n    val foto: Int  // Recurso drawable\n)\n```\n\n## Paso 2: Diseñar el item (item_contacto.xml)",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > RecyclerView y CardView para Listas de Datos"
+  },
+  {
+    "id": "9927fced-439a-456c-a04c-fe9dcb90ccb7",
+    "text": "### Guardar datos\n\n```kotlin\nval prefs = getSharedPreferences(\"mi_app_prefs\", MODE_PRIVATE)\nval editor = prefs.edit()\neditor.putString(\"nombre_usuario\", \"María\")\neditor.putInt(\"edad\", 20)\neditor.putBoolean(\"tema_oscuro\", true)\neditor.apply()  // Guardar de forma asíncrona\n```\n\n### Leer datos",
+    "document_name": "Componentes Android y Gestión de Datos > Almacenamiento Local: SharedPreferences y SQLite"
+  },
+  {
+    "id": "9a4d6993-b61b-422f-a364-77b5d1b0495e",
+    "text": "## Resumen\n\n- `RecyclerView` es eficiente porque reutiliza vistas\n- El patrón es: **Modelo → Layout XML → Adapter → Activity**\n- `CardView` agrega sombra y bordes redondeados\n- El Adapter conecta los datos con las vistas",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > RecyclerView y CardView para Listas de Datos"
+  },
+  {
+    "id": "9afec8ed-9a01-439e-83bc-bdf9968ef68f",
+    "text": "## Bucle while\n\n```kotlin\nvar contador = 5\nwhile (contador > 0) {\n    println(\"Cuenta regresiva: $contador\")\n    contador--\n}\nprintln(\"¡Despegue!\")\n```\n\n## Bucle do-while\n\n```kotlin\nvar numero: Int\ndo {\n    println(\"Ingresa un número positivo:\")\n    numero = readLine()?.toIntOrNull() ?: -1\n} while (numero < 0)\n```\n\n## break y continue\n\n```kotlin\n// break: sale del bucle\nfor (i in 1..10) {\n    if (i == 5) break\n    println(i)  // 1, 2, 3, 4\n}",
+    "document_name": "Lógica de Programación en Kotlin > Estructuras de Control: if/else, when y bucles"
+  },
+  {
+    "id": "9b828061-afc9-4d55-a429-81a5926fca1e",
+    "text": "## Resumen\n\n- `val` = inmutable, `var` = mutable\n- Kotlin infiere tipos automáticamente\n- Los String templates (`$variable`) simplifican la concatenación\n- Los operadores funcionan de forma similar a otros lenguajes",
+    "document_name": "Lógica de Programación en Kotlin > Variables, Tipos de Datos y Operadores en Kotlin"
+  },
+  {
+    "id": "9fca595e-6d65-4c92-a69b-927b800b0779",
+    "text": "# RecyclerView y CardView para Listas de Datos\nMódulo: Elaboración de Interfaces de Usuario (UI)\n\n# RecyclerView y CardView para Listas de Datos\n\n## ¿Qué es RecyclerView?\n\n`RecyclerView` es el componente estándar de Android para mostrar **listas eficientes** de datos. Reutiliza las vistas que salen de la pantalla para mostrar nuevos elementos.\n\n## Dependencia necesaria",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > RecyclerView y CardView para Listas de Datos"
+  },
+  {
+    "id": "a190ecb0-9ad0-4b1e-a26d-de1901e4496f",
+    "text": "lifecycleScope.launch {\n            try {\n                val tareas = RetrofitClient.api.obtenerTareas()\n                // Actualizar el RecyclerView con las tareas\n                println(\"Se obtuvieron ${tareas.size} tareas\")\n            } catch (e: Exception) {\n                Toast.makeText(this@MainActivity,\n                    \"Error: ${e.message}\", Toast.LENGTH_LONG).show()\n            }\n        }\n    }\n}\n```\n\n## Anotaciones de Retrofit",
+    "document_name": "Componentes Android y Gestión de Datos > Retrofit para Servicios Web en Android"
+  },
+  {
+    "id": "a2c93284-bb72-4e21-b236-999959f86161",
+    "text": "## Assertions principales\n\n| Método | Verifica |\n|--------|----------|\n| `assertEquals(expected, actual)` | Que dos valores sean iguales |\n| `assertNotEquals(a, b)` | Que dos valores sean diferentes |\n| `assertTrue(condition)` | Que la condición sea verdadera |\n| `assertFalse(condition)` | Que la condición sea falsa |\n| `assertNull(object)` | Que el objeto sea nulo |\n| `assertNotNull(object)` | Que el objeto NO sea nulo |\n\n## Convención de nombres\n\n```\nmetodo_escenario_resultadoEsperado\n```",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Pruebas Unitarias con JUnit en Android"
+  },
+  {
+    "id": "a47ab1a3-635d-4df5-bdc0-5745166a868b",
+    "text": "## Políticas importantes de Google Play\n\n- No recopilar datos sin consentimiento\n- Declarar todos los permisos que usa tu app\n- No incluir contenido engañoso o malicioso\n- Respetar derechos de propiedad intelectual\n\n## Resumen\n\n- Necesitas una cuenta de desarrollador ($25 USD único)\n- La ficha requiere ícono, capturas y descripciones\n- Siempre prueba internamente antes de publicar\n- Google revisa cada versión antes de hacerla pública",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Publicación en Google Play Store"
+  },
+  {
+    "id": "a7b1fd21-6fa0-4d25-81a7-95099a737994",
+    "text": "# Tu Primera Aplicación Android en Kotlin\nMódulo: Fundamentos y Preparación del Entorno\n\n# Tu Primera Aplicación Android en Kotlin\n\n## Crear un nuevo proyecto\n\n1. Abre Android Studio\n2. Selecciona **\"New Project\"**\n3. Elige la plantilla **\"Empty Views Activity\"**\n4. Configura el proyecto:\n   - **Name**: MiPrimeraApp\n   - **Package name**: com.ejemplo.miprimeraapp\n   - **Language**: Kotlin\n   - **Minimum SDK**: API 24 (Android 7.0)\n5. Haz clic en **Finish**\n\n## Estructura del proyecto",
+    "document_name": "Fundamentos y Preparación del Entorno > Tu Primera Aplicación Android en Kotlin"
+  },
+  {
+    "id": "a8cf0078-957c-4bcf-9df5-eafd05a1cb1e",
+    "text": "# Almacenamiento Local: SharedPreferences y SQLite\nMódulo: Componentes Android y Gestión de Datos\n\n# Almacenamiento Local: SharedPreferences y SQLite\n\n## SharedPreferences — Datos simples (clave-valor)\n\nIdeal para guardar configuraciones y datos pequeños.\n\n### Guardar datos",
+    "document_name": "Componentes Android y Gestión de Datos > Almacenamiento Local: SharedPreferences y SQLite"
+  },
+  {
+    "id": "ac190449-e62e-4ad2-8c51-9d046eae6fb4",
+    "text": "## Chains (cadenas)\n\nLas chains permiten distribuir elementos equitativamente:\n\n```xml\n<!-- Tres botones distribuidos horizontalmente -->\n<Button android:id=\"@+id/btn1\"\n    app:layout_constraintHorizontal_chainStyle=\"spread\"\n    app:layout_constraintStart_toStartOf=\"parent\"\n    app:layout_constraintEnd_toStartOf=\"@id/btn2\" ... />\n\n<Button android:id=\"@+id/btn2\"\n    app:layout_constraintStart_toEndOf=\"@id/btn1\"\n    app:layout_constraintEnd_toStartOf=\"@id/btn3\" ... />",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Layouts: ConstraintLayout y RelativeLayout"
+  },
+  {
+    "id": "acc2cfff-8c74-4c16-a80a-80e908123783",
+    "text": "## Estructura de Android Studio\n\n| Área | Función |\n|------|---------|\n| **Project** | Explorador de archivos del proyecto |\n| **Editor** | Zona principal de código |\n| **Logcat** | Consola de depuración |\n| **Build** | Estado de compilación |\n| **Design** | Vista previa del diseño XML |\n\n## Atajos de teclado importantes",
+    "document_name": "Fundamentos y Preparación del Entorno > Instalación y Configuración de Android Studio"
+  },
+  {
+    "id": "ad1ed771-9cde-4b88-8792-4ebe4bccde69",
+    "text": "## Resumen\n\n- Usa `open` para permitir herencia y `override` para sobrescribir\n- Las clases abstractas no se pueden instanciar directamente\n- Las interfaces permiten herencia múltiple\n- Polimorfismo: un mismo método se comporta distinto según el tipo\n- `sealed class` es perfecto para modelar estados finitos",
+    "document_name": "Lógica de Programación en Kotlin > POO: Herencia, Interfaces y Polimorfismo"
+  },
+  {
+    "id": "b1077b78-1a07-4628-a1d2-b7e8e0e08bff",
+    "text": "## Intent implícito — Acciones del sistema\n\n```kotlin\n// Abrir una página web\nval intent = Intent(Intent.ACTION_VIEW, Uri.parse(\"https://developer.android.com\"))\nstartActivity(intent)\n\n// Enviar un texto (compartir)\nval intent = Intent(Intent.ACTION_SEND)\nintent.type = \"text/plain\"\nintent.putExtra(Intent.EXTRA_TEXT, \"¡Mira esta app!\")\nstartActivity(Intent.createChooser(intent, \"Compartir vía\"))",
+    "document_name": "Componentes Android y Gestión de Datos > Navegación entre Pantallas con Intents"
+  },
+  {
+    "id": "b1184947-68ae-4983-8b2f-8b795c4ab104",
+    "text": "override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        Log.d(TAG, \"onCreate ejecutado\")\n\n        try {\n            val resultado = calcular(10, 0)\n            Log.i(TAG, \"Resultado: $resultado\")\n        } catch (e: Exception) {\n            Log.e(TAG, \"Error en cálculo: ${e.message}\", e)\n        }\n    }\n\n    private fun calcular(a: Int, b: Int): Int {\n        Log.d(TAG, \"calcular($a, $b)\")\n        return a / b\n    }\n}\n```",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Depuración de Aplicaciones con Logcat"
+  },
+  {
+    "id": "b216703f-5af1-4d73-a3af-726b75a80d62",
+    "text": "init {\n        promedio = if (notas.isNotEmpty()) notas.average() else 0.0\n    }\n}\n\nval alumno = Alumno(\"Ana\", listOf(15.0, 12.0, 18.0, 14.0))\nprintln(\"Promedio: ${alumno.promedio}\")  // 14.75\nprintln(\"Estado: ${alumno.estado}\")      // Aprobado\n```\n\n## Data classes\n\nPara clases que solo almacenan datos, usa `data class`:\n\n```kotlin\ndata class Contacto(\n    val nombre: String,\n    val telefono: String,\n    val email: String\n)",
+    "document_name": "Lógica de Programación en Kotlin > POO: Clases, Objetos y Constructores"
+  },
+  {
+    "id": "b2d9effb-103a-44fe-803c-eee80ed56b0f",
+    "text": "En Kotlin, `if` puede devolver un valor:\n\n```kotlin\nval nota = 16\nval resultado = if (nota >= 11) \"Aprobado\" else \"Desaprobado\"\nprintln(resultado) // Aprobado\n```\n\n## Expresión when (similar a switch)\n\n`when` es más poderoso que el `switch` de Java:\n\n```kotlin\nval dia = 3",
+    "document_name": "Lógica de Programación en Kotlin > Estructuras de Control: if/else, when y bucles"
+  },
+  {
+    "id": "b3554701-6626-4d73-971e-225ba1280996",
+    "text": "class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {\n        val tvNombre: TextView = view.findViewById(R.id.tvNombre)\n        val tvTelefono: TextView = view.findViewById(R.id.tvTelefono)\n        val ivFoto: ImageView = view.findViewById(R.id.ivFoto)\n    }",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > RecyclerView y CardView para Listas de Datos"
+  },
+  {
+    "id": "b3a61dab-b61b-4d48-aea6-3da5bbfe7761",
+    "text": "# Depuración de Aplicaciones con Logcat\nMódulo: Funcionalidades Avanzadas y Despliegue\n\n# Depuración de Aplicaciones con Logcat\n\n## ¿Qué es Logcat?\n\n**Logcat** es la herramienta de Android Studio que muestra los logs (registros) de tu aplicación en tiempo real. Es esencial para encontrar y solucionar errores.\n\n## Niveles de log",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Depuración de Aplicaciones con Logcat"
+  },
+  {
+    "id": "b3aa7a8a-7e7c-46a5-af79-8fcfbd577dd6",
+    "text": "# SDK de Android: Versiones y Compatibilidad\nMódulo: Fundamentos y Preparación del Entorno\n\n# SDK de Android: Versiones y Compatibilidad\n\n## ¿Qué es el Android SDK?\n\nEl **SDK (Software Development Kit)** de Android es un conjunto de herramientas que te permite desarrollar aplicaciones. Incluye:",
+    "document_name": "Fundamentos y Preparación del Entorno > SDK de Android: Versiones y Compatibilidad"
+  },
+  {
+    "id": "b4dfdf5e-f953-4d86-8889-2e725dc99d5e",
+    "text": "val nombre = intent.getStringExtra(\"nombre\") ?: \"Sin nombre\"\n        val edad = intent.getIntExtra(\"edad\", 0)\n        val promedio = intent.getDoubleExtra(\"promedio\", 0.0)\n\n        findViewById<TextView>(R.id.tvInfo).text =\n            \"$nombre, $edad años, promedio: $promedio\"\n    }\n}\n```\n\n## Registrar la Activity en AndroidManifest.xml",
+    "document_name": "Componentes Android y Gestión de Datos > Navegación entre Pantallas con Intents"
+  },
+  {
+    "id": "b6a46604-8f7a-427e-9b1c-90bcc91c1d09",
+    "text": "Una aplicación Android típica se compone de:\n\n- **Activities**: Pantallas individuales de la interfaz\n- **Layouts (XML)**: Definen la estructura visual\n- **Código Kotlin**: Lógica de la aplicación\n- **AndroidManifest.xml**: Configuración y permisos\n\n```kotlin\n// Ejemplo básico de una Activity en Kotlin\nclass MainActivity : AppCompatActivity() {\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        setContentView(R.layout.activity_main)",
+    "document_name": "Fundamentos y Preparación del Entorno > Introducción al Desarrollo Móvil y Android"
+  },
+  {
+    "id": "b756a5fe-5c34-44b0-859b-2a713685b2d8",
+    "text": "# Variables, Tipos de Datos y Operadores en Kotlin\nMódulo: Lógica de Programación en Kotlin\n\n# Variables, Tipos de Datos y Operadores en Kotlin\n\n## Declaración de variables\n\nEn Kotlin existen dos palabras clave para declarar variables:\n\n```kotlin\nval nombre = \"María\"    // Inmutable (no se puede cambiar)\nvar edad = 20           // Mutable (se puede cambiar)\n\nedad = 21               // ✅ OK: var se puede reasignar\n// nombre = \"Juan\"      // ❌ Error: val no se puede reasignar\n```",
+    "document_name": "Lógica de Programación en Kotlin > Variables, Tipos de Datos y Operadores en Kotlin"
+  },
+  {
+    "id": "b9328a53-e601-49f6-9218-e10f3da64873",
+    "text": "<TextView\n                android:id=\"@+id/tvTelefono\"\n                android:textSize=\"14sp\"\n                android:textColor=\"#666\" />\n\n        </LinearLayout>\n    </LinearLayout>\n</com.google.android.material.card.MaterialCardView>\n```\n\n## Paso 3: Crear el Adapter\n\n```kotlin\nclass ContactoAdapter(\n    private val contactos: List<Contacto>,\n    private val onClick: (Contacto) -> Unit\n) : RecyclerView.Adapter<ContactoAdapter.ViewHolder>() {",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > RecyclerView y CardView para Listas de Datos"
+  },
+  {
+    "id": "bbc11b1f-1ba7-441b-bab8-77beca75b338",
+    "text": "override fun onDestroy() {\n        super.onDestroy()\n        Log.d(\"CicloVida\", \"onDestroy - Liberando recursos\")\n    }\n}\n```\n\n## ¿Cuándo usar cada método?",
+    "document_name": "Componentes Android y Gestión de Datos > Activities y el Ciclo de Vida de Android"
+  },
+  {
+    "id": "bbc180ab-3ed6-4023-ba17-9bb7d8b5a006",
+    "text": "> **Nota importante:** En este curso nos enfocaremos en el desarrollo **nativo** con Kotlin, que es el lenguaje oficial recomendado por Google para Android.\n\n## Resumen\n\n- Android domina el mercado mundial de dispositivos móviles\n- Kotlin es el lenguaje oficial para desarrollo Android\n- Las aplicaciones nativas ofrecen el mejor rendimiento\n- Android Studio es el IDE oficial y gratuito",
+    "document_name": "Fundamentos y Preparación del Entorno > Introducción al Desarrollo Móvil y Android"
+  },
+  {
+    "id": "bbea3a4f-69b9-4ffd-b385-02bef7c248c5",
+    "text": "# POO: Clases, Objetos y Constructores\nMódulo: Lógica de Programación en Kotlin\n\n# POO: Clases, Objetos y Constructores\n\n## ¿Qué es la Programación Orientada a Objetos?\n\nLa **POO** es un paradigma que organiza el código en **clases** (plantillas) y **objetos** (instancias). Es fundamental para el desarrollo Android.\n\n## Clases en Kotlin\n\n```kotlin\nclass Alumno {\n    var nombre: String = \"\"\n    var edad: Int = 0\n    var carrera: String = \"\"",
+    "document_name": "Lógica de Programación en Kotlin > POO: Clases, Objetos y Constructores"
+  },
+  {
+    "id": "bc98dbf2-5daf-4de8-864a-8e89bc4726d6",
+    "text": "```\nMiPrimeraApp/\n├── app/\n│   ├── src/\n│   │   ├── main/\n│   │   │   ├── java/com/ejemplo/miprimeraapp/\n│   │   │   │   └── MainActivity.kt        ← Tu código Kotlin\n│   │   │   ├── res/\n│   │   │   │   ├── layout/\n│   │   │   │   │   └── activity_main.xml   ← Diseño de la pantalla\n│   │   │   │   ├── values/\n│   │   │   │   │   ├── strings.xml         ← Textos de la app\n│   │   │   │   │   ├── colors.xml          ← Colores\n│   │   │   │   │   └── themes.xml          ← Estilos y temas",
+    "document_name": "Fundamentos y Preparación del Entorno > Tu Primera Aplicación Android en Kotlin"
+  },
+  {
+    "id": "bd4c5588-5795-4a8a-8018-6d861fd1dde1",
+    "text": "## Casting con `is` y `as`\n\n```kotlin\nfun procesarAnimal(animal: Animal) {\n    if (animal is Perro) {\n        // Smart cast: Kotlin sabe que es Perro aquí\n        println(\"Es un perro que dice: ${animal.hacerSonido()}\")\n    }\n}\n```\n\n## Resumen",
+    "document_name": "Lógica de Programación en Kotlin > POO: Herencia, Interfaces y Polimorfismo"
+  },
+  {
+    "id": "bedfdbf4-d784-4c6a-b4a7-817b51deb622",
+    "text": "// Unit se puede omitir:\nfun mostrarMensaje2(msg: String) {\n    println(msg)\n}\n```\n\n## Lambdas (funciones anónimas)\n\nUna lambda es una función sin nombre que se puede almacenar en una variable:\n\n```kotlin\nval duplicar = { numero: Int -> numero * 2 }\nprintln(duplicar(5))  // 10\n\nval sumar = { a: Int, b: Int -> a + b }\nprintln(sumar(3, 4))  // 7\n```\n\n## Lambdas con colecciones\n\n```kotlin\nval numeros = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)",
+    "document_name": "Lógica de Programación en Kotlin > Funciones, Lambdas y Alcance en Kotlin"
+  },
+  {
+    "id": "c09b24d8-ab0d-4489-82ec-726439496d24",
+    "text": "### Crear un Helper\n\n```kotlin\nclass BaseDatosHelper(context: Context) : SQLiteOpenHelper(\n    context, \"alumnos.db\", null, 1\n) {\n    override fun onCreate(db: SQLiteDatabase) {\n        db.execSQL(\n            \"CREATE TABLE alumnos (\" +\n            \"id INTEGER PRIMARY KEY AUTOINCREMENT, \" +\n            \"nombre TEXT NOT NULL, \" +\n            \"edad INTEGER NOT NULL, \" +\n            \"carrera TEXT NOT NULL)\"\n        )\n    }",
+    "document_name": "Componentes Android y Gestión de Datos > Almacenamiento Local: SharedPreferences y SQLite"
+  },
+  {
+    "id": "c2deb3b5-6c3d-4e2e-8415-1909bdfa083c",
+    "text": "## TextView — Mostrar texto\n\n```xml\n<TextView\n    android:id=\"@+id/tvMensaje\"\n    android:layout_width=\"wrap_content\"\n    android:layout_height=\"wrap_content\"\n    android:text=\"Texto de ejemplo\"\n    android:textSize=\"18sp\"\n    android:textColor=\"#333333\"\n    android:textStyle=\"bold\"\n    android:maxLines=\"2\"\n    android:ellipsize=\"end\" />\n```\n\nDesde Kotlin:\n```kotlin\nval tv = findViewById<TextView>(R.id.tvMensaje)\ntv.text = \"Nuevo texto desde código\"\n```\n\n## Button — Botón interactivo",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Views básicos: TextView, Button, EditText e ImageView"
+  },
+  {
+    "id": "c371c707-13cb-4c65-ad01-5b375ef56993",
+    "text": "</LinearLayout>\n```\n\n## Atributos esenciales\n\n| Atributo | Valores | Descripción |\n|----------|---------|-------------|\n| `layout_width` | `match_parent`, `wrap_content`, `XXdp` | Ancho del componente |\n| `layout_height` | `match_parent`, `wrap_content`, `XXdp` | Alto del componente |\n| `id` | `@+id/nombre` | Identificador único |\n| `padding` | `16dp` | Espacio interior |\n| `margin` | `8dp` | Espacio exterior |\n\n## Unidades de medida",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Fundamentos de XML para Layouts Android"
+  },
+  {
+    "id": "c3a8b155-dbdf-43d8-b782-8736f797d3ac",
+    "text": "# Estructuras de Control: if/else, when y bucles\nMódulo: Lógica de Programación en Kotlin\n\n# Estructuras de Control: if/else, when y bucles\n\n## Condicional if/else\n\n```kotlin\nval nota = 15\n\nif (nota >= 18) {\n    println(\"Excelente\")\n} else if (nota >= 14) {\n    println(\"Bueno\")\n} else if (nota >= 11) {\n    println(\"Regular\")\n} else {\n    println(\"Desaprobado\")\n}\n```\n\n### if como expresión\n\nEn Kotlin, `if` puede devolver un valor:",
+    "document_name": "Lógica de Programación en Kotlin > Estructuras de Control: if/else, when y bucles"
+  },
+  {
+    "id": "c55962b2-e1d7-40ca-bc19-18a3a3b7a2ef",
+    "text": "```kotlin\nval dia = 3\n\nwhen (dia) {\n    1 -> println(\"Lunes\")\n    2 -> println(\"Martes\")\n    3 -> println(\"Miércoles\")\n    4 -> println(\"Jueves\")\n    5 -> println(\"Viernes\")\n    6, 7 -> println(\"Fin de semana\")\n    else -> println(\"Día inválido\")\n}\n```\n\n### when con rangos y condiciones\n\n```kotlin\nval edad = 20\n\nwhen {\n    edad < 13 -> println(\"Niño\")\n    edad in 13..17 -> println(\"Adolescente\")\n    edad in 18..64 -> println(\"Adulto\")\n    else -> println(\"Adulto mayor\")\n}\n```\n\n## Bucle for",
+    "document_name": "Lógica de Programación en Kotlin > Estructuras de Control: if/else, when y bucles"
+  },
+  {
+    "id": "c63a4f06-0dd6-4a4b-ab98-36f33ec9ce17",
+    "text": "> **Regla de oro**: Usa `val` siempre que sea posible. Solo usa `var` cuando necesites cambiar el valor.\n\n## Tipos de datos básicos",
+    "document_name": "Lógica de Programación en Kotlin > Variables, Tipos de Datos y Operadores en Kotlin"
+  },
+  {
+    "id": "c709f0ee-1c30-47f2-9a63-802507a365c8",
+    "text": "<Button\n        android:layout_below=\"@id/tvCentro\"\n        android:layout_centerHorizontal=\"true\"\n        android:text=\"Debajo\" />\n\n</RelativeLayout>\n```\n\n> **Recomendación**: Usa `ConstraintLayout` para layouts complejos. Es más eficiente que anidar múltiples `LinearLayout`.\n\n## Resumen",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Layouts: ConstraintLayout y RelativeLayout"
+  },
+  {
+    "id": "cbc109a8-33c4-45f9-b19a-3016213293f1",
+    "text": "## Button — Botón interactivo\n\n```xml\n<Button\n    android:id=\"@+id/btnAceptar\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"wrap_content\"\n    android:text=\"Aceptar\"\n    android:backgroundTint=\"#2196F3\"\n    android:textColor=\"@android:color/white\" />\n```\n\n```kotlin\nval btn = findViewById<Button>(R.id.btnAceptar)\nbtn.setOnClickListener {\n    Toast.makeText(this, \"¡Botón presionado!\", Toast.LENGTH_SHORT).show()\n}\n```\n\n## EditText — Campo de entrada",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Views básicos: TextView, Button, EditText e ImageView"
+  },
+  {
+    "id": "cc1b930f-47d5-4c45-8756-1e1ad043ae50",
+    "text": "## Paso 2: Diseñar el item (item_contacto.xml)\n\n```xml\n<com.google.android.material.card.MaterialCardView\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"wrap_content\"\n    android:layout_margin=\"8dp\"\n    app:cardCornerRadius=\"12dp\"\n    app:cardElevation=\"4dp\">",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > RecyclerView y CardView para Listas de Datos"
+  },
+  {
+    "id": "cc587ca5-be49-4f58-9b44-ea6a1f28def7",
+    "text": "### Leer datos\n\n```kotlin\nval prefs = getSharedPreferences(\"mi_app_prefs\", MODE_PRIVATE)\nval nombre = prefs.getString(\"nombre_usuario\", \"Invitado\")\nval edad = prefs.getInt(\"edad\", 0)\nval temaOscuro = prefs.getBoolean(\"tema_oscuro\", false)\n```\n\n### Eliminar datos\n\n```kotlin\nprefs.edit().remove(\"nombre_usuario\").apply()  // Eliminar una clave\nprefs.edit().clear().apply()                    // Eliminar todo\n```\n\n## SQLite — Base de datos relacional local",
+    "document_name": "Componentes Android y Gestión de Datos > Almacenamiento Local: SharedPreferences y SQLite"
+  },
+  {
+    "id": "cdb6e51f-14f3-4ab2-8b70-648b2c4e4fda",
+    "text": "## Toast — Mensaje emergente\n\n```kotlin\nToast.makeText(this, \"¡Hola desde Android!\", Toast.LENGTH_SHORT).show()\n// LENGTH_SHORT = 2 segundos\n// LENGTH_LONG = 3.5 segundos\n```\n\n## Resumen\n\n- `TextView` para mostrar texto, `EditText` para capturar texto\n- `Button` con `setOnClickListener` para manejar clicks\n- `ImageView` con `scaleType` para controlar cómo se muestra la imagen\n- `Toast` para mensajes rápidos al usuario",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Views básicos: TextView, Button, EditText e ImageView"
+  },
+  {
+    "id": "ce0b1779-eb28-42ec-aec4-73151a1e0a20",
+    "text": "# POO: Herencia, Interfaces y Polimorfismo\nMódulo: Lógica de Programación en Kotlin\n\n# POO: Herencia, Interfaces y Polimorfismo\n\n## Herencia en Kotlin\n\nEn Kotlin, las clases son **cerradas por defecto**. Para permitir herencia, usa `open`:\n\n```kotlin\nopen class Animal(val nombre: String) {\n    open fun hacerSonido(): String = \"...\"\n\n    fun presentarse(): String = \"Soy $nombre\"\n}\n\nclass Perro(nombre: String) : Animal(nombre) {\n    override fun hacerSonido(): String = \"¡Guau!\"\n}",
+    "document_name": "Lógica de Programación en Kotlin > POO: Herencia, Interfaces y Polimorfismo"
+  },
+  {
+    "id": "cf74adf3-d5b0-4cd4-8052-c561baec4ff2",
+    "text": "## Crear una cuenta de desarrollador\n\n1. Ve a [Google Play Console](https://play.google.com/console)\n2. Inicia sesión con tu cuenta de Google\n3. Paga la tarifa de registro ($25 USD)\n4. Completa tu perfil de desarrollador\n\n## Configurar la ficha de la tienda\n\n### Información básica\n- **Nombre de la app**: máximo 30 caracteres\n- **Descripción breve**: máximo 80 caracteres\n- **Descripción completa**: máximo 4000 caracteres\n\n### Recursos gráficos necesarios",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Publicación en Google Play Store"
+  },
+  {
+    "id": "d08ee260-59ba-42e0-8d10-13e7b9e5ffef",
+    "text": "## Métodos HTTP principales\n\n| Método | Acción | Ejemplo |\n|--------|--------|---------|\n| `GET` | Obtener datos | Listar productos |\n| `POST` | Crear datos | Registrar usuario |\n| `PUT` | Actualizar datos | Editar perfil |\n| `DELETE` | Eliminar datos | Borrar publicación |\n\n## Formato JSON\n\n```json\n{\n    \"id\": 1,\n    \"nombre\": \"Carlos\",\n    \"edad\": 22,\n    \"cursos\": [\"Kotlin\", \"Android\", \"SQL\"]\n}\n```\n\n## Permisos de Internet\n\nEn `AndroidManifest.xml`:",
+    "document_name": "Componentes Android y Gestión de Datos > Consumo de APIs REST y Manejo de JSON"
+  },
+  {
+    "id": "d0eca44d-c147-44dc-b43d-fb120416f8ce",
+    "text": "## Resumen\n\n- Toda app necesita firma digital para publicarse\n- Usa App Bundle (.aab) para Google Play\n- R8 optimiza y reduce el tamaño de tu app\n- Nunca pierdas tu keystore — es irrecuperable",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Firma y Preparación de la APK para Producción"
+  },
+  {
+    "id": "d5809a04-9cdf-4087-9dd5-bb4602d46ef5",
+    "text": "<TextView\n        android:id=\"@+id/tvTitulo\"\n        android:layout_width=\"0dp\"\n        android:layout_height=\"wrap_content\"\n        android:text=\"Mi Aplicación\"\n        android:textSize=\"24sp\"\n        app:layout_constraintTop_toTopOf=\"parent\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintEnd_toEndOf=\"parent\" />",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Layouts: ConstraintLayout y RelativeLayout"
+  },
+  {
+    "id": "d5db90bc-67b4-40ed-bd17-69c123890726",
+    "text": "val api: TareasApi by lazy {\n        Retrofit.Builder()\n            .baseUrl(BASE_URL)\n            .addConverterFactory(GsonConverterFactory.create())\n            .build()\n            .create(TareasApi::class.java)\n    }\n}\n```\n\n## Paso 4: Usar en la Activity con Coroutines\n\n```kotlin\nclass MainActivity : AppCompatActivity() {\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        setContentView(R.layout.activity_main)",
+    "document_name": "Componentes Android y Gestión de Datos > Retrofit para Servicios Web en Android"
+  },
+  {
+    "id": "d671d8e2-12ee-4a4b-92b5-ae2d6f8f684f",
+    "text": "AndroidX proporciona versiones compatibles de componentes modernos que funcionan en versiones antiguas de Android.\n\n## Resumen\n\n- El SDK contiene todas las herramientas necesarias para desarrollar\n- El API Level determina qué funciones puedes usar\n- `minSdk 24` es un buen punto de partida para máxima compatibilidad\n- AndroidX permite usar componentes modernos en dispositivos antiguos",
+    "document_name": "Fundamentos y Preparación del Entorno > SDK de Android: Versiones y Compatibilidad"
+  },
+  {
+    "id": "d720f5a0-10d5-45d7-9aff-9d74972d9e7c",
+    "text": "# Introducción al Desarrollo Móvil y Android\nMódulo: Fundamentos y Preparación del Entorno\n\n# Introducción al Desarrollo Móvil y Android\n\n## ¿Qué es el desarrollo móvil?\n\nEl **desarrollo móvil** es el proceso de crear aplicaciones de software que se ejecutan en dispositivos móviles como smartphones y tablets. En la actualidad, existen dos grandes ecosistemas:\n\n- **Android** (Google): ~72% del mercado mundial\n- **iOS** (Apple): ~27% del mercado mundial\n\n## ¿Por qué Android?",
+    "document_name": "Fundamentos y Preparación del Entorno > Introducción al Desarrollo Móvil y Android"
+  },
+  {
+    "id": "d7ff9910-733c-4dd0-b77b-7f62d2a4654f",
+    "text": "class MainActivity : AppCompatActivity() {\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        setContentView(R.layout.activity_main)\n\n        // Conectar las vistas del XML con variables Kotlin\n        val tvSaludo = findViewById<TextView>(R.id.tvSaludo)\n        val etNombre = findViewById<EditText>(R.id.etNombre)\n        val btnSaludar = findViewById<Button>(R.id.btnSaludar)",
+    "document_name": "Fundamentos y Preparación del Entorno > Tu Primera Aplicación Android en Kotlin"
+  },
+  {
+    "id": "d84892a9-f90a-483e-979b-5753a0feb87a",
+    "text": "### 2. Ejecutar el instalador\n\n1. Abre el archivo descargado (`.exe` en Windows, `.dmg` en Mac)\n2. Sigue el asistente de instalación\n3. Selecciona los componentes:\n   - ✅ Android Studio\n   - ✅ Android SDK\n   - ✅ Android Virtual Device (AVD)\n\n### 3. Configuración inicial\n\nAl abrir Android Studio por primera vez:\n\n1. Selecciona **\"Standard\"** en el tipo de configuración\n2. Elige el tema (claro u oscuro)\n3. Espera a que se descarguen los componentes del SDK\n\n## Verificar la instalación",
+    "document_name": "Fundamentos y Preparación del Entorno > Instalación y Configuración de Android Studio"
+  },
+  {
+    "id": "dddfec58-de34-4ce0-9614-8ae95d0ea07a",
+    "text": "## Generar un Keystore (almacén de claves)\n\n1. En Android Studio: **Build → Generate Signed Bundle / APK**\n2. Selecciona **Android App Bundle**\n3. Haz clic en **Create new...**\n4. Completa los datos:\n   - **Key store path**: ruta donde guardar el archivo `.jks`\n   - **Password**: contraseña del keystore\n   - **Alias**: nombre del certificado\n   - **Key password**: contraseña de la clave\n   - **Nombre y organización**: tus datos",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Firma y Preparación de la APK para Producción"
+  },
+  {
+    "id": "de107b16-15de-471f-9938-b58ffc40a683",
+    "text": "<LinearLayout\n            android:layout_width=\"0dp\"\n            android:layout_height=\"wrap_content\"\n            android:layout_weight=\"1\"\n            android:orientation=\"vertical\"\n            android:layout_marginStart=\"16dp\">\n\n            <TextView\n                android:id=\"@+id/tvNombre\"\n                android:textSize=\"16sp\"\n                android:textStyle=\"bold\" />",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > RecyclerView y CardView para Listas de Datos"
+  },
+  {
+    "id": "de40e740-7c3a-4f45-940d-32e6e5b3caa9",
+    "text": "## Atajos de teclado importantes\n\n| Atajo | Acción |\n|-------|--------|\n| `Ctrl + Shift + F10` | Ejecutar aplicación |\n| `Ctrl + Space` | Autocompletado |\n| `Ctrl + /` | Comentar línea |\n| `Alt + Enter` | Corrección rápida |\n| `Ctrl + B` | Ir a la definición |\n\n## Resumen\n\n- Android Studio es gratuito y es el IDE oficial\n- Necesitas al menos 8 GB de RAM\n- Incluye el SDK, emulador y herramientas de depuración\n- Puedes usar un emulador o un dispositivo físico para pruebas",
+    "document_name": "Fundamentos y Preparación del Entorno > Instalación y Configuración de Android Studio"
+  },
+  {
+    "id": "de4d2887-4981-4397-9cd4-a6145cf78099",
+    "text": "## Resumen\n\n- Retrofit simplifica el consumo de APIs REST en Android\n- Se define una interfaz con las rutas y métodos HTTP\n- Usa coroutines (`suspend fun`) para llamadas asíncronas\n- Gson convierte automáticamente JSON ↔ objetos Kotlin",
+    "document_name": "Componentes Android y Gestión de Datos > Retrofit para Servicios Web en Android"
+  },
+  {
+    "id": "e1d92260-b16c-4423-a71d-cb5c86c55f82",
+    "text": "## ImageView — Mostrar imágenes\n\n```xml\n<ImageView\n    android:id=\"@+id/ivFoto\"\n    android:layout_width=\"200dp\"\n    android:layout_height=\"200dp\"\n    android:src=\"@drawable/mi_imagen\"\n    android:scaleType=\"centerCrop\"\n    android:contentDescription=\"Foto de perfil\" />\n```\n\nTipos de `scaleType`:\n| Valor | Comportamiento |\n|-------|---------------|\n| `centerCrop` | Recorta para llenar (mantiene proporciones) |\n| `fitCenter` | Ajusta dentro del espacio |\n| `centerInside` | Centra sin recortar |",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Views básicos: TextView, Button, EditText e ImageView"
+  },
+  {
+    "id": "e5f92ed2-411a-47b0-9088-56da8eeeda08",
+    "text": "```kotlin\nval a = true\nval b = false\n\nprintln(a && b)    // false (AND: ambos deben ser true)\nprintln(a || b)    // true  (OR: al menos uno debe ser true)\nprintln(!a)        // false (NOT: invierte el valor)\n```\n\n## Conversión de tipos\n\n```kotlin\nval entero = 42\nval decimal = entero.toDouble()    // 42.0\nval texto = entero.toString()      // \"42\"\n\nval textoNumero = \"123\"\nval numero = textoNumero.toInt()   // 123\n```\n\n## Resumen",
+    "document_name": "Lógica de Programación en Kotlin > Variables, Tipos de Datos y Operadores en Kotlin"
+  },
+  {
+    "id": "e6b2aa59-1e43-463d-9413-dd940f3b21df",
+    "text": "- **Bibliotecas de Android**: APIs para acceder a funciones del sistema\n- **Herramientas de compilación**: Para convertir tu código en una APK\n- **Emulador**: Para probar sin un dispositivo físico\n- **ADB (Android Debug Bridge)**: Para comunicarte con dispositivos\n\n## API Level vs Versión de Android\n\nCada versión de Android tiene un **API Level** asociado:\n\n```\nAndroid 14 = API 34\nAndroid 13 = API 33\nAndroid 12 = API 31-32\nAndroid 11 = API 30\nAndroid 10 = API 29\n```",
+    "document_name": "Fundamentos y Preparación del Entorno > SDK de Android: Versiones y Compatibilidad"
+  },
+  {
+    "id": "ea50925d-0bfc-4cef-9b06-7a9b5ee9932c",
+    "text": "## Configuración clave en `build.gradle`\n\n```kotlin\nandroid {\n    compileSdk = 34          // SDK máximo para compilar\n\n    defaultConfig {\n        minSdk = 24          // Mínimo soportado (Android 7.0)\n        targetSdk = 34       // SDK objetivo optimizado\n        versionCode = 1\n        versionName = \"1.0\"\n    }\n}\n```\n\n### ¿Qué significan estos valores?",
+    "document_name": "Fundamentos y Preparación del Entorno > SDK de Android: Versiones y Compatibilidad"
+  },
+  {
+    "id": "ec7a5522-a9ea-4687-8407-1d3973801491",
+    "text": "## Resumen\n\n- `ConstraintLayout` es el más flexible y eficiente\n- Los constraints conectan los bordes de un elemento con otros\n- `0dp` significa \"expandir según constraints\"\n- Evita anidar muchos layouts — usa ConstraintLayout para layouts planos",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Layouts: ConstraintLayout y RelativeLayout"
+  },
+  {
+    "id": "ecfc7f7c-4915-47da-8981-3049eecb5e50",
+    "text": "# Retrofit para Servicios Web en Android\nMódulo: Componentes Android y Gestión de Datos\n\n# Retrofit para Servicios Web en Android\n\n## ¿Qué es Retrofit?\n\n**Retrofit** es la biblioteca más popular para consumir APIs REST en Android. Simplifica las llamadas HTTP y el manejo de respuestas.\n\n## Configuración\n\n```kotlin\n// build.gradle\ndependencies {\n    implementation(\"com.squareup.retrofit2:retrofit:2.9.0\")\n    implementation(\"com.squareup.retrofit2:converter-gson:2.9.0\")\n}\n```",
+    "document_name": "Componentes Android y Gestión de Datos > Retrofit para Servicios Web en Android"
+  },
+  {
+    "id": "ed750bb4-6b10-48d9-b552-d95ce234e11f",
+    "text": "## Ejecutar la aplicación\n\n1. Selecciona un dispositivo (emulador o físico) en la barra superior\n2. Haz clic en el botón **▶ Run** (o `Shift + F10`)\n3. Espera a que se compile y se instale\n4. ¡Tu app debería aparecer en el dispositivo!\n\n## Conceptos clave aprendidos",
+    "document_name": "Fundamentos y Preparación del Entorno > Tu Primera Aplicación Android en Kotlin"
+  },
+  {
+    "id": "ed90f9a7-5a37-491d-b26f-40b6c8e5a33e",
+    "text": "# Funciones, Lambdas y Alcance en Kotlin\nMódulo: Lógica de Programación en Kotlin\n\n# Funciones, Lambdas y Alcance en Kotlin\n\n## Funciones básicas\n\n```kotlin\nfun saludar(nombre: String): String {\n    return \"¡Hola, $nombre!\"\n}\n\nprintln(saludar(\"María\"))  // ¡Hola, María!\n```\n\n## Funciones de una sola expresión\n\nSi el cuerpo es una sola expresión, puedes simplificar:\n\n```kotlin\nfun sumar(a: Int, b: Int): Int = a + b\n\nfun esMayor(edad: Int): Boolean = edad >= 18\n```",
+    "document_name": "Lógica de Programación en Kotlin > Funciones, Lambdas y Alcance en Kotlin"
+  },
+  {
+    "id": "f363f897-8e0b-4cb7-b042-10cbf90f1be3",
+    "text": "```xml\n<androidx.constraintlayout.widget.ConstraintLayout\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    android:padding=\"16dp\">",
+    "document_name": "Elaboración de Interfaces de Usuario (UI) > Layouts: ConstraintLayout y RelativeLayout"
+  },
+  {
+    "id": "f4ab44c7-d4b5-4c03-a005-0f20468eb68a",
+    "text": "## Códigos de respuesta HTTP\n\n| Código | Significado |\n|--------|-------------|\n| `200` | OK — Éxito |\n| `201` | Created — Recurso creado |\n| `400` | Bad Request — Error del cliente |\n| `401` | Unauthorized — No autenticado |\n| `404` | Not Found — No existe |\n| `500` | Server Error — Error del servidor |\n\n## Resumen",
+    "document_name": "Componentes Android y Gestión de Datos > Consumo de APIs REST y Manejo de JSON"
+  },
+  {
+    "id": "f5b03636-a997-4832-903b-fe782261f1be",
+    "text": "# Instalación y Configuración de Android Studio\nMódulo: Fundamentos y Preparación del Entorno\n\n# Instalación y Configuración de Android Studio\n\n## ¿Qué es Android Studio?\n\n**Android Studio** es el Entorno de Desarrollo Integrado (IDE) oficial de Google para crear aplicaciones Android. Está basado en IntelliJ IDEA de JetBrains.\n\n## Requisitos del sistema",
+    "document_name": "Fundamentos y Preparación del Entorno > Instalación y Configuración de Android Studio"
+  },
+  {
+    "id": "f632f8d7-cff2-47f3-b482-44a084c56fa5",
+    "text": "## Parámetros nombrados\n\n```kotlin\nfun registrarAlumno(nombre: String, edad: Int, carrera: String) {\n    println(\"$nombre, $edad años, $carrera\")\n}\n\n// Puedes nombrar los parámetros para mayor claridad\nregistrarAlumno(\n    nombre = \"Carlos\",\n    carrera = \"Ingeniería de Sistemas\",\n    edad = 22   // El orden no importa con parámetros nombrados\n)\n```\n\n## Funciones Unit (sin retorno)\n\n```kotlin\nfun mostrarMensaje(msg: String): Unit {\n    println(msg)\n}",
+    "document_name": "Lógica de Programación en Kotlin > Funciones, Lambdas y Alcance en Kotlin"
+  },
+  {
+    "id": "fa91bc4e-1baf-426b-9a4e-4a76c48e0e5e",
+    "text": "## Paso 1: Definir el modelo de datos\n\n```kotlin\ndata class Tarea(\n    val id: Int,\n    val title: String,\n    val completed: Boolean\n)\n```\n\n## Paso 2: Crear la interfaz del servicio\n\n```kotlin\ninterface TareasApi {\n    @GET(\"todos\")\n    suspend fun obtenerTareas(): List<Tarea>\n\n    @GET(\"todos/{id}\")\n    suspend fun obtenerTarea(@Path(\"id\") id: Int): Tarea\n\n    @POST(\"todos\")\n    suspend fun crearTarea(@Body tarea: Tarea): Tarea",
+    "document_name": "Componentes Android y Gestión de Datos > Retrofit para Servicios Web en Android"
+  },
+  {
+    "id": "fcd248d9-d0ce-4e7e-a4f0-57bf08513573",
+    "text": "## Ejecutar pruebas\n\n- **En Android Studio**: Clic derecho en el archivo → Run Tests\n- **En terminal**: `./gradlew test`\n\n## Resumen\n\n- Las pruebas verifican que tu código funciona correctamente\n- JUnit es el framework estándar para pruebas en Android\n- Usa nombres descriptivos: `metodo_escenario_resultado`\n- Ejecuta las pruebas frecuentemente durante el desarrollo",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Pruebas Unitarias con JUnit en Android"
+  },
+  {
+    "id": "fe31c34b-b149-4824-bf80-b2c2fd412303",
+    "text": "## El archivo `activity_main.xml`\n\nEste archivo define la interfaz visual de tu pantalla principal:\n\n```xml\n<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<LinearLayout\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    android:orientation=\"vertical\"\n    android:gravity=\"center\"\n    android:padding=\"24dp\">",
+    "document_name": "Fundamentos y Preparación del Entorno > Tu Primera Aplicación Android en Kotlin"
+  },
+  {
+    "id": "fe976a46-be7f-470c-9509-9c69a0d7f19d",
+    "text": "## ProGuard / R8\n\nR8 (sucesor de ProGuard) **optimiza y ofusca** tu código:\n- Elimina código no utilizado\n- Acorta nombres de clases y métodos\n- Reduce el tamaño del APK significativamente\n\n## Checklist antes de publicar\n\n- [ ] Versión actualizada (`versionCode` y `versionName`)\n- [ ] ProGuard/R8 activado\n- [ ] Keystore guardado en lugar seguro\n- [ ] App testeada en múltiples dispositivos\n- [ ] Permisos mínimos necesarios\n- [ ] Íconos de la app en todas las resoluciones\n\n## Resumen",
+    "document_name": "Funcionalidades Avanzadas y Despliegue > Firma y Preparación de la APK para Producción"
+  },
+  {
+    "id": "ff32074e-afe5-4a24-b2b2-ec826379974a",
+    "text": "## Historia breve de Android\n\n| Versión | Nombre | Año | API Level |\n|---------|--------|-----|-----------|\n| 8.0 | Oreo | 2017 | 26 |\n| 9.0 | Pie | 2018 | 28 |\n| 10 | Q | 2019 | 29 |\n| 11 | R | 2020 | 30 |\n| 12 | S | 2021 | 31 |\n| 13 | Tiramisu | 2022 | 33 |\n| 14 | Upside Down Cake | 2023 | 34 |\n\n## Arquitectura de una app Android\n\nUna aplicación Android típica se compone de:",
+    "document_name": "Fundamentos y Preparación del Entorno > Introducción al Desarrollo Móvil y Android"
+  }
+]

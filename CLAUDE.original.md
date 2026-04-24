@@ -184,9 +184,23 @@ tutor-ia-generativa/
 │   ├── modulo-2-logica-poo/
 │   ├── modulo-3-interfaces/
 │   └── silabo-2025-I.md
-└── infra/
-    ├── caddy/Caddyfile
-    └── scripts/{provision-vm.sh, deploy.sh, backup-postgres.sh}
+├── infra/
+│   ├── caddy/Caddyfile
+│   └── scripts/{provision-vm.sh, deploy.sh, backup-postgres.sh}
+├── benchmarks/
+│   ├── README.md                      ← este archivo
+│   ├── CLAUDE_CODE_PROMPT.md          ← prompt final para Claude Code
+│   ├── prompts_llm.json               ← 50 prompts en español (M1-M3 + off-topic)
+│   ├── run_llm_benchmark.py           ← benchmark LLM (paso 2)
+│   ├── score_responses.py             ← calificación interactiva (paso 3)
+│   ├── export_corpus.py               ← exporta corpus desde pgvector (paso 4)
+│   ├── golden_set_embeddings.json     ← 20 queries con keywords esperadas
+│   ├── run_embeddings_benchmark.py    ← benchmark embeddings (paso 5)
+│   └── results/
+│       ├── llm_benchmark.json         ← salida del paso 2
+│       ├── llm_scores.json            ← salida del paso 3
+│       ├── corpus_chunks.json         ← salida del paso 4
+│       └── embeddings_benchmark.json  ← salida del paso 5
 ```
 
 ---

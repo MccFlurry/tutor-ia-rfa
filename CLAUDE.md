@@ -142,6 +142,20 @@ tutor-ia-rfa/
 ├── infra/
 │   ├── caddy/Caddyfile              # Sprint 5
 │   └── scripts/{provision-vm.sh, deploy.sh, backup-postgres.sh}
+├── benchmarks/                      # Sprint 2 · evaluación comparativa LLM+embeddings (OE2 R2.1) · ✅ ejecutado
+│   ├── README.md                    # protocolo de 6 pasos
+│   ├── prompts_llm.json             # 50 prompts M1(12) + M2(18) + M3(15) + off-topic(5)
+│   ├── run_llm_benchmark.py         # paso 2 · benchmark 3 LLMs (qwen2.5 · llama3 · mistral)
+│   ├── score_responses_auto.py      # paso 3 · calificación automatizada con LLM juez (reemplaza interactivo)
+│   ├── export_corpus.py             # paso 4 · exporta chunks desde pgvector
+│   ├── golden_set_embeddings.json   # 20 queries M1-M3 con keywords esperadas
+│   ├── run_embeddings_benchmark.py  # paso 5 · benchmark mxbai vs nomic (Recall@5 + MRR)
+│   ├── generate_llm_report.py       # paso 6 · produce docs/reporte-LLM.docx desde JSONs
+│   └── results/                     # outputs JSON
+│       ├── llm_benchmark.json       # 3 modelos × 50 prompts · latencia + tok/s + VRAM
+│       ├── llm_scores.json          # 3 × 50 calificados con LLM juez Likert 1-5
+│       ├── corpus_chunks.json       # 163 chunks exportados desde pgvector
+│       └── embeddings_benchmark.json # mxbai vs nomic · Recall@5 + MRR
 └── docs/                            # 12 entregables .docx (ver tabla más abajo)
 ```
 
@@ -474,8 +488,25 @@ ADMIN_NAME=Administrador del Sistema
 ### ✅ FASE 1 — Sprint 1 · Infraestructura y BD
 Estructura, docker-compose con pgvector/redis/ollama, config.py + database.py async, todos modelos SQLAlchemy, migración inicial Alembic con `CREATE EXTENSION vector`, React+Vite+TS+Tailwind+shadcn en frontend. `docker compose up` funciona. ERS 52 RF / 33 priorizados. 4 modelos STI documentados.
 
-### ✅ FASE 2 — Sprint 2 · Autenticación + evaluación LLM
-`security.py` JWT+bcrypt, `auth_service.py`, `routers/auth.py`, `dependencies.py` (get_db, get_current_user, get_redis, require_admin). Frontend: `LoginPage` con toggle registro + brute-force protection (3 intentos+lockout 5min), `authStore` Zustand+localStorage, `api/client.ts` interceptor 401, `AuthGuard` con requireAdmin. **Evaluación comparativa LLM/embeddings** → decisión qwen2.5:7b + mxbai-embed-large (`docs/reporte-LLM.docx`). Pipeline RAG operativo con corpus Módulos 1-3 indexado pgvector.
+### ✅ FASE 2 — Sprint 2 · Autenticación + evaluación LLM (OE2 R2.1)
+`security.py` JWT+bcrypt, `auth_service.py`, `routers/auth.py`, `dependencies.py` (get_db, get_current_user, get_redis, require_admin). Frontend: `LoginPage` con toggle registro + brute-force protection (3 intentos+lockout 5min), `authStore` Zustand+localStorage, `api/client.ts` interceptor 401, `AuthGuard` con requireAdmin.
+
+**Evaluación comparativa LLM/embeddings ejecutada 2026-04-24** — `benchmarks/` completo (ver §BENCHMARKS). Reporte final: `docs/reporte-LLM.docx` (43 KB, 8 secciones + 2 anexos + referencias IEEE, formato USAT Times New Roman 12).
+
+**LLM evaluados (50 prompts cada uno, juez LLM Likert 1-5):**
+| Modelo | Lat. avg | Lat. p95 | Tok/s | VRAM | Likert global |
+|--------|----------|----------|-------|------|---------------|
+| qwen2.5:7b-instruct-q4_K_M | 5.91s | 8.66s | 107.0 | 4.59 GB | **4.85** ✅ |
+| llama3:8b-instruct-q4_K_M | 4.71s | 7.40s | 109.6 | 5.09 GB | 4.84 |
+| mistral:7b-instruct-q4_K_M | 3.90s | 6.79s | 120.2 | 4.79 GB | 4.28 |
+
+**Embeddings evaluados (20 queries sobre corpus real 163 chunks M1-M3):**
+| Modelo | Dim | Recall@5 | MRR | Latencia (ms) |
+|--------|-----|----------|-----|---------------|
+| mxbai-embed-large | 1024 | **0.550** ✅ | 0.453 | 173 |
+| nomic-embed-text | 768 | 0.350 | 0.305 | 131 |
+
+**Decisión final:** qwen2.5:7b-instruct-q4_K_M + mxbai-embed-large. qwen2.5 ganó la rúbrica por 0.01 sobre llama3 (empate técnico) pero usa 0.5 GB menos VRAM y es el único que obtuvo nota perfecta 5.00 en "ausencia de alucinaciones". mxbai-embed-large supera a nomic por +0.20 Recall@5, margen claro. Pipeline RAG operativo con corpus Módulos 1-3 indexado pgvector.
 
 ### ✅ FASE 3 — Sprint 2-3 · Módulos, Temas, Contenido
 `setup_ollama.sh`, `seed_db.py` (5 módulos + 22 temas Markdown completo + 25+ preguntas + 7 logros + admin). `routers/modules.py` + `topics.py`. Frontend: `ModulesPage`, `ModuleDetailPage`, `TopicPage`, `ContentRenderer` (react-markdown + remark-gfm), `CodeBlock` (syntax+copy), layout (AppLayout/Sidebar/Navbar), shadcn components.

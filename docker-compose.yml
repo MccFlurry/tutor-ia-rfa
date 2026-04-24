@@ -91,6 +91,7 @@ services:
       - ./backend/notebooks:/app/notebooks
       - ./backend/pytest.ini:/app/pytest.ini
       - ./docs:/app/docs
+      - ./benchmarks:/app/benchmarks
       - uploads_data:/app/uploads
     command: >
       sh -c "alembic upgrade head &&
