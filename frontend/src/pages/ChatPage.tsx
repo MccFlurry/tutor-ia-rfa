@@ -27,7 +27,10 @@ import type { ChatMessage } from '@/types/chat'
 export default function ChatPage() {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
   const [input, setInput] = useState('')
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  // Default closed on mobile (<lg) so chat area is visible on first paint.
+  const [sidebarOpen, setSidebarOpen] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
+  )
   const [optimisticMessages, setOptimisticMessages] = useState<ChatMessage[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -58,6 +61,13 @@ export default function ChatPage() {
     const session = await createSession.mutateAsync()
     setActiveSessionId(session.id)
     setOptimisticMessages([])
+    // Auto-close drawer on mobile so the chat surface is visible
+    if (
+      typeof window !== 'undefined' &&
+      !window.matchMedia('(min-width: 1024px)').matches
+    ) {
+      setSidebarOpen(false)
+    }
     textareaRef.current?.focus()
   }, [createSession])
 
@@ -103,13 +113,24 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
-      {/* Sessions sidebar */}
+    <div className="relative flex h-[calc(100dvh-4rem)] overflow-hidden">
+      {/* Mobile backdrop when sidebar is open (<lg only) */}
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Cerrar historial"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 top-16 z-30 bg-black/40 lg:hidden"
+        />
+      )}
+      {/* Sessions sidebar — overlay drawer on mobile, in-flow on lg+ */}
       <aside
         aria-label="Historial de conversaciones"
         className={`${
-          sidebarOpen ? 'w-72' : 'w-0'
-        } transition-all duration-200 bg-card border-r border-border flex flex-col overflow-hidden shrink-0`}
+          sidebarOpen
+            ? 'translate-x-0 w-72 lg:w-72'
+            : '-translate-x-full w-72 lg:w-0 lg:translate-x-0'
+        } fixed lg:static inset-y-16 left-0 z-40 lg:z-auto lg:inset-auto transition-all duration-200 bg-card border-r border-border flex flex-col overflow-hidden shrink-0`}
       >
         <div className="p-3 border-b border-border">
           <Button
@@ -152,6 +173,13 @@ export default function ChatPage() {
                         onClick={() => {
                           setActiveSessionId(session.id)
                           setOptimisticMessages([])
+                          // Auto-close drawer on mobile after selection
+                          if (
+                            typeof window !== 'undefined' &&
+                            !window.matchMedia('(min-width: 1024px)').matches
+                          ) {
+                            setSidebarOpen(false)
+                          }
                         }}
                         aria-current={isActive ? 'true' : undefined}
                         className="w-full text-left pl-3 pr-10 py-2.5 text-sm
@@ -205,8 +233,16 @@ export default function ChatPage() {
             <h1 className="font-semibold text-foreground">Tutor IA</h1>
           </div>
           {remaining && (
-            <span className="ml-auto text-xs text-muted-foreground tabular-nums">
-              {remaining.remaining} de {remaining.limit} consultas disponibles
+            <span
+              className="ml-auto text-xs text-muted-foreground tabular-nums whitespace-nowrap"
+              aria-label={`${remaining.remaining} de ${remaining.limit} consultas disponibles`}
+            >
+              <span className="sm:hidden">
+                {remaining.remaining}/{remaining.limit}
+              </span>
+              <span className="hidden sm:inline">
+                {remaining.remaining} de {remaining.limit} consultas disponibles
+              </span>
             </span>
           )}
         </div>
@@ -283,7 +319,7 @@ export default function ChatPage() {
                   rows={1}
                   aria-label="Mensaje al tutor"
                   disabled={sendMessage.isPending || (remaining?.remaining ?? 1) <= 0}
-                  className="flex-1 min-h-[44px] !h-auto resize-none text-sm bg-muted/50"
+                  className="flex-1 min-h-[44px] !h-auto resize-none text-base sm:text-sm bg-muted/50"
                 />
                 <Button
                   onClick={handleSend}

@@ -239,12 +239,19 @@ export default function QuizPage() {
             ))}
           </div>
 
+          {/* Spacer so content doesn't get hidden under sticky bar on mobile */}
+          <div aria-hidden="true" className="h-4" />
+
           {/* Submit bar */}
-          <div className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border -mx-4 px-4 py-4 mt-6 flex items-center justify-between sm:-mx-6 sm:px-6">
-            <span className="text-sm text-muted-foreground tabular-nums">
+          <div className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border -mx-4 px-4 py-3 mt-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:-mx-6 sm:px-6 sm:py-4">
+            <span className="text-sm text-muted-foreground tabular-nums text-center sm:text-left">
               {answeredCount} de {totalQuestions} respondidas
             </span>
-            <Button onClick={handleSubmit} disabled={submitMutation.isPending}>
+            <Button
+              onClick={handleSubmit}
+              disabled={submitMutation.isPending}
+              className="w-full sm:w-auto min-h-[44px]"
+            >
               <Send className="w-4 h-4 mr-2" />
               {submitMutation.isPending ? 'Enviando...' : 'Enviar respuestas'}
             </Button>

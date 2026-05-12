@@ -22,13 +22,13 @@ export default function QuizQuestion({
   const groupLabelId = `quiz-q-${question.id}-label`
 
   return (
-    <div className="bg-card rounded-xl border border-border p-6">
+    <div className="bg-card rounded-xl border border-border p-4 sm:p-6">
       <p className="text-xs text-muted-foreground mb-2">
         Pregunta {index + 1} de {total}
       </p>
       <p
         id={groupLabelId}
-        className="font-medium text-foreground mb-4 text-lg leading-relaxed"
+        className="font-medium text-foreground mb-4 text-base sm:text-lg leading-relaxed break-words"
       >
         {question.question_text}
       </p>
