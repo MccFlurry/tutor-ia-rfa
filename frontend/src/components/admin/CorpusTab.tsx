@@ -78,7 +78,7 @@ export default function CorpusTab() {
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-x-auto">
         {isLoading ? (
           <div className="p-8 text-center text-gray-500">Cargando...</div>
         ) : !data || data.length === 0 ? (
@@ -86,7 +86,7 @@ export default function CorpusTab() {
             No hay documentos. Sube el primero para alimentar el corpus RAG.
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full text-sm min-w-[640px]">
             <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
               <tr>
                 <th className="px-4 py-3 text-left">Archivo</th>
