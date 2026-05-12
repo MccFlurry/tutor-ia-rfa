@@ -451,6 +451,21 @@ Detalle completo en `docs/CLAUDE-archive.md`. Resumen:
 - **FASE 7.5 (S3) ✅** Rebrand IESTP RFA + diferenciación admin + desafíos IA per-estudiante (migración 004)
 - **SPRINT 4 ✅** RAGAS: v3 logra faithfulness 0.768 apto + answer_relevancy 0.856 sobre corpus M1-M3. Modelo qwen2.5+mxbai NO requiere cambio.
 
+### Tier 1 + 2 + 3 UI/UX Polish ✅ (12 may 2026, pre-SUS pilot)
+
+**Tier 1 (crítico):** ErrorBoundary global + toast ARIA + Monaco lazy + quiz localStorage persistence + useFocusMain hook + ContentRenderer heading hierarchy + touch targets ≥44px + semantic tokens + themeStore + ThemeToggle + dark mode wired.
+
+**Tier 2 (polish):** Avatar component + ModuleCard locked-state a11y + LoginPage inline validation + SettingsPage (Perfil/Contraseña/Apariencia tabs) + backend `/progress/streak` endpoint + Dashboard streak StatCard.
+
+**Tier 3 (pre-SUS):**
+- **Phase 0 Foundations:** framer-motion + Skeleton + PageTransition + EmptyState illustration prop (Lucide fallback documented in `frontend/src/assets/empty/README.md`).
+- **Phase 1 Mobile 375px:** 12 páginas auditadas (Login, Assessment, Dashboard, Modules, ModuleDetail, Topic, Quiz, Chat con drawer mobile + dvh, Coding con Monaco responsivo, Progress, Achievements, Admin best-effort). Touch ≥44px, no overflow horizontal, sticky bars con pb-suficiente.
+- **Phase 2 Loading + transiciones:** PageTransition en AppLayout (200ms fade+slide, motion-safe) + skeletons matching shape en 7 páginas + micro-interacciones globales (interactive-card, interactive-button, focus-ring-smooth).
+- **Phase 3 Dark mode QA:** 26 archivos auditados, 347+/209- líneas, 200+ instancias de hardcoded colors → tokens semánticos. Monaco theme dinámico vía useThemeStore.isDark. Audit doc `docs/audit-darkmode.md`.
+- **Phase 4 Empty + Error:** 7 empty states con Lucide (Dashboard, Modules, Chat sessions/messages, Progress, Achievements, Admin Corpus) + 3 RouteErrorBoundary fallbacks contextuales (Chat/Quiz/Coding) usando ErrorBoundary existente con render prop.
+
+Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `docs/superpowers/plans/2026-05-12-tier3-uiux-polish.md` · Branch: `feat/tier3-uiux-polish`. Build green (tsc + Vite). Lighthouse mobile pendiente correr manualmente — instrucciones en `docs/audit-mobile.md`.
+
 ### 🔄 SPRINT 5 — Despliegue productivo (18-31 may 2026) · CRISP-DM Deployment
 - Provisión VM e2-standard-4 GCP (`infra/scripts/provision-vm.sh`)
 - Despliegue Docker Compose prod (`docker-compose.vm.yml`)
