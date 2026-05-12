@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, Trophy, BookOpen, Sparkles, PlayCircle, BarChart3, GraduationCap, Flame } from 'lucide-react'
 import { dashboardApi } from '@/api/dashboard'
@@ -7,6 +7,7 @@ import Skeleton, { SkeletonCard } from '@/components/common/Skeleton'
 import { Button } from '@/components/ui/button'
 import PageHeader from '@/components/common/PageHeader'
 import StatCard from '@/components/common/StatCard'
+import EmptyState from '@/components/common/EmptyState'
 import { getAchievementIcon } from '@/lib/achievementIcon'
 import { cn } from '@/lib/utils'
 import type { StudentLevel } from '@/types/assessment'
@@ -58,6 +59,28 @@ export default function DashboardPage() {
 
   const firstName = data.user_name.split(' ')[0]
   const pct = Math.round(data.overall_progress_pct)
+
+  // Empty state: brand-new user with no activity yet
+  if (data.total_topics_completed === 0 && !data.last_accessed_topic) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-8 sm:px-6">
+        <PageHeader title={`¡Hola, ${firstName}!`} />
+        <EmptyState
+          icon={Sparkles}
+          title="¡Comencemos tu aprendizaje!"
+          description="Aún no has iniciado ningún módulo. Cuando comiences, verás aquí tu progreso, logros y recomendaciones."
+          action={
+            <Link
+              to="/modules"
+              className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+            >
+              Comenzar primer módulo
+            </Link>
+          }
+        />
+      </div>
+    )
+  }
 
   const levelChip = data.user_level && (
     <span

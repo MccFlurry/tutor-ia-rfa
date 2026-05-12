@@ -155,8 +155,18 @@ export default function ChatPage() {
           ) : sessions.length === 0 ? (
             <EmptyState
               icon={MessageCircle}
-              title="Sin conversaciones aún"
-              description="Empieza una nueva para preguntar al tutor IA."
+              title="Sin conversaciones"
+              description="Inicia tu primera conversación con el tutor IA."
+              action={
+                <button
+                  onClick={handleNewSession}
+                  disabled={createSession.isPending}
+                  className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors text-sm disabled:opacity-50"
+                >
+                  Nueva conversación
+                </button>
+              }
+              className="py-6"
             />
           ) : (
             <ul className="p-2 space-y-0.5">
@@ -273,9 +283,9 @@ export default function ChatPage() {
           ) : messages.length === 0 ? (
             <EmptyState
               icon={MessageCircle}
-              title="Escribe tu primera pregunta"
+              title="¿Sobre qué quieres aprender?"
               description={
-                'Por ejemplo: "¿Cómo creo un RecyclerView en Android?" o "Explícame las funciones lambda en Kotlin"'
+                "Pregúntale al tutor sobre los temas del curso. Por ejemplo: '¿Qué es Jetpack Compose?'"
               }
             />
           ) : (

@@ -4,6 +4,7 @@ import { Upload, RefreshCw, Trash2, FileText, CheckCircle2, AlertCircle, Loader2
 import toast from 'react-hot-toast'
 import { adminApi, type DocumentAdmin } from '@/api/admin'
 import { Button } from '@/components/ui/button'
+import EmptyState from '@/components/common/EmptyState'
 
 const STATUS_STYLE: Record<DocumentAdmin['status'], { label: string; cls: string; icon: React.ComponentType<{ className?: string }> }> = {
   pending: { label: 'Pendiente', cls: 'bg-muted text-muted-foreground', icon: Loader2 },
@@ -82,9 +83,20 @@ export default function CorpusTab() {
         {isLoading ? (
           <div className="p-8 text-center text-muted-foreground">Cargando...</div>
         ) : !data || data.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">
-            No hay documentos. Sube el primero para alimentar el corpus RAG.
-          </div>
+          <EmptyState
+            icon={Upload}
+            title="Sin documentos cargados"
+            description="Sube documentos PDF, DOCX o MD para alimentar el corpus RAG."
+            action={
+              <button
+                onClick={() => fileInput.current?.click()}
+                disabled={upload.isPending}
+                className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                Subir documento
+              </button>
+            }
+          />
         ) : (
           <table className="w-full text-sm min-w-[640px]">
             <thead className="bg-muted text-muted-foreground text-xs uppercase">

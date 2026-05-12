@@ -1,5 +1,6 @@
+import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { BarChart3, Clock, BookOpen, Trophy, Activity } from 'lucide-react'
+import { BarChart3, Clock, BookOpen, Trophy, Activity, TrendingUp } from 'lucide-react'
 import { progressApi } from '@/api/progress'
 import { achievementsApi } from '@/api/achievements'
 import { Progress } from '@/components/ui/progress'
@@ -54,6 +55,31 @@ export default function ProgressPage() {
   }
 
   const earnedCount = achievements?.filter((a) => a.is_earned).length ?? 0
+
+  // Empty state: no topics completed yet
+  if (progress && progress.topics_completed === 0) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
+        <PageHeader
+          title="Mi Progreso"
+          subtitle="Avance, tiempo invertido y desempeño por módulo."
+        />
+        <EmptyState
+          icon={TrendingUp}
+          title="Tu progreso aparecerá aquí"
+          description="Cuando completes temas, verás tu avance por módulo, tiempo de estudio y logros."
+          action={
+            <Link
+              to="/modules"
+              className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+            >
+              Explorar módulos
+            </Link>
+          }
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">

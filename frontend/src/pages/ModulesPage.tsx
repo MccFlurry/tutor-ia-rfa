@@ -1,5 +1,6 @@
+import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { BookOpen } from 'lucide-react'
+import { BookOpen, Lock } from 'lucide-react'
 import { modulesApi } from '@/api/modules'
 import ModuleCard from '@/components/modules/ModuleCard'
 import { SkeletonCard } from '@/components/common/Skeleton'
@@ -30,6 +31,20 @@ export default function ModulesPage() {
           icon={BookOpen}
           title="Sin módulos disponibles"
           description="Aún no hay módulos publicados. Vuelve más tarde o contacta al administrador."
+        />
+      ) : modules.every((m) => m.is_locked) ? (
+        <EmptyState
+          icon={Lock}
+          title="Necesitas completar tu evaluación"
+          description="Para desbloquear los módulos, primero realiza la evaluación inicial."
+          action={
+            <Link
+              to="/assessment"
+              className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+            >
+              Ir a evaluación
+            </Link>
+          }
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
