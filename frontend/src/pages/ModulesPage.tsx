@@ -20,7 +20,7 @@ export default function ModulesPage() {
       />
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {Array.from({ length: 5 }).map((_, i) => (
             <Skeleton key={i} className="h-56 rounded-xl" />
           ))}
@@ -32,7 +32,7 @@ export default function ModulesPage() {
           description="Aún no hay módulos publicados. Vuelve más tarde o contacta al administrador."
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {modules.map((module) => (
             <ModuleCard key={module.id} module={module} />
           ))}

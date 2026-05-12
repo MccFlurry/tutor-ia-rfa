@@ -83,23 +83,23 @@ export default function DashboardPage() {
         >
           <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-heritage-500/15 blur-3xl" aria-hidden="true" />
           <div className="absolute bottom-0 left-0 h-1 w-full bg-heritage-accent" aria-hidden="true" />
-          <div className="relative flex items-center justify-between flex-wrap gap-4">
+          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="text-xs text-primary-200 mb-1 flex items-center gap-1 uppercase tracking-wider font-semibold">
                 <PlayCircle className="w-4 h-4" aria-hidden="true" />
                 Continuar donde lo dejaste
               </p>
-              <h2 id="hero-resume" className="font-extrabold text-lg sm:text-xl truncate">
+              <h2 id="hero-resume" className="font-extrabold text-lg sm:text-xl break-words sm:truncate">
                 {data.last_accessed_topic.topic_title}
               </h2>
-              <p className="text-sm text-primary-100 mt-1">
+              <p className="text-sm text-primary-100 mt-1 break-words">
                 {data.last_accessed_topic.module_title}
               </p>
             </div>
             <Button
               variant="secondary"
               size="lg"
-              className="bg-white text-institutional-700 hover:bg-heritage-50 shadow-brand-md"
+              className="bg-white text-institutional-700 hover:bg-heritage-50 shadow-brand-md w-full sm:w-auto"
               onClick={() => navigate(`/topics/${data.last_accessed_topic!.topic_id}`)}
             >
               Retomar
@@ -175,7 +175,7 @@ export default function DashboardPage() {
               <BookOpen className="w-4 h-4 mr-1" /> Ver todos
             </Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.recommended_modules.map((m) => (
               <button
                 key={m.id}
