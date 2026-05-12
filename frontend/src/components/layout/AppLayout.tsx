@@ -4,6 +4,7 @@ import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 import Footer from './Footer'
 import ReassessmentModal from '@/components/auth/ReassessmentModal'
+import PageTransition from '@/components/common/PageTransition'
 import { useFocusMain } from '@/hooks/useFocusMain'
 
 export default function AppLayout() {
@@ -19,7 +20,9 @@ export default function AppLayout() {
       <div className="flex-1 flex flex-col min-h-dvh">
         <Navbar onMenuClick={() => setSidebarOpen(true)} />
         <main id="main-content" className="flex-1 overflow-auto focus:outline-none" tabIndex={-1}>
-          <Outlet />
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
         </main>
         <Footer />
       </div>
