@@ -22,7 +22,7 @@ const Editor = lazy(() => import('@monaco-editor/react'))
 
 function EditorFallback() {
   return (
-    <div className="h-[480px] bg-gray-900 flex items-center justify-center text-sm text-gray-400">
+    <div className="h-[320px] lg:h-[480px] bg-gray-900 flex items-center justify-center text-sm text-gray-400">
       Cargando editor de código...
     </div>
   )
@@ -41,6 +41,7 @@ import AILoadingState from '@/components/common/AILoadingState'
 import ErrorState from '@/components/common/ErrorState'
 import { codingApi } from '@/api/coding'
 import { topicsApi } from '@/api/topics'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import type { CodingEvaluation } from '@/types/coding'
 
 const difficultyConfig = {
@@ -58,6 +59,8 @@ export default function CodingChallengePage() {
   const [showHints, setShowHints] = useState(false)
   const [result, setResult] = useState<CodingEvaluation | null>(null)
   const [regenerateDialogOpen, setRegenerateDialogOpen] = useState(false)
+  const isLgUp = useMediaQuery('(min-width: 1024px)')
+  const editorHeight = isLgUp ? '480px' : '320px'
 
   const { data: challenge, isLoading, isError } = useQuery({
     queryKey: ['coding-challenge', cid],
@@ -229,9 +232,9 @@ export default function CodingChallengePage() {
         {challenge.is_ai_generated && (
           <Button
             variant="outline"
-            size="sm"
             onClick={() => setRegenerateDialogOpen(true)}
             disabled={regenerateMutation.isPending}
+            className="w-full sm:w-auto min-h-[44px]"
           >
             {regenerateMutation.isPending ? (
               <>
@@ -279,7 +282,7 @@ export default function CodingChallengePage() {
               <button
                 onClick={() => setShowHints(!showHints)}
                 aria-expanded={showHints}
-                className="flex items-center gap-2 text-sm font-medium text-warning-foreground w-full
+                className="flex items-center gap-2 text-sm font-medium text-warning-foreground w-full min-h-[44px]
                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
               >
                 <Lightbulb className="w-4 h-4" aria-hidden="true" />
@@ -370,7 +373,7 @@ export default function CodingChallengePage() {
                 onChange={(value) => setCode(value ?? '')}
                 language={challenge.language?.toLowerCase() === 'kotlin' ? 'kotlin' : 'plaintext'}
                 theme="vs-dark"
-                height="480px"
+                height={editorHeight}
                 loading={<div className="p-4 text-sm text-gray-500">Cargando editor...</div>}
                 options={{
                   fontFamily: 'JetBrains Mono, monospace',
@@ -392,14 +395,14 @@ export default function CodingChallengePage() {
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {result ? (
               <>
-                <Button onClick={handleRetry} variant="outline" className="flex-1 gap-2">
+                <Button onClick={handleRetry} variant="outline" className="flex-1 gap-2 min-h-[44px]">
                   <RotateCcw className="w-4 h-4" />
                   Intentar de nuevo
                 </Button>
-                <Button onClick={handleSubmit} disabled={submitMutation.isPending} className="flex-1 gap-2">
+                <Button onClick={handleSubmit} disabled={submitMutation.isPending} className="flex-1 gap-2 min-h-[44px]">
                   <Play className="w-4 h-4" />
                   Reenviar código
                 </Button>
@@ -408,7 +411,7 @@ export default function CodingChallengePage() {
               <Button
                 onClick={handleSubmit}
                 disabled={submitMutation.isPending || !code.trim()}
-                className="w-full gap-2"
+                className="w-full gap-2 min-h-[44px]"
               >
                 {submitMutation.isPending ? (
                   <>
