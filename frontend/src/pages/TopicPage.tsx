@@ -112,7 +112,7 @@ export default function TopicPage() {
   const isCompleted = topic.progress_info?.is_completed ?? false
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6">
+    <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 pb-24 sm:pb-8">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6 flex-wrap">
         <Link to="/modules" className="hover:text-primary-600 transition">
@@ -131,8 +131,8 @@ export default function TopicPage() {
 
       {/* Topic header */}
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 mb-2">{topic.title}</h1>
-        <div className="flex items-center gap-4 text-sm text-gray-500">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 mb-2 break-words">{topic.title}</h1>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
           <span>{topic.estimated_minutes} min de lectura</span>
           {topic.has_quiz && (
             <span className="flex items-center gap-1">
@@ -163,7 +163,7 @@ export default function TopicPage() {
       )}
 
       {/* Content */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 mb-8">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-8 mb-8">
         <ContentRenderer content={topic.content_markdown} />
       </div>
 
@@ -173,7 +173,7 @@ export default function TopicPage() {
           <Button
             onClick={() => completeMutation.mutate()}
             disabled={completeMutation.isPending}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 w-full sm:w-auto min-h-[44px]"
           >
             <CheckCircle2 className="w-4 h-4 mr-2" />
             {completeMutation.isPending ? 'Marcando...' : 'Marcar como completado'}
@@ -183,6 +183,7 @@ export default function TopicPage() {
           <Button
             onClick={() => navigate(`/quiz/${topic.id}`)}
             variant="outline"
+            className="w-full sm:w-auto min-h-[44px]"
           >
             <FileQuestion className="w-4 h-4 mr-2" />
             Ir a la Autoevaluación
@@ -193,7 +194,7 @@ export default function TopicPage() {
             onClick={() => startCodingMutation.mutate()}
             disabled={startCodingMutation.isPending}
             variant="outline"
-            className="border-heritage-300 text-heritage-700 hover:bg-heritage-50"
+            className="border-heritage-300 text-heritage-700 hover:bg-heritage-50 w-full sm:w-auto min-h-[44px]"
           >
             {startCodingMutation.isPending ? (
               <>
@@ -210,16 +211,16 @@ export default function TopicPage() {
         )}
       </div>
 
-      {/* Prev / Next navigation */}
-      <div className="flex items-center justify-between border-t border-gray-200 pt-6">
+      {/* Prev / Next navigation — sticky on mobile so it stays reachable */}
+      <div className="sticky bottom-0 sm:static -mx-4 sm:mx-0 px-4 sm:px-0 py-3 sm:py-0 bg-white/95 sm:bg-transparent backdrop-blur sm:backdrop-blur-0 border-t border-gray-200 sm:pt-6 flex items-center justify-between gap-2">
         {prevTopic ? (
           <Button
             variant="ghost"
             onClick={() => navigate(`/topics/${prevTopic.id}`)}
-            className="text-gray-600"
+            className="text-gray-600 min-h-[44px] max-w-[45%] sm:max-w-none"
           >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            {prevTopic.title}
+            <ChevronLeft className="w-4 h-4 mr-1 shrink-0" />
+            <span className="truncate">{prevTopic.title}</span>
           </Button>
         ) : (
           <div />
@@ -233,10 +234,10 @@ export default function TopicPage() {
           <Button
             variant="ghost"
             onClick={() => navigate(`/topics/${nextTopic.id}`)}
-            className="text-gray-600"
+            className="text-gray-600 min-h-[44px] max-w-[45%] sm:max-w-none"
           >
-            {nextTopic.title}
-            <ArrowRight className="w-4 h-4 ml-1" />
+            <span className="truncate">{nextTopic.title}</span>
+            <ArrowRight className="w-4 h-4 ml-1 shrink-0" />
           </Button>
         ) : (
           <div />

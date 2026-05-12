@@ -23,13 +23,13 @@ export default function TopicListItem({ topic }: TopicListItemProps) {
   return (
     <button
       onClick={() => navigate(`/topics/${topic.id}`)}
-      className="w-full flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-gray-50 transition text-left"
+      className="w-full min-h-[44px] flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-lg hover:bg-gray-50 transition text-left"
     >
       {getStatusIcon(topic.status)}
 
       <div className="flex-1 min-w-0">
         <p className="font-medium text-gray-900 text-sm truncate">{topic.title}</p>
-        <div className="flex items-center gap-3 mt-0.5">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5">
           <span className="text-xs text-gray-400 flex items-center gap-1">
             <Clock className="w-3 h-3" />
             {topic.estimated_minutes} min

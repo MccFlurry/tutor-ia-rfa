@@ -48,26 +48,26 @@ export default function ModuleDetailPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+      <nav className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mb-6">
         <Link to="/modules" className="hover:text-primary-600 transition">
           Módulos
         </Link>
-        <ChevronRight className="w-4 h-4" />
-        <span className="text-gray-900 font-medium">{module.title}</span>
+        <ChevronRight className="w-4 h-4 shrink-0" />
+        <span className="text-gray-900 font-medium break-words">{module.title}</span>
       </nav>
 
       {/* Header */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-        <div className="flex items-center gap-4 mb-4">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 mb-6">
+        <div className="flex items-center gap-3 sm:gap-4 mb-4">
           <div
-            className="w-14 h-14 rounded-xl flex items-center justify-center"
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center shrink-0"
             style={{ backgroundColor: module.color_hex + '20' }}
           >
-            <Icon className="w-7 h-7" style={{ color: module.color_hex }} />
+            <Icon className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: module.color_hex }} />
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-institutional-700">{module.title}</h1>
-            <p className="text-sm text-gray-500">{module.description}</p>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-institutional-700 break-words">{module.title}</h1>
+            <p className="text-sm text-gray-500 break-words">{module.description}</p>
           </div>
         </div>
         <div className="space-y-2">
@@ -81,7 +81,7 @@ export default function ModuleDetailPage() {
 
       {/* Topics list */}
       <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
-        <div className="px-6 py-4">
+        <div className="px-4 sm:px-6 py-4">
           <h2 className="font-semibold text-gray-900">Temas del módulo</h2>
         </div>
         <div className="px-2 py-2">
