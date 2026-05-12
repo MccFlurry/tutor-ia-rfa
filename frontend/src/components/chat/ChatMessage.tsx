@@ -17,13 +17,13 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       {/* Avatar */}
       <div
         className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-          isUser ? 'bg-primary-500' : 'bg-primary-100'
+          isUser ? 'bg-primary' : 'bg-primary/15'
         }`}
       >
         {isUser ? (
-          <User className="w-4 h-4 text-white" />
+          <User className="w-4 h-4 text-primary-foreground" />
         ) : (
-          <Sparkles className="w-4 h-4 text-primary-600" />
+          <Sparkles className="w-4 h-4 text-primary" />
         )}
       </div>
 
@@ -31,14 +31,14 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       <div
         className={`max-w-[85%] sm:max-w-[75%] ${
           isUser
-            ? 'bg-primary-500 text-white rounded-2xl rounded-tr-md px-4 py-2.5'
-            : 'bg-gray-100 rounded-2xl rounded-tl-md px-4 py-3'
+            ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-md px-4 py-2.5'
+            : 'bg-muted rounded-2xl rounded-tl-md px-4 py-3'
         }`}
       >
         {isUser ? (
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
         ) : (
-          <div className="prose prose-sm prose-gray max-w-none prose-p:my-1.5 prose-p:leading-relaxed prose-headings:text-gray-900 prose-code:text-primary-700 prose-code:bg-white/60 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:before:content-none prose-code:after:content-none prose-pre:my-2 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-blockquote:border-primary-400 prose-blockquote:my-2">
+          <div className="prose prose-sm prose-gray dark:prose-invert max-w-none prose-p:my-1.5 prose-p:leading-relaxed prose-headings:text-foreground prose-code:text-primary-700 dark:prose-code:text-primary-300 prose-code:bg-background/60 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:before:content-none prose-code:after:content-none prose-pre:my-2 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-blockquote:border-primary-400 prose-blockquote:my-2">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{

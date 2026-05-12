@@ -24,8 +24,8 @@ export default function LevelGuard({ children }: LevelGuardProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-dvh flex items-center justify-center bg-gray-50">
-        <div className="text-gray-500 text-sm">Cargando tu perfil...</div>
+      <div className="min-h-dvh flex items-center justify-center bg-background">
+        <div className="text-muted-foreground text-sm">Cargando tu perfil...</div>
       </div>
     )
   }

@@ -9,11 +9,11 @@ interface TopicListItemProps {
 function getStatusIcon(status: string) {
   switch (status) {
     case 'completed':
-      return <CheckCircle2 className="w-5 h-5 text-green-500" />
+      return <CheckCircle2 className="w-5 h-5 text-success" />
     case 'in_progress':
-      return <Circle className="w-5 h-5 text-blue-500 animate-pulse" />
+      return <Circle className="w-5 h-5 text-info animate-pulse" />
     default:
-      return <Circle className="w-5 h-5 text-gray-300" />
+      return <Circle className="w-5 h-5 text-muted-foreground" />
   }
 }
 
@@ -23,19 +23,19 @@ export default function TopicListItem({ topic }: TopicListItemProps) {
   return (
     <button
       onClick={() => navigate(`/topics/${topic.id}`)}
-      className="w-full min-h-[44px] flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-lg hover:bg-gray-50 transition text-left"
+      className="w-full min-h-[44px] flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-lg hover:bg-surface-hover transition text-left"
     >
       {getStatusIcon(topic.status)}
 
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-gray-900 text-sm truncate">{topic.title}</p>
+        <p className="font-medium text-foreground text-sm truncate">{topic.title}</p>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5">
-          <span className="text-xs text-gray-400 flex items-center gap-1">
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
             <Clock className="w-3 h-3" />
             {topic.estimated_minutes} min
           </span>
           {topic.has_quiz && (
-            <span className="text-xs text-gray-400 flex items-center gap-1">
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
               <FileQuestion className="w-3 h-3" />
               Quiz
             </span>
@@ -49,7 +49,7 @@ export default function TopicListItem({ topic }: TopicListItemProps) {
         </div>
       </div>
 
-      <span className="text-gray-300 text-sm">&rsaquo;</span>
+      <span className="text-muted-foreground text-sm">&rsaquo;</span>
     </button>
   )
 }

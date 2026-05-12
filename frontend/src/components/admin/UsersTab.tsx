@@ -24,15 +24,15 @@ export default function UsersTab() {
 
   return (
     <div>
-      <h3 className="font-semibold text-gray-900 mb-4">Usuarios del sistema</h3>
-      <div className="bg-white border border-gray-200 rounded-xl overflow-x-auto">
+      <h3 className="font-semibold text-foreground mb-4">Usuarios del sistema</h3>
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-500">Cargando...</div>
+          <div className="p-8 text-center text-muted-foreground">Cargando...</div>
         ) : !users || users.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 text-sm">Sin usuarios</div>
+          <div className="p-8 text-center text-muted-foreground text-sm">Sin usuarios</div>
         ) : (
           <table className="w-full text-sm min-w-[640px]">
-            <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+            <thead className="bg-muted text-muted-foreground text-xs uppercase">
               <tr>
                 <th className="px-4 py-3 text-left">Nombre</th>
                 <th className="px-4 py-3 text-left">Email</th>
@@ -44,29 +44,29 @@ export default function UsersTab() {
             </thead>
             <tbody>
               {users.map((u) => (
-                <tr key={u.id} className="border-t border-gray-100">
-                  <td className="px-4 py-3 font-medium text-gray-800">{u.full_name}</td>
-                  <td className="px-4 py-3 text-gray-600">{u.email}</td>
+                <tr key={u.id} className="border-t border-border">
+                  <td className="px-4 py-3 font-medium text-foreground">{u.full_name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{u.email}</td>
                   <td className="px-4 py-3">
                     <select
                       value={u.role}
                       onChange={(e) =>
                         update.mutate({ id: u.id, data: { role: e.target.value } })
                       }
-                      className="text-xs border border-gray-200 rounded px-2 py-1"
+                      className="text-xs border border-border bg-background text-foreground rounded px-2 py-1"
                     >
                       <option value="student">student</option>
                       <option value="admin">admin</option>
                     </select>
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-600">
-                    {u.level || <span className="italic text-gray-400">sin evaluar</span>}
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {u.level || <span className="italic text-muted-foreground">sin evaluar</span>}
                   </td>
                   <td className="px-4 py-3">
                     <span
                       className={cn(
                         'text-xs font-semibold px-2 py-0.5 rounded',
-                        u.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                        u.is_active ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
                       )}
                     >
                       {u.is_active ? 'Activo' : 'Inactivo'}
@@ -81,9 +81,9 @@ export default function UsersTab() {
                       }
                     >
                       {u.is_active ? (
-                        <ShieldOff className="w-3 h-3 text-red-500" />
+                        <ShieldOff className="w-3 h-3 text-destructive" />
                       ) : (
-                        <ShieldCheck className="w-3 h-3 text-green-500" />
+                        <ShieldCheck className="w-3 h-3 text-success" />
                       )}
                     </Button>
                   </td>

@@ -13,7 +13,7 @@ interface ContentRendererProps {
  */
 export default function ContentRenderer({ content }: ContentRendererProps) {
   return (
-    <article className="prose prose-sm sm:prose-base prose-gray max-w-none prose-headings:text-foreground prose-p:leading-relaxed prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-a:text-primary-600 prose-code:text-primary-700 prose-code:bg-primary-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none prose-code:break-words prose-pre:overflow-x-auto prose-table:text-sm prose-th:bg-muted prose-th:px-3 prose-th:py-2 prose-td:px-3 prose-td:py-2 prose-blockquote:border-primary-500 prose-blockquote:bg-primary-50/50 prose-blockquote:py-1 prose-blockquote:text-foreground">
+    <article className="prose prose-sm sm:prose-base prose-gray dark:prose-invert max-w-none prose-headings:text-foreground prose-p:leading-relaxed prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-code:text-primary-700 dark:prose-code:text-primary-300 prose-code:bg-primary-50 dark:prose-code:bg-primary/15 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none prose-code:break-words prose-pre:overflow-x-auto prose-table:text-sm prose-th:bg-muted prose-th:px-3 prose-th:py-2 prose-td:px-3 prose-td:py-2 prose-blockquote:border-primary-500 prose-blockquote:bg-primary-50/50 dark:prose-blockquote:bg-primary/10 prose-blockquote:py-1 prose-blockquote:text-foreground">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{

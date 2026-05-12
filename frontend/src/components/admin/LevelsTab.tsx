@@ -6,9 +6,9 @@ import { cn } from '@/lib/utils'
 import type { StudentLevel } from '@/types/assessment'
 
 const LEVEL_COLOR: Record<string, string> = {
-  beginner: 'bg-gray-100 text-gray-700',
-  intermediate: 'bg-blue-100 text-blue-700',
-  advanced: 'bg-purple-100 text-purple-700',
+  beginner: 'bg-muted text-muted-foreground',
+  intermediate: 'bg-info/10 text-info',
+  advanced: 'bg-primary/10 text-primary',
 }
 
 export default function LevelsTab() {
@@ -45,19 +45,19 @@ export default function LevelsTab() {
 
   return (
     <div>
-      <h3 className="font-semibold text-gray-900 mb-1">Niveles de estudiantes</h3>
-      <p className="text-sm text-gray-500 mb-4">
+      <h3 className="font-semibold text-foreground mb-1">Niveles de estudiantes</h3>
+      <p className="text-sm text-muted-foreground mb-4">
         Nivel asignado por evaluación de entrada o re-asignación automática. Puedes sobrescribir manualmente.
       </p>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-x-auto">
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-500">Cargando...</div>
+          <div className="p-8 text-center text-muted-foreground">Cargando...</div>
         ) : !data || data.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 text-sm">Sin estudiantes</div>
+          <div className="p-8 text-center text-muted-foreground text-sm">Sin estudiantes</div>
         ) : (
           <table className="w-full text-sm min-w-[720px]">
-            <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+            <thead className="bg-muted text-muted-foreground text-xs uppercase">
               <tr>
                 <th className="px-4 py-3 text-left">Estudiante</th>
                 <th className="px-4 py-3 text-left">Email</th>
@@ -69,9 +69,9 @@ export default function LevelsTab() {
             </thead>
             <tbody>
               {data.map((row) => (
-                <tr key={row.user_id} className="border-t border-gray-100">
-                  <td className="px-4 py-3 font-medium text-gray-800">{row.full_name}</td>
-                  <td className="px-4 py-3 text-gray-600">{row.email}</td>
+                <tr key={row.user_id} className="border-t border-border">
+                  <td className="px-4 py-3 font-medium text-foreground">{row.full_name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{row.email}</td>
                   <td className="px-4 py-3">
                     {row.level ? (
                       <span
@@ -83,13 +83,13 @@ export default function LevelsTab() {
                         {row.level}
                       </span>
                     ) : (
-                      <span className="text-xs italic text-gray-400">sin evaluar</span>
+                      <span className="text-xs italic text-muted-foreground">sin evaluar</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-700">
+                  <td className="px-4 py-3 text-right text-foreground">
                     {row.entry_score !== null ? row.entry_score.toFixed(1) : '—'}
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-600">
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
                     {row.assessed_at
                       ? new Date(row.assessed_at).toLocaleDateString('es-PE')
                       : '—'}

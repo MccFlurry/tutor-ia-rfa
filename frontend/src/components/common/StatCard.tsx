@@ -15,20 +15,20 @@ interface StatCardProps {
 }
 
 const ACCENT_ICON_BG: Record<Accent, string> = {
-  primary:   'bg-primary-100 text-primary-600',
-  success:   'bg-green-100 text-green-600',
-  warning:   'bg-amber-100 text-amber-600',
-  heritage:  'bg-heritage-100 text-heritage-700',
-  info:      'bg-sky-100 text-sky-600',
+  primary:   'bg-primary/10 text-primary',
+  success:   'bg-success/10 text-success',
+  warning:   'bg-warning/15 text-warning-foreground',
+  heritage:  'bg-heritage-100 text-heritage-700 dark:bg-heritage-700/20 dark:text-heritage-400',
+  info:      'bg-info/10 text-info',
   neutral:   'bg-muted text-muted-foreground',
 }
 
 const ACCENT_VALUE_COLOR: Record<Accent, string> = {
-  primary:   'text-primary-700',
-  success:   'text-green-700',
-  warning:   'text-amber-700',
-  heritage:  'text-heritage-700',
-  info:      'text-sky-700',
+  primary:   'text-primary',
+  success:   'text-success',
+  warning:   'text-warning-foreground dark:text-warning',
+  heritage:  'text-heritage-700 dark:text-heritage-400',
+  info:      'text-info',
   neutral:   'text-foreground',
 }
 

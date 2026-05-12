@@ -22,7 +22,7 @@ const Editor = lazy(() => import('@monaco-editor/react'))
 
 function EditorFallback() {
   return (
-    <div className="h-[320px] lg:h-[480px] bg-gray-900 flex items-center justify-center text-sm text-gray-400">
+    <div className="h-[320px] lg:h-[480px] bg-foreground/90 dark:bg-card flex items-center justify-center text-sm text-muted-foreground">
       Cargando editor de código...
     </div>
   )
@@ -42,6 +42,7 @@ import ErrorState from '@/components/common/ErrorState'
 import { codingApi } from '@/api/coding'
 import { topicsApi } from '@/api/topics'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useThemeStore } from '@/store/themeStore'
 import type { CodingEvaluation } from '@/types/coding'
 
 const difficultyConfig = {
@@ -61,6 +62,7 @@ export default function CodingChallengePage() {
   const [regenerateDialogOpen, setRegenerateDialogOpen] = useState(false)
   const isLgUp = useMediaQuery('(min-width: 1024px)')
   const editorHeight = isLgUp ? '480px' : '320px'
+  const isDark = useThemeStore((s) => s.isDark)
 
   const { data: challenge, isLoading, isError } = useQuery({
     queryKey: ['coding-challenge', cid],
@@ -367,18 +369,18 @@ export default function CodingChallengePage() {
 
         {/* Right column: Code editor */}
         <div className="space-y-4">
-          <div className="bg-gray-900 rounded-xl overflow-hidden border border-gray-700">
-            <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
-              <span className="text-xs text-gray-400 font-mono">{challenge.language}</span>
+          <div className="bg-[#1e1e1e] dark:bg-card rounded-xl overflow-hidden border border-border">
+            <div className="flex items-center justify-between px-4 py-2 bg-[#252525] dark:bg-muted border-b border-border">
+              <span className="text-xs text-muted-foreground font-mono">{challenge.language}</span>
             </div>
             <Suspense fallback={<EditorFallback />}>
               <Editor
                 value={code}
                 onChange={(value) => setCode(value ?? '')}
                 language={challenge.language?.toLowerCase() === 'kotlin' ? 'kotlin' : 'plaintext'}
-                theme="vs-dark"
+                theme={isDark ? 'vs-dark' : 'light'}
                 height={editorHeight}
-                loading={<div className="p-4 text-sm text-gray-500">Cargando editor...</div>}
+                loading={<div className="p-4 text-sm text-muted-foreground">Cargando editor...</div>}
                 options={{
                   fontFamily: 'JetBrains Mono, monospace',
                   fontSize: 14,

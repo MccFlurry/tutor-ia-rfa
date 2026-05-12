@@ -3,7 +3,7 @@ export default function Footer() {
   return (
     <footer
       role="contentinfo"
-      className="border-t border-gray-200 bg-white px-4 py-4 sm:px-6 text-xs text-gray-500 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:justify-between"
+      className="border-t border-border bg-card px-4 py-4 sm:px-6 text-xs text-muted-foreground flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:justify-between"
     >
       <p>
         © {year}{' '}
@@ -12,7 +12,7 @@ export default function Footer() {
         </span>{' '}
         — Chiclayo, Perú
       </p>
-      <p className="text-gray-400">
+      <p className="text-muted-foreground">
         Tesis USAT · Sistema de Tutoría Inteligente con IA Generativa
       </p>
     </footer>

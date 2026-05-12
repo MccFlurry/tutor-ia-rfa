@@ -24,7 +24,7 @@ export default function BrandLogo({
   subtitle,
 }: BrandLogoProps) {
   const textColor = onDark ? 'text-white' : 'text-institutional-700'
-  const subColor = onDark ? 'text-primary-200' : 'text-gray-500'
+  const subColor = onDark ? 'text-primary-200' : 'text-muted-foreground'
 
   return (
     <div className={cn('flex items-center gap-3', className)}>

@@ -27,14 +27,14 @@ export default function AdminPage() {
         <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700">
           Panel de Administración
         </h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-muted-foreground mt-1">
           IESTP "República Federal de Alemania" — Gestión del curso, corpus RAG, usuarios y personalización.
         </p>
         <span className="heritage-accent-bar mt-3" aria-hidden="true" />
       </header>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6 overflow-x-auto">
+      <div className="border-b border-border mb-6 overflow-x-auto">
         <div className="flex gap-1 min-w-max">
           {TABS.map((t) => (
             <button
@@ -44,7 +44,7 @@ export default function AdminPage() {
                 'flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition',
                 tab === t.id
                   ? 'border-primary-500 text-primary-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-800'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
               )}
             >
               <t.icon className="w-4 h-4" />

@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 const DIFF_COLOR: Record<Difficulty, string> = {
-  easy: 'bg-green-100 text-green-700',
-  medium: 'bg-yellow-100 text-yellow-700',
-  hard: 'bg-red-100 text-red-700',
+  easy: 'bg-success/10 text-success',
+  medium: 'bg-warning/10 text-warning-foreground',
+  hard: 'bg-destructive/10 text-destructive',
 }
 
 export default function BankTab() {
@@ -97,7 +97,7 @@ export default function BankTab() {
             onChange={(e) =>
               setModuleFilter(e.target.value ? Number(e.target.value) : undefined)
             }
-            className="text-sm border border-gray-200 rounded px-3 py-1.5"
+            className="text-sm border border-border bg-background text-foreground rounded px-3 py-1.5"
           >
             <option value="">Todos los módulos</option>
             {modules?.map((m) => (
@@ -109,7 +109,7 @@ export default function BankTab() {
           <select
             value={diffFilter ?? ''}
             onChange={(e) => setDiffFilter((e.target.value || undefined) as Difficulty | undefined)}
-            className="text-sm border border-gray-200 rounded px-3 py-1.5"
+            className="text-sm border border-border bg-background text-foreground rounded px-3 py-1.5"
           >
             <option value="">Todas dificultades</option>
             <option value="easy">Fácil</option>
@@ -123,16 +123,16 @@ export default function BankTab() {
         </Button>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-x-auto">
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-500">Cargando...</div>
+          <div className="p-8 text-center text-muted-foreground">Cargando...</div>
         ) : !items || items.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 text-sm">
+          <div className="p-8 text-center text-muted-foreground text-sm">
             Sin preguntas. El banco fallback es útil cuando Ollama no está disponible durante la evaluación de entrada.
           </div>
         ) : (
           <table className="w-full text-sm min-w-[640px]">
-            <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+            <thead className="bg-muted text-muted-foreground text-xs uppercase">
               <tr>
                 <th className="px-4 py-3 text-left">Módulo</th>
                 <th className="px-4 py-3 text-left">Pregunta</th>
@@ -143,9 +143,9 @@ export default function BankTab() {
             </thead>
             <tbody>
               {items.map((item) => (
-                <tr key={item.id} className="border-t border-gray-100">
-                  <td className="px-4 py-3 text-gray-700">M{item.module_id}</td>
-                  <td className="px-4 py-3 max-w-md truncate text-gray-800">
+                <tr key={item.id} className="border-t border-border">
+                  <td className="px-4 py-3 text-foreground">M{item.module_id}</td>
+                  <td className="px-4 py-3 max-w-md truncate text-foreground">
                     {item.question_text}
                   </td>
                   <td className="px-4 py-3">
@@ -159,7 +159,7 @@ export default function BankTab() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs">
-                    <span className={item.is_active ? 'text-green-600' : 'text-gray-400'}>
+                    <span className={item.is_active ? 'text-success' : 'text-muted-foreground'}>
                       {item.is_active ? 'Activa' : 'Inactiva'}
                     </span>
                   </td>
@@ -183,7 +183,7 @@ export default function BankTab() {
                       <Button size="sm" variant="ghost" onClick={() => {
                         if (confirm('¿Eliminar?')) deleteItem.mutate(item.id)
                       }}>
-                        <Trash2 className="w-3 h-3 text-red-500" />
+                        <Trash2 className="w-3 h-3 text-destructive" />
                       </Button>
                     </div>
                   </td>

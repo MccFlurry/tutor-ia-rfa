@@ -27,7 +27,7 @@ export default function AchievementsPage() {
       <div className="mb-8">
         <span className="heritage-accent-bar mb-3" aria-hidden="true" />
         <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700">Logros e Insignias</h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-muted-foreground mt-1">
           {earned} de {total} logros obtenidos
         </p>
       </div>
@@ -35,7 +35,7 @@ export default function AchievementsPage() {
       {/* Earned */}
       {earned > 0 && (
         <div className="mb-8">
-          <h2 className="font-semibold text-gray-900 mb-4">Obtenidos</h2>
+          <h2 className="font-semibold text-foreground mb-4">Obtenidos</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {achievements?.filter((a) => a.is_earned).map((a) => (
               <AchievementCard key={a.id} achievement={a} />
@@ -47,7 +47,7 @@ export default function AchievementsPage() {
       {/* Locked */}
       {earned < total && (
         <div>
-          <h2 className="font-semibold text-gray-900 mb-4">Por desbloquear</h2>
+          <h2 className="font-semibold text-foreground mb-4">Por desbloquear</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {achievements?.filter((a) => !a.is_earned).map((a) => (
               <AchievementCard key={a.id} achievement={a} />
