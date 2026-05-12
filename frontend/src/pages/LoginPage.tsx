@@ -182,13 +182,13 @@ export default function LoginPage() {
         </div>
       </aside>
 
-      <main className="flex items-center justify-center p-6 sm:p-10 bg-gradient-to-br from-muted to-background">
+      <main className="flex items-center justify-center px-4 py-6 sm:p-10 bg-gradient-to-br from-muted to-background">
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-6 flex justify-center">
             <BrandLogo variant="stacked" />
           </div>
 
-          <div className="bg-card rounded-2xl shadow-brand-lg border border-border p-6 sm:p-8 animate-fade-in-up">
+          <div className="bg-card rounded-2xl shadow-brand-lg border border-border p-5 sm:p-8 animate-fade-in-up">
             <header className="mb-6">
               <span className="chip bg-heritage-100 text-heritage-700 mb-3">
                 {isRegister ? 'Nuevo estudiante' : 'Portal del estudiante'}
@@ -314,7 +314,8 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     aria-pressed={showPassword}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-2 rounded-md
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground rounded-md
+                               inline-flex items-center justify-center min-h-[44px] min-w-[44px]
                                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {showPassword ? (
@@ -355,7 +356,9 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={handleToggleMode}
-                className="text-sm text-primary-700 hover:text-primary-800 font-semibold underline-offset-4 hover:underline"
+                className="text-sm text-primary-700 hover:text-primary-800 font-semibold underline-offset-4 hover:underline
+                           inline-flex items-center justify-center min-h-[44px] px-3
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
               >
                 {isRegister
                   ? '¿Ya tienes cuenta? Inicia sesión'

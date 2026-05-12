@@ -131,7 +131,7 @@ export default function EntryAssessmentPage() {
     return (
       <div className="min-h-dvh bg-gradient-to-br from-institutional-50 via-background to-heritage-50 py-10 px-4">
         <div className="max-w-3xl mx-auto">
-          <div className="bg-card rounded-2xl shadow-brand-sm border border-border p-8">
+          <div className="bg-card rounded-2xl shadow-brand-sm border border-border p-5 sm:p-8">
             <div className="text-center mb-8">
               <div
                 className="w-16 h-16 mx-auto bg-success/15 rounded-full flex items-center justify-center mb-4"
@@ -211,7 +211,7 @@ export default function EntryAssessmentPage() {
           <div className="flex justify-center mb-6">
             <BrandLogo variant="stacked" />
           </div>
-          <div className="bg-card rounded-2xl shadow-brand-lg border border-border p-8 animate-fade-in-up">
+          <div className="bg-card rounded-2xl shadow-brand-lg border border-border p-5 sm:p-8 animate-fade-in-up">
             <div className="text-center mb-6">
               <span className="heritage-accent-bar mx-auto mb-4" />
               <div
@@ -295,7 +295,7 @@ export default function EntryAssessmentPage() {
           </div>
         </div>
 
-        <div className="bg-card rounded-2xl shadow-brand-sm border border-border p-6 sm:p-8">
+        <div className="bg-card rounded-2xl shadow-brand-sm border border-border p-5 sm:p-8">
           <div className="flex gap-2 mb-4 flex-wrap">
             <span className="text-xs px-2 py-1 rounded bg-muted text-foreground font-medium">
               Módulo {q.module_id}
@@ -312,7 +312,7 @@ export default function EntryAssessmentPage() {
 
           <p
             id={groupLabelId}
-            className="font-medium text-foreground text-lg leading-relaxed mb-6"
+            className="font-medium text-foreground text-base sm:text-lg leading-relaxed mb-6"
           >
             {q.question_text}
           </p>
@@ -331,22 +331,29 @@ export default function EntryAssessmentPage() {
         </div>
 
         {/* Nav buttons */}
-        <div className="flex items-center justify-between mt-6">
+        <div className="flex items-center justify-between gap-3 mt-6">
           <Button
             variant="outline"
+            size="lg"
             onClick={handlePrev}
             disabled={currentIdx === 0}
+            className="min-h-[44px]"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
             Anterior
           </Button>
 
           {isLast ? (
-            <Button onClick={handleSubmit} disabled={submitMutation.isPending}>
+            <Button
+              size="lg"
+              onClick={handleSubmit}
+              disabled={submitMutation.isPending}
+              className="min-h-[44px]"
+            >
               Enviar evaluación
             </Button>
           ) : (
-            <Button onClick={handleNext}>
+            <Button size="lg" onClick={handleNext} className="min-h-[44px]">
               Siguiente
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
