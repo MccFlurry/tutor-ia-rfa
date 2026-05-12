@@ -6,6 +6,11 @@ import { useThemeStore } from '@/store/themeStore'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { usersApi } from '@/api/users'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import {
+  ChatErrorFallback,
+  QuizErrorFallback,
+  CodingErrorFallback,
+} from '@/components/common/RouteErrorFallbacks'
 import AuthGuard from '@/components/auth/AuthGuard'
 import LevelGuard from '@/components/auth/LevelGuard'
 import AppLayout from '@/components/layout/AppLayout'
@@ -68,11 +73,44 @@ function AppRoutes() {
         <Route path="/modules" element={<ModulesPage />} />
         <Route path="/modules/:id" element={<ModuleDetailPage />} />
         <Route path="/topics/:id" element={<TopicPage />} />
-        <Route path="/quiz/:topicId" element={<QuizPage />} />
+        <Route
+          path="/quiz/:topicId"
+          element={
+            <ErrorBoundary
+              fallback={(error, reset) => (
+                <QuizErrorFallback error={error} reset={reset} />
+              )}
+            >
+              <QuizPage />
+            </ErrorBoundary>
+          }
+        />
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/achievements" element={<AchievementsPage />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/coding/:challengeId" element={<CodingChallengePage />} />
+        <Route
+          path="/chat"
+          element={
+            <ErrorBoundary
+              fallback={(error, reset) => (
+                <ChatErrorFallback error={error} reset={reset} />
+              )}
+            >
+              <ChatPage />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/coding/:challengeId"
+          element={
+            <ErrorBoundary
+              fallback={(error, reset) => (
+                <CodingErrorFallback error={error} reset={reset} />
+              )}
+            >
+              <CodingChallengePage />
+            </ErrorBoundary>
+          }
+        />
         <Route path="/settings" element={<SettingsPage />} />
         <Route
           path="/admin"
