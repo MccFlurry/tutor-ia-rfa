@@ -65,7 +65,19 @@
       "Bash(PYTHONIOENCODING=utf-8 python run_llm_benchmark.py)",
       "Bash(tasklist)",
       "Bash(taskkill //F //IM python.exe)",
-      "Bash(tee /tmp/bench_llm.log)"
+      "Bash(tee /tmp/bench_llm.log)",
+      "Bash(python3 -m scripts \"C:\\\\tutor-ia-rfa\\\\CLAUDE.md\")",
+      "Bash(bun --version)",
+      "Bash(powershell *)",
+      "Bash(C:\\\\Users\\\\meenc\\\\.bun\\\\bin\\\\bun.exe *)",
+      "Read(//c/Users/meenc/.claude/**)",
+      "Read(//c/Users/meenc/.claude/plugins/**)",
+      "Bash(claude plugin *)",
+      "Bash(npm run *)",
+      "mcp__plugin_claude-mem_mcp-search__get_observations",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git rm *)"
     ]
   }
 }

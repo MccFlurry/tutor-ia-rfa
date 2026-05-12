@@ -1,4 +1,5 @@
 import uuid
+from datetime import date, timedelta, datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
@@ -134,3 +135,58 @@ async def get_activity_log(user_id: uuid.UUID, db: AsyncSession, limit: int = 20
     # Sort by timestamp descending and limit
     activities.sort(key=lambda a: a["timestamp"], reverse=True)
     return activities[:limit]
+
+
+async def compute_streak(user_id: uuid.UUID, db: AsyncSession) -> dict:
+    """Compute current + longest consecutive-day streak.
+
+    Activity = any topic visit (last_accessed_at). We bucket by UTC date,
+    sort descending, and count consecutive days. The current streak is anchored
+    to today; if last activity was yesterday, today still counts as 0 (streak
+    survives until the next UTC midnight).
+    """
+    rows = await db.execute(
+        select(UserTopicProgress.last_accessed_at)
+        .where(
+            UserTopicProgress.user_id == user_id,
+            UserTopicProgress.last_accessed_at.is_not(None),
+        )
+        .order_by(UserTopicProgress.last_accessed_at.desc())
+    )
+    timestamps = [r[0] for r in rows.all() if r[0] is not None]
+
+    if not timestamps:
+        return {"current_streak": 0, "longest_streak": 0, "last_active_date": None}
+
+    # Distinct UTC dates, sorted descending
+    distinct_dates = sorted({ts.date() for ts in timestamps}, reverse=True)
+
+    today = datetime.now(timezone.utc).date()
+    yesterday = today - timedelta(days=1)
+
+    # Current streak: anchored to today OR yesterday
+    current = 0
+    if distinct_dates[0] in (today, yesterday):
+        expected = distinct_dates[0]
+        for d in distinct_dates:
+            if d == expected:
+                current += 1
+                expected = expected - timedelta(days=1)
+            else:
+                break
+
+    # Longest streak: scan all
+    longest = 1
+    run = 1
+    for i in range(1, len(distinct_dates)):
+        if distinct_dates[i] == distinct_dates[i - 1] - timedelta(days=1):
+            run += 1
+            longest = max(longest, run)
+        else:
+            run = 1
+
+    return {
+        "current_streak": current,
+        "longest_streak": longest,
+        "last_active_date": distinct_dates[0].isoformat(),
+    }

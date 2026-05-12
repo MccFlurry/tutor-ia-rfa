@@ -24,6 +24,8 @@ export interface RecentAchievement {
   name: string
   badge_emoji: string
   badge_color: string
+  condition_type: string
+  condition_module_id: number | null
   earned_at: string
 }
 

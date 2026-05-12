@@ -1,10 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, Trophy, BookOpen, Sparkles, PlayCircle } from 'lucide-react'
+import { ArrowRight, Trophy, BookOpen, Sparkles, PlayCircle, BarChart3, GraduationCap, Flame } from 'lucide-react'
 import { dashboardApi } from '@/api/dashboard'
-import { Progress } from '@/components/ui/progress'
+import { progressApi } from '@/api/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import PageHeader from '@/components/common/PageHeader'
+import StatCard from '@/components/common/StatCard'
+import { getAchievementIcon } from '@/lib/achievementIcon'
 import { cn } from '@/lib/utils'
 import type { StudentLevel } from '@/types/assessment'
 
@@ -15,7 +18,7 @@ const LEVEL_LABEL: Record<StudentLevel, string> = {
 }
 
 const LEVEL_STYLE: Record<StudentLevel, string> = {
-  beginner:     'bg-gray-100 text-gray-700 border-gray-300',
+  beginner:     'bg-muted text-foreground border-border',
   intermediate: 'bg-primary-50 text-primary-800 border-primary-200',
   advanced:     'bg-heritage-50 text-heritage-700 border-heritage-200',
 }
@@ -28,16 +31,22 @@ export default function DashboardPage() {
     queryFn: () => dashboardApi.get().then((r) => r.data),
   })
 
+  const { data: streak } = useQuery({
+    queryKey: ['streak'],
+    queryFn: () => progressApi.getStreak().then((r) => r.data),
+    staleTime: 60 * 1000,
+  })
+
   if (isLoading || !data) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <Skeleton className="h-8 w-60 mb-2" />
         <Skeleton className="h-5 w-96 mb-8" />
         <Skeleton className="h-32 mb-8" />
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
         </div>
       </div>
     )
@@ -46,31 +55,25 @@ export default function DashboardPage() {
   const firstName = data.user_name.split(' ')[0]
   const pct = Math.round(data.overall_progress_pct)
 
+  const levelChip = data.user_level && (
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full border shadow-brand-sm',
+        LEVEL_STYLE[data.user_level]
+      )}
+    >
+      <Sparkles className="w-4 h-4" aria-hidden="true" />
+      Tu nivel: {LEVEL_LABEL[data.user_level]}
+    </span>
+  )
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      {/* Greeting + level badge */}
-      <div className="flex items-start justify-between flex-wrap gap-4 mb-8">
-        <div>
-          <span className="heritage-accent-bar mb-3" aria-hidden="true" />
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 mb-1">
-            ¡Hola de nuevo, {firstName}!
-          </h2>
-          <p className="text-gray-600">
-            Bienvenido al Sistema de Tutoría Inteligente para Aplicaciones Móviles.
-          </p>
-        </div>
-        {data.user_level && (
-          <span
-            className={cn(
-              'inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full border shadow-brand-sm',
-              LEVEL_STYLE[data.user_level]
-            )}
-          >
-            <Sparkles className="w-4 h-4" aria-hidden="true" />
-            Tu nivel: {LEVEL_LABEL[data.user_level]}
-          </span>
-        )}
-      </div>
+      <PageHeader
+        title={`¡Hola de nuevo, ${firstName}!`}
+        subtitle="Bienvenido al Sistema de Tutoría Inteligente para Aplicaciones Móviles."
+        actions={levelChip}
+      />
 
       {/* Hero: continue last topic */}
       {data.last_accessed_topic && !data.last_accessed_topic.is_completed && (
@@ -86,9 +89,9 @@ export default function DashboardPage() {
                 <PlayCircle className="w-4 h-4" aria-hidden="true" />
                 Continuar donde lo dejaste
               </p>
-              <h3 id="hero-resume" className="font-extrabold text-lg sm:text-xl truncate">
+              <h2 id="hero-resume" className="font-extrabold text-lg sm:text-xl truncate">
                 {data.last_accessed_topic.topic_title}
-              </h3>
+              </h2>
               <p className="text-sm text-primary-100 mt-1">
                 {data.last_accessed_topic.module_title}
               </p>
@@ -106,46 +109,68 @@ export default function DashboardPage() {
         </section>
       )}
 
-      {/* Stats cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
-        <article className="bg-white rounded-xl border border-gray-200 shadow-brand-sm p-6">
-          <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-            Progreso general
-          </p>
-          <p className="text-3xl font-extrabold text-institutional-700 mt-2 tabular-nums">
-            {pct}<span className="text-xl text-gray-400">%</span>
-          </p>
-          <Progress value={pct} className="h-2 mt-3" />
-        </article>
-        <article className="bg-white rounded-xl border border-gray-200 shadow-brand-sm p-6">
-          <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-            Lecciones completadas
-          </p>
-          <p className="text-3xl font-extrabold text-gray-900 mt-2 tabular-nums">
-            {data.total_topics_completed}
-            <span className="text-base font-medium text-gray-400">
-              {' / '}
-              {data.total_topics}
-            </span>
-          </p>
-        </article>
-        <article className="bg-white rounded-xl border border-gray-200 shadow-brand-sm p-6">
-          <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-            Logros recientes
-          </p>
-          <p className="text-3xl font-extrabold text-heritage-600 mt-2 tabular-nums">
-            {data.recent_achievements.length}
-          </p>
-        </article>
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <StatCard
+          label="Progreso general"
+          value={
+            <>
+              {pct}
+              <span className="text-xl text-muted-foreground">%</span>
+            </>
+          }
+          icon={BarChart3}
+          accent="primary"
+          progress={pct}
+        />
+        <StatCard
+          label="Lecciones completadas"
+          value={
+            <>
+              {data.total_topics_completed}
+              <span className="text-base font-medium text-muted-foreground">
+                {' / '}
+                {data.total_topics}
+              </span>
+            </>
+          }
+          icon={GraduationCap}
+          accent="success"
+        />
+        <StatCard
+          label="Racha actual"
+          value={
+            <>
+              {streak?.current_streak ?? 0}
+              <span className="text-base font-medium text-muted-foreground">
+                {' '}
+                {(streak?.current_streak ?? 0) === 1 ? 'día' : 'días'}
+              </span>
+            </>
+          }
+          icon={Flame}
+          accent="warning"
+          helperText={
+            streak && streak.longest_streak > 0
+              ? `Mejor racha: ${streak.longest_streak} ${streak.longest_streak === 1 ? 'día' : 'días'}`
+              : undefined
+          }
+        />
+        <StatCard
+          label="Logros recientes"
+          value={data.recent_achievements.length}
+          icon={Trophy}
+          accent="heritage"
+        />
       </div>
 
       {/* Recommended modules */}
       {data.recommended_modules.length > 0 && (
-        <div className="mb-8">
+        <section aria-labelledby="recommended-heading" className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">
+            <h2 id="recommended-heading" className="font-semibold text-foreground">
               Recomendaciones para ti
-            </h3>
+            </h2>
             <Button variant="ghost" size="sm" onClick={() => navigate('/modules')}>
               <BookOpen className="w-4 h-4 mr-1" /> Ver todos
             </Button>
@@ -155,54 +180,78 @@ export default function DashboardPage() {
               <button
                 key={m.id}
                 onClick={() => navigate(`/modules/${m.id}`)}
-                className="text-left bg-white rounded-xl border border-gray-200 p-5 hover:border-primary-400 hover:shadow-sm transition"
+                style={{ '--module-color': m.color_hex } as React.CSSProperties}
+                className="text-left bg-card rounded-xl border border-border p-5
+                           hover:border-[color:var(--module-color)] hover:shadow-brand-sm transition
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <div
-                  className="w-10 h-10 rounded-lg mb-3 flex items-center justify-center text-white font-bold"
-                  style={{ backgroundColor: m.color_hex }}
+                  className="w-10 h-10 rounded-lg mb-3 flex items-center justify-center text-white font-bold
+                             bg-[color:var(--module-color)]"
+                  aria-hidden="true"
                 >
                   {m.title[0]}
                 </div>
-                <h4 className="font-semibold text-gray-900 text-sm mb-1">
+                <h3 className="font-semibold text-foreground text-sm mb-1">
                   {m.title}
-                </h4>
-                <p className="text-xs text-gray-500 mb-3 line-clamp-2">
+                </h3>
+                <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
                   {m.reason}
                 </p>
-                <Progress value={m.progress_pct} className="h-1.5" />
-                <p className="text-xs text-gray-400 mt-1">
+                <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full bg-[color:var(--module-color)] transition-all"
+                    style={{ width: `${m.progress_pct}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
                   {Math.round(m.progress_pct)}% completado
                 </p>
               </button>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Recent achievements */}
       {data.recent_achievements.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <section
+          aria-labelledby="recent-achievements-heading"
+          className="bg-card rounded-xl border border-border p-6"
+        >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-amber-500" /> Logros recientes
-            </h3>
+            <h2
+              id="recent-achievements-heading"
+              className="font-semibold text-foreground flex items-center gap-2"
+            >
+              <Trophy className="w-4 h-4 text-heritage-600" aria-hidden="true" />
+              Logros recientes
+            </h2>
             <Button variant="ghost" size="sm" onClick={() => navigate('/achievements')}>
               Ver todos
             </Button>
           </div>
           <div className="flex gap-3 flex-wrap">
-            {data.recent_achievements.map((a) => (
-              <div
-                key={a.id}
-                className="flex items-center gap-3 px-4 py-2 rounded-lg border"
-                style={{ borderColor: a.badge_color, backgroundColor: a.badge_color + '15' }}
-              >
-                <span className="text-2xl">{a.badge_emoji}</span>
-                <span className="text-sm font-medium text-gray-800">{a.name}</span>
-              </div>
-            ))}
+            {data.recent_achievements.map((a) => {
+              const Icon = getAchievementIcon(a)
+              return (
+                <div
+                  key={a.id}
+                  style={{ '--badge-color': a.badge_color } as React.CSSProperties}
+                  className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg border
+                             border-[color:var(--badge-color)]/30 bg-[color:var(--badge-color)]/10"
+                >
+                  <Icon
+                    className="w-4 h-4 shrink-0"
+                    style={{ color: a.badge_color }}
+                    aria-hidden="true"
+                  />
+                  <span className="text-sm font-medium text-foreground">{a.name}</span>
+                </div>
+              )
+            })}
           </div>
-        </div>
+        </section>
       )}
     </div>
   )

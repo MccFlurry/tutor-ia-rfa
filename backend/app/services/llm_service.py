@@ -190,8 +190,9 @@ async def generate_quiz_questions(
             model=settings.OLLAMA_MODEL,
             temperature=0.7,
             num_ctx=8192,
-            num_predict=4096,
+            num_predict=2048,
             format="json",
+            timeout=settings.OLLAMA_TIMEOUT,
         )
 
         logger.info(f"Generando {num_questions} preguntas via Ollama (nivel={student_level})...")

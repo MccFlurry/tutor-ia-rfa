@@ -19,3 +19,9 @@ export interface ActivityItem {
   description: string
   timestamp: string
 }
+
+export interface StreakResponse {
+  current_streak: number
+  longest_streak: number
+  last_active_date: string | null
+}

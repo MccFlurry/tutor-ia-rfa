@@ -10,13 +10,30 @@ export default {
       colors: {
         // shadcn / CSS-var bridge
         border:      'hsl(var(--border))',
+        'border-strong': 'hsl(var(--border-strong))',
         input:       'hsl(var(--input))',
         ring:        'hsl(var(--ring))',
         background:  'hsl(var(--background))',
         foreground:  'hsl(var(--foreground))',
+        surface: {
+          DEFAULT:  'hsl(var(--surface))',
+          hover:    'hsl(var(--surface-hover))',
+        },
         destructive: {
           DEFAULT:      'hsl(var(--destructive))',
           foreground:   'hsl(var(--destructive-foreground))',
+        },
+        success: {
+          DEFAULT:    'hsl(var(--success))',
+          foreground: 'hsl(var(--success-foreground))',
+        },
+        warning: {
+          DEFAULT:    'hsl(var(--warning))',
+          foreground: 'hsl(var(--warning-foreground))',
+        },
+        info: {
+          DEFAULT:    'hsl(var(--info))',
+          foreground: 'hsl(var(--info-foreground))',
         },
         muted: {
           DEFAULT:    'hsl(var(--muted))',

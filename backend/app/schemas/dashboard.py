@@ -27,6 +27,8 @@ class RecentAchievement(BaseModel):
     name: str
     badge_emoji: str
     badge_color: str
+    condition_type: str
+    condition_module_id: int | None = None
     earned_at: datetime
 
 

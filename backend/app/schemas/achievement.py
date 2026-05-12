@@ -8,6 +8,8 @@ class AchievementResponse(BaseModel):
     description: str
     badge_emoji: str
     badge_color: str
+    condition_type: str
+    condition_module_id: int | None = None
     is_earned: bool = False
     earned_at: datetime | None = None
 

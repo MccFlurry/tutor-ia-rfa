@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
+import { BookOpen } from 'lucide-react'
 import { modulesApi } from '@/api/modules'
 import ModuleCard from '@/components/modules/ModuleCard'
 import { Skeleton } from '@/components/ui/skeleton'
+import PageHeader from '@/components/common/PageHeader'
+import EmptyState from '@/components/common/EmptyState'
 
 export default function ModulesPage() {
   const { data: modules, isLoading } = useQuery({
@@ -11,15 +14,10 @@ export default function ModulesPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6">
-      <header className="mb-8">
-        <span className="heritage-accent-bar mb-3" aria-hidden="true" />
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700">
-          Módulos del Curso
-        </h1>
-        <p className="text-gray-600 mt-1">
-          Curso de Aplicaciones Móviles · IESTP "República Federal de Alemania" · Chiclayo
-        </p>
-      </header>
+      <PageHeader
+        title="Módulos del Curso"
+        subtitle={'Curso de Aplicaciones Móviles · IESTP "República Federal de Alemania" · Chiclayo'}
+      />
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -27,9 +25,15 @@ export default function ModulesPage() {
             <Skeleton key={i} className="h-56 rounded-xl" />
           ))}
         </div>
+      ) : !modules || modules.length === 0 ? (
+        <EmptyState
+          icon={BookOpen}
+          title="Sin módulos disponibles"
+          description="Aún no hay módulos publicados. Vuelve más tarde o contacta al administrador."
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {modules?.map((module) => (
+          {modules.map((module) => (
             <ModuleCard key={module.id} module={module} />
           ))}
         </div>

@@ -10,6 +10,7 @@ from app.models.coding import CodingChallenge, CodingSubmission
 from app.models.user_level import UserLevel
 from app.models.entry_assessment import EntryAssessmentSession
 from app.models.assessment_bank import EntryAssessmentBank
+from app.models.ai_quiz_session import AIQuizSession
 
 __all__ = [
     "User",
@@ -29,4 +30,5 @@ __all__ = [
     "UserLevel",
     "EntryAssessmentSession",
     "EntryAssessmentBank",
+    "AIQuizSession",
 ]

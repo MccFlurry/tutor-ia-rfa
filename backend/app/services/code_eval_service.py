@@ -115,6 +115,7 @@ async def evaluate_code(
         num_ctx=8192,
         num_predict=2048,
         format="json",
+        timeout=settings.OLLAMA_TIMEOUT,
     )
 
     logger.info(f"Evaluando código para: {title} (nivel={student_level})")

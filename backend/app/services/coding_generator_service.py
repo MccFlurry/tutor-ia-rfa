@@ -30,13 +30,30 @@ LEVEL_TO_DIFFICULTY = {
 async def _get_existing_unused(
     db: AsyncSession, user_id: uuid.UUID, topic_id: int
 ) -> CodingChallenge | None:
-    """Return the latest AI challenge for this user+topic that hasn't been passed yet."""
+    """
+    Return the latest AI challenge persisted for this user+topic that the
+    student has NOT already passed (score >= 60). Once passed, the next
+    visit gets a fresh challenge.
+    """
+    from app.models.coding import CodingSubmission
+    from app.services.topic_completion_service import CODING_PASS_SCORE
+
+    # Subquery: challenge IDs the student has already passed
+    passed_subq = (
+        select(CodingSubmission.challenge_id)
+        .where(
+            CodingSubmission.user_id == user_id,
+            CodingSubmission.score >= CODING_PASS_SCORE,
+        )
+    )
+
     result = await db.execute(
         select(CodingChallenge)
         .where(
             CodingChallenge.topic_id == topic_id,
             CodingChallenge.is_ai_generated == True,
             CodingChallenge.generated_for_user_id == user_id,
+            CodingChallenge.id.not_in(passed_subq),
         )
         .order_by(CodingChallenge.created_at.desc())
         .limit(1)
@@ -188,8 +205,14 @@ async def regenerate_for_student(
         await db.flush()
         logger.info(f"Desafío IA regenerado (id={challenge.id}) para usuario {user.id}")
         return challenge
-    except ChallengeGenerationError:
-        fallback = await _clone_from_fallback(db, topic.id, user.id, student_level)
-        if fallback is None:
-            raise RuntimeError("No se pudo regenerar el desafío")
-        return fallback
+    except ChallengeGenerationError as e:
+        logger.warning(f"LLM fallo al regenerar ({e}); usando fallback del banco")
+    except Exception as e:
+        logger.error(f"Error inesperado regenerando con IA: {e}")
+
+    fallback = await _clone_from_fallback(db, topic.id, user.id, student_level)
+    if fallback is None:
+        raise RuntimeError(
+            "No se pudo regenerar el desafío y no existen desafíos de respaldo en el catálogo"
+        )
+    return fallback

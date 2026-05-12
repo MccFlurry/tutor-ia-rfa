@@ -1,10 +1,35 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useLogin, useRegister } from '@/hooks/useAuth'
-import { Eye, EyeOff, Lock, GraduationCap, Sparkles, ShieldCheck } from 'lucide-react'
+import { Eye, EyeOff, Lock, GraduationCap, Sparkles, ShieldCheck, CheckCircle2 } from 'lucide-react'
 import BrandLogo from '@/components/brand/BrandLogo'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 
 const MAX_ATTEMPTS = 3
 const LOCKOUT_MS = 5 * 60 * 1000
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PASSWORD_MIN = 6
+
+type FieldKey = 'fullName' | 'email' | 'password'
+
+function validateField(key: FieldKey, value: string, isRegister: boolean): string | null {
+  switch (key) {
+    case 'fullName':
+      if (!isRegister) return null
+      if (!value.trim()) return 'Ingresa tu nombre completo.'
+      if (value.trim().length < 3) return 'El nombre debe tener al menos 3 caracteres.'
+      return null
+    case 'email':
+      if (!value.trim()) return 'Ingresa tu correo electrónico.'
+      if (!EMAIL_REGEX.test(value.trim())) return 'Correo no válido.'
+      return null
+    case 'password':
+      if (!value) return 'Ingresa tu contraseña.'
+      if (value.length < PASSWORD_MIN) return `Mínimo ${PASSWORD_MIN} caracteres.`
+      return null
+  }
+}
 
 export default function LoginPage() {
   const [isRegister, setIsRegister] = useState(false)
@@ -16,12 +41,28 @@ export default function LoginPage() {
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(null)
   const [remainingSeconds, setRemainingSeconds] = useState(0)
   const [errorMessage, setErrorMessage] = useState('')
+  const [touched, setTouched] = useState<Record<FieldKey, boolean>>({
+    fullName: false,
+    email: false,
+    password: false,
+  })
 
   const loginMutation = useLogin()
   const registerMutation = useRegister()
 
   const isLocked = lockoutUntil !== null && Date.now() < lockoutUntil
   const isLoading = loginMutation.isPending || registerMutation.isPending
+
+  // Per-field errors (only shown after touch)
+  const fullNameError = touched.fullName ? validateField('fullName', fullName, isRegister) : null
+  const emailError    = touched.email    ? validateField('email',    email,    isRegister) : null
+  const passwordError = touched.password ? validateField('password', password, isRegister) : null
+
+  // Submit is enabled only when all current-mode fields are valid
+  const allValid =
+    validateField('email', email, isRegister) === null &&
+    validateField('password', password, isRegister) === null &&
+    (!isRegister || validateField('fullName', fullName, isRegister) === null)
 
   useEffect(() => {
     if (!lockoutUntil) return
@@ -51,9 +92,15 @@ export default function LoginPage() {
     }
   }, [failedAttempts])
 
+  const markAllTouched = () =>
+    setTouched({ fullName: true, email: true, password: true })
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMessage('')
+    markAllTouched()
+    if (!allValid) return
+
     if (isRegister) {
       registerMutation.mutate(
         { email, full_name: fullName, password },
@@ -70,20 +117,32 @@ export default function LoginPage() {
     }
   }
 
+  const handleToggleMode = () => {
+    setIsRegister(!isRegister)
+    setErrorMessage('')
+    setTouched({ fullName: false, email: false, password: false })
+  }
+
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60)
     const s = seconds % 60
     return `${m}:${s.toString().padStart(2, '0')}`
   }
 
+  // Class + a11y wiring helper for each input
+  const fieldProps = (key: FieldKey, hasError: boolean, helpId?: string) => ({
+    'aria-invalid': hasError || undefined,
+    'aria-describedby': hasError ? `${key}-error` : helpId,
+    className: cn(hasError && 'border-destructive focus-visible:border-destructive focus-visible:ring-destructive/30'),
+    onBlur: () => setTouched((t) => ({ ...t, [key]: true })),
+  })
+
   return (
     <div className="min-h-dvh grid lg:grid-cols-2">
-      {/* Left: institutional brand panel (hidden on mobile) */}
       <aside
         className="hidden lg:flex flex-col justify-between relative p-12 bg-brand-hero text-white overflow-hidden"
         aria-hidden="true"
       >
-        {/* Decorative orbs */}
         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary-500/20 blur-3xl" />
         <div className="absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-heritage-500/10 blur-3xl" />
 
@@ -123,15 +182,13 @@ export default function LoginPage() {
         </div>
       </aside>
 
-      {/* Right: form */}
-      <main className="flex items-center justify-center p-6 sm:p-10 bg-gradient-to-br from-gray-50 to-white">
+      <main className="flex items-center justify-center p-6 sm:p-10 bg-gradient-to-br from-muted to-background">
         <div className="w-full max-w-md">
-          {/* Mobile brand header */}
           <div className="lg:hidden mb-6 flex justify-center">
             <BrandLogo variant="stacked" />
           </div>
 
-          <div className="bg-white rounded-2xl shadow-brand-lg border border-gray-100 p-6 sm:p-8 animate-fade-in-up">
+          <div className="bg-card rounded-2xl shadow-brand-lg border border-border p-6 sm:p-8 animate-fade-in-up">
             <header className="mb-6">
               <span className="chip bg-heritage-100 text-heritage-700 mb-3">
                 {isRegister ? 'Nuevo estudiante' : 'Portal del estudiante'}
@@ -139,7 +196,7 @@ export default function LoginPage() {
               <h1 className="text-2xl font-extrabold text-institutional-700">
                 {isRegister ? 'Crea tu cuenta' : 'Inicia sesión'}
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 {isRegister
                   ? 'Completa tus datos para comenzar la evaluación de entrada.'
                   : 'Accede con tu correo institucional o personal.'}
@@ -149,6 +206,7 @@ export default function LoginPage() {
             {errorMessage && !isLocked && (
               <div
                 role="alert"
+                aria-live="polite"
                 className="mb-4 p-3 bg-peru-50 border border-peru-500/30 rounded-lg text-sm text-peru-700"
               >
                 {errorMessage}
@@ -163,6 +221,7 @@ export default function LoginPage() {
             {isLocked && (
               <div
                 role="alert"
+                aria-live="assertive"
                 className="mb-4 p-4 bg-peru-50 border border-peru-500/30 rounded-lg text-center"
               >
                 <Lock className="w-5 h-5 text-peru-600 mx-auto mb-2" aria-hidden="true" />
@@ -178,14 +237,9 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               {isRegister && (
-                <div>
-                  <label
-                    htmlFor="fullName"
-                    className="block text-sm font-semibold text-gray-700 mb-1.5"
-                  >
-                    Nombre completo
-                  </label>
-                  <input
+                <div className="space-y-1.5">
+                  <Label htmlFor="fullName">Nombre completo</Label>
+                  <Input
                     id="fullName"
                     type="text"
                     required
@@ -193,58 +247,75 @@ export default function LoginPage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Juan Pérez"
-                    className="w-full h-11 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition text-base"
+                    {...fieldProps('fullName', !!fullNameError)}
                   />
+                  {fullNameError && (
+                    <p id="fullName-error" className="text-xs text-destructive" role="alert">
+                      {fullNameError}
+                    </p>
+                  )}
                 </div>
               )}
 
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-semibold text-gray-700 mb-1.5"
-                >
-                  Correo electrónico
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  inputMode="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="estudiante@iestprfa.edu.pe"
-                  disabled={isLocked}
-                  className="w-full h-11 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition text-base disabled:bg-gray-100 disabled:text-gray-400"
-                />
+              <div className="space-y-1.5">
+                <Label htmlFor="email">Correo electrónico</Label>
+                <div className="relative">
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    inputMode="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="estudiante@iestprfa.edu.pe"
+                    disabled={isLocked}
+                    {...fieldProps('email', !!emailError, 'email-help')}
+                    className={cn(
+                      fieldProps('email', !!emailError).className,
+                      touched.email && !emailError && 'pr-10'
+                    )}
+                  />
+                  {touched.email && !emailError && email && (
+                    <CheckCircle2
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success pointer-events-none"
+                      aria-hidden="true"
+                    />
+                  )}
+                </div>
+                {emailError && (
+                  <p id="email-error" className="text-xs text-destructive" role="alert">
+                    {emailError}
+                  </p>
+                )}
               </div>
 
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-semibold text-gray-700 mb-1.5"
-                >
-                  Contraseña
-                </label>
+              <div className="space-y-1.5">
+                <Label htmlFor="password">Contraseña</Label>
                 <div className="relative">
-                  <input
+                  <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     required
-                    minLength={6}
+                    minLength={PASSWORD_MIN}
                     autoComplete={isRegister ? 'new-password' : 'current-password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Mínimo 6 caracteres"
+                    placeholder={`Mínimo ${PASSWORD_MIN} caracteres`}
                     disabled={isLocked}
-                    className="w-full h-11 px-4 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition text-base disabled:bg-gray-100 disabled:text-gray-400"
+                    {...fieldProps('password', !!passwordError, 'password-help')}
+                    className={cn(
+                      fieldProps('password', !!passwordError).className,
+                      'pr-12'
+                    )}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     aria-pressed={showPassword}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-2 rounded"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-2 rounded-md
+                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" aria-hidden="true" />
@@ -253,12 +324,22 @@ export default function LoginPage() {
                     )}
                   </button>
                 </div>
+                {passwordError ? (
+                  <p id="password-error" className="text-xs text-destructive" role="alert">
+                    {passwordError}
+                  </p>
+                ) : (
+                  <p id="password-help" className="text-xs text-muted-foreground">
+                    Mínimo {PASSWORD_MIN} caracteres.
+                  </p>
+                )}
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading || isLocked}
-                className="w-full h-11 bg-institutional-700 hover:bg-institutional-500 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-brand-md"
+                className="w-full h-11 bg-institutional-700 hover:bg-institutional-500 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-brand-md
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 {isLocked
                   ? `Bloqueado (${formatTime(remainingSeconds)})`
@@ -273,10 +354,7 @@ export default function LoginPage() {
             <div className="mt-6 text-center">
               <button
                 type="button"
-                onClick={() => {
-                  setIsRegister(!isRegister)
-                  setErrorMessage('')
-                }}
+                onClick={handleToggleMode}
                 className="text-sm text-primary-700 hover:text-primary-800 font-semibold underline-offset-4 hover:underline"
               >
                 {isRegister
@@ -286,7 +364,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <p className="text-center text-gray-400 text-xs mt-6 lg:hidden">
+          <p className="text-center text-muted-foreground text-xs mt-6 lg:hidden">
             IESTP "República Federal de Alemania" · Chiclayo, Perú
           </p>
         </div>

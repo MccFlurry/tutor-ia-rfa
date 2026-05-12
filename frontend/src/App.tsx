@@ -2,7 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
 import { useAuthStore } from '@/store/authStore'
+import { useThemeStore } from '@/store/themeStore'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { usersApi } from '@/api/users'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import AuthGuard from '@/components/auth/AuthGuard'
 import LevelGuard from '@/components/auth/LevelGuard'
 import AppLayout from '@/components/layout/AppLayout'
@@ -17,6 +20,7 @@ import AchievementsPage from '@/pages/AchievementsPage'
 import ChatPage from '@/pages/ChatPage'
 import CodingChallengePage from '@/pages/CodingChallengePage'
 import EntryAssessmentPage from '@/pages/EntryAssessmentPage'
+import SettingsPage from '@/pages/SettingsPage'
 import AdminPage from '@/pages/AdminPage'
 
 function AppRoutes() {
@@ -69,6 +73,7 @@ function AppRoutes() {
         <Route path="/achievements" element={<AchievementsPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/coding/:challengeId" element={<CodingChallengePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route
           path="/admin"
           element={
@@ -83,11 +88,29 @@ function AppRoutes() {
 }
 
 function App() {
+  const isDesktop = useMediaQuery('(min-width: 640px)')
+  const initTheme = useThemeStore((s) => s.init)
+
+  useEffect(() => {
+    const cleanup = initTheme()
+    return cleanup
+  }, [initTheme])
+
   return (
-    <BrowserRouter>
-      <AppRoutes />
-      <Toaster position="top-right" />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AppRoutes />
+        <Toaster
+          position={isDesktop ? 'top-right' : 'top-center'}
+          toastOptions={{
+            success: { ariaProps: { role: 'status', 'aria-live': 'polite' } },
+            error:   { ariaProps: { role: 'alert',  'aria-live': 'assertive' } },
+            blank:   { ariaProps: { role: 'status', 'aria-live': 'polite' } },
+            loading: { ariaProps: { role: 'status', 'aria-live': 'polite' } },
+          }}
+        />
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
 

@@ -147,6 +147,8 @@ async def get_dashboard(
             name=a.name,
             badge_emoji=a.badge_emoji,
             badge_color=a.badge_color,
+            condition_type=a.condition_type,
+            condition_module_id=a.condition_module_id,
             earned_at=ua.earned_at,
         )
         for ua, a in ach_q.all()

@@ -6,6 +6,9 @@ import toast from 'react-hot-toast'
 import { assessmentApi } from '@/api/assessment'
 import { usersApi } from '@/api/users'
 import { Button } from '@/components/ui/button'
+import { RadioGroup } from '@/components/ui/radio-group'
+import OptionRadio from '@/components/common/OptionRadio'
+import AILoadingState from '@/components/common/AILoadingState'
 import { cn } from '@/lib/utils'
 import BrandLogo from '@/components/brand/BrandLogo'
 import { useAuthStore } from '@/store/authStore'
@@ -22,7 +25,7 @@ const LEVEL_LABEL: Record<StudentLevel, string> = {
 }
 
 const LEVEL_COLOR: Record<StudentLevel, string> = {
-  beginner:     'bg-gray-100 text-gray-700 border-gray-300',
+  beginner:     'bg-muted text-foreground border-border',
   intermediate: 'bg-primary-50 text-primary-800 border-primary-200',
   advanced:     'bg-heritage-50 text-heritage-700 border-heritage-200',
 }
@@ -31,6 +34,12 @@ const DIFFICULTY_LABEL: Record<string, string> = {
   easy: 'Fácil',
   medium: 'Media',
   hard: 'Difícil',
+}
+
+const DIFFICULTY_CHIP: Record<string, string> = {
+  easy:   'bg-success/15 text-success',
+  medium: 'bg-warning/15 text-warning-foreground',
+  hard:   'bg-destructive/15 text-destructive',
 }
 
 export default function EntryAssessmentPage() {
@@ -44,12 +53,10 @@ export default function EntryAssessmentPage() {
   const [answers, setAnswers] = useState<Record<string, number>>({})
   const [result, setResult] = useState<AssessmentSubmitResponse | null>(null)
 
-  // Admins bypass entry assessment entirely
   useEffect(() => {
     if (isAdmin) navigate('/admin', { replace: true })
   }, [isAdmin, navigate])
 
-  // Check whether user already has a level → skip assessment
   const { data: levelData, isLoading: isLoadingLevel } = useQuery({
     queryKey: ['my-level'],
     queryFn: () => usersApi.getLevel().then((r) => r.data),
@@ -113,8 +120,8 @@ export default function EntryAssessmentPage() {
 
   if (isLoadingLevel) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-institutional-50 via-white to-heritage-50">
-        <div className="text-gray-500">Cargando...</div>
+      <div className="min-h-dvh flex items-center justify-center bg-gradient-to-br from-institutional-50 via-background to-heritage-50">
+        <div className="text-muted-foreground">Cargando...</div>
       </div>
     )
   }
@@ -122,14 +129,17 @@ export default function EntryAssessmentPage() {
   // ---------- Result screen ----------
   if (result) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-institutional-50 via-white to-heritage-50 py-10 px-4">
+      <div className="min-h-dvh bg-gradient-to-br from-institutional-50 via-background to-heritage-50 py-10 px-4">
         <div className="max-w-3xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <div className="bg-card rounded-2xl shadow-brand-sm border border-border p-8">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <CheckCircle2 className="w-8 h-8 text-green-600" />
+              <div
+                className="w-16 h-16 mx-auto bg-success/15 rounded-full flex items-center justify-center mb-4"
+                aria-hidden="true"
+              >
+                <CheckCircle2 className="w-8 h-8 text-success" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl font-bold text-foreground mb-2">
                 ¡Evaluación completada!
               </h1>
               <div
@@ -138,30 +148,30 @@ export default function EntryAssessmentPage() {
                   LEVEL_COLOR[result.level]
                 )}
               >
-                <TrendingUp className="w-4 h-4" />
+                <TrendingUp className="w-4 h-4" aria-hidden="true" />
                 Tu nivel: {LEVEL_LABEL[result.level]}
               </div>
-              <p className="text-sm text-gray-500 mt-3">
+              <p className="text-sm text-muted-foreground mt-3 tabular-nums">
                 Puntaje: {result.score.toFixed(1)} / 100 · Confianza:{' '}
                 {Math.round(result.confidence * 100)}%
               </p>
             </div>
 
-            <p className="text-gray-700 leading-relaxed mb-6">{result.feedback}</p>
+            <p className="text-foreground leading-relaxed mb-6">{result.feedback}</p>
 
-            <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">
+            <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">
               Desempeño por módulo
-            </h3>
+            </h2>
             <div className="space-y-3 mb-8">
               {result.module_breakdown.map((m) => (
                 <div key={m.module_id}>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-700">{m.module_title}</span>
-                    <span className="text-gray-500">
+                    <span className="text-foreground">{m.module_title}</span>
+                    <span className="text-muted-foreground tabular-nums">
                       {m.correct}/{m.total} · {m.percentage.toFixed(0)}%
                     </span>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
                       className="h-full bg-primary-500 transition-all"
                       style={{ width: `${m.percentage}%` }}
@@ -183,16 +193,11 @@ export default function EntryAssessmentPage() {
   // ---------- Submitting / "IA analyzing" screen ----------
   if (submitMutation.isPending) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-institutional-50 via-white to-heritage-50 text-center px-4">
-        <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-6 animate-pulse">
-          <Sparkles className="w-8 h-8 text-primary-600" />
-        </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">
-          La IA está analizando tu nivel...
-        </h2>
-        <p className="text-gray-500 text-sm max-w-md">
-          Estamos calculando tu perfil de aprendizaje para personalizar quizzes y desafíos.
-        </p>
+      <div className="min-h-dvh flex items-center justify-center bg-gradient-to-br from-institutional-50 via-background to-heritage-50 px-4">
+        <AILoadingState
+          title="La IA está analizando tu nivel..."
+          subtitle="Estamos calculando tu perfil de aprendizaje para personalizar quizzes y desafíos."
+        />
       </div>
     )
   }
@@ -201,12 +206,12 @@ export default function EntryAssessmentPage() {
   if (!session) {
     const generating = startMutation.isPending
     return (
-      <div className="min-h-dvh bg-gradient-to-br from-institutional-50 via-white to-heritage-50 py-10 px-4 flex items-center">
+      <div className="min-h-dvh bg-gradient-to-br from-institutional-50 via-background to-heritage-50 py-10 px-4 flex items-center">
         <div className="max-w-2xl mx-auto w-full">
           <div className="flex justify-center mb-6">
             <BrandLogo variant="stacked" />
           </div>
-          <div className="bg-white rounded-2xl shadow-brand-lg border border-gray-200 p-8 animate-fade-in-up">
+          <div className="bg-card rounded-2xl shadow-brand-lg border border-border p-8 animate-fade-in-up">
             <div className="text-center mb-6">
               <span className="heritage-accent-bar mx-auto mb-4" />
               <div
@@ -214,13 +219,14 @@ export default function EntryAssessmentPage() {
                   'w-16 h-16 mx-auto bg-institutional-50 rounded-full flex items-center justify-center mb-4',
                   generating && 'animate-pulse'
                 )}
+                aria-hidden="true"
               >
-                <Sparkles className="w-8 h-8 text-institutional-700" aria-hidden="true" />
+                <Sparkles className="w-8 h-8 text-institutional-700" />
               </div>
               <h1 className="text-2xl font-extrabold text-institutional-700 mb-2">
                 Evaluación de Entrada
               </h1>
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 Antes de empezar, necesitamos conocer tu nivel. Responderás{' '}
                 <strong>~12 preguntas</strong> sobre los 5 módulos del curso. No te
                 preocupes si no sabes alguna — esta evaluación ayuda a personalizar tu
@@ -229,28 +235,10 @@ export default function EntryAssessmentPage() {
             </div>
 
             {generating ? (
-              <div className="text-center py-8">
-                <p className="text-gray-700 font-medium mb-2">
-                  La IA está generando tus preguntas...
-                </p>
-                <p className="text-sm text-gray-500">
-                  Esto puede tomar unos segundos.
-                </p>
-                <div className="mt-4 flex gap-1 justify-center">
-                  <div
-                    className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
-                    style={{ animationDelay: '0ms' }}
-                  />
-                  <div
-                    className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
-                    style={{ animationDelay: '150ms' }}
-                  />
-                  <div
-                    className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
-                    style={{ animationDelay: '300ms' }}
-                  />
-                </div>
-              </div>
+              <AILoadingState
+                title="La IA está generando tus preguntas..."
+                subtitle="Esto puede tomar unos segundos."
+              />
             ) : (
               <Button onClick={handleStart} className="w-full" size="lg">
                 Comenzar evaluación
@@ -258,8 +246,11 @@ export default function EntryAssessmentPage() {
             )}
 
             {startMutation.isError && (
-              <div className="mt-4 p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm flex gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <div
+                role="alert"
+                className="mt-4 p-3 rounded-lg bg-warning/10 border border-warning/30 text-warning-foreground text-sm flex gap-2"
+              >
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
                 <span>
                   No pudimos generar la evaluación. Intenta de nuevo en un momento.
                 </span>
@@ -274,66 +265,69 @@ export default function EntryAssessmentPage() {
   // ---------- Question wizard ----------
   const q = session.questions[currentIdx]
   const total = session.questions.length
-  const progress = ((currentIdx + 1) / total) * 100
+  const progressPct = ((currentIdx + 1) / total) * 100
   const answeredCount = Object.keys(answers).length
   const isLast = currentIdx === total - 1
+  const groupLabelId = `assessment-q-${q.id}-label`
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-institutional-50 via-white to-heritage-50 py-10 px-4">
+    <div className="min-h-dvh bg-gradient-to-br from-institutional-50 via-background to-heritage-50 py-10 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Progress */}
         <div className="mb-6">
-          <div className="flex justify-between text-xs text-gray-500 mb-2">
+          <div className="flex justify-between text-xs text-muted-foreground mb-2 tabular-nums">
             <span>
               Pregunta {currentIdx + 1} de {total}
             </span>
             <span>{answeredCount} respondidas</span>
           </div>
-          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className="h-2 bg-muted rounded-full overflow-hidden"
+            role="progressbar"
+            aria-valuenow={currentIdx + 1}
+            aria-valuemin={1}
+            aria-valuemax={total}
+          >
             <div
               className="h-full bg-primary-500 transition-all"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${progressPct}%` }}
             />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+        <div className="bg-card rounded-2xl shadow-brand-sm border border-border p-6 sm:p-8">
           <div className="flex gap-2 mb-4 flex-wrap">
-            <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 font-medium">
+            <span className="text-xs px-2 py-1 rounded bg-muted text-foreground font-medium">
               Módulo {q.module_id}
             </span>
             <span
               className={cn(
                 'text-xs px-2 py-1 rounded font-medium',
-                q.difficulty === 'easy' && 'bg-green-100 text-green-700',
-                q.difficulty === 'medium' && 'bg-yellow-100 text-yellow-700',
-                q.difficulty === 'hard' && 'bg-red-100 text-red-700'
+                DIFFICULTY_CHIP[q.difficulty] ?? 'bg-muted text-foreground'
               )}
             >
               {DIFFICULTY_LABEL[q.difficulty] || q.difficulty}
             </span>
           </div>
 
-          <p className="font-medium text-gray-900 text-lg leading-relaxed mb-6">
+          <p
+            id={groupLabelId}
+            className="font-medium text-foreground text-lg leading-relaxed mb-6"
+          >
             {q.question_text}
           </p>
 
-          <div className="space-y-2">
+          <RadioGroup
+            value={answers[q.id] !== undefined ? String(answers[q.id]) : undefined}
+            onValueChange={(val) => handleSelect(q.id, Number(val))}
+            aria-labelledby={groupLabelId}
+          >
             {q.options.map((opt, i) => (
-              <button
-                key={i}
-                onClick={() => handleSelect(q.id, i)}
-                className={cn(
-                  'w-full text-left px-4 py-3 rounded-lg border-2 transition text-sm',
-                  answers[q.id] === i
-                    ? 'border-primary-500 bg-primary-50 text-primary-800'
-                    : 'border-gray-200 hover:border-gray-300 text-gray-700'
-                )}
-              >
+              <OptionRadio key={i} value={String(i)}>
                 {opt}
-              </button>
+              </OptionRadio>
             ))}
-          </div>
+          </RadioGroup>
         </div>
 
         {/* Nav buttons */}
@@ -359,8 +353,8 @@ export default function EntryAssessmentPage() {
           )}
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-4 flex items-center gap-1 justify-center">
-          <Sparkles className="w-3 h-3" />
+        <p className="text-center text-xs text-muted-foreground mt-4 flex items-center gap-1 justify-center">
+          <Sparkles className="w-3 h-3" aria-hidden="true" />
           Preguntas generadas por IA —{' '}
           {session.source === 'ai' ? 'generadas en vivo' : 'banco de respaldo'}
         </p>

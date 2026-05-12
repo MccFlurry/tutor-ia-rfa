@@ -1,5 +1,6 @@
 import { Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getAchievementIcon } from '@/lib/achievementIcon'
 import type { Achievement } from '@/types/achievement'
 
 interface AchievementCardProps {
@@ -8,23 +9,39 @@ interface AchievementCardProps {
 
 export default function AchievementCard({ achievement }: AchievementCardProps) {
   const earned = achievement.is_earned
+  const Icon = getAchievementIcon(achievement)
 
   return (
     <div
+      style={earned ? ({ '--badge-color': achievement.badge_color } as React.CSSProperties) : undefined}
       className={cn(
         'rounded-xl border p-4 text-center transition',
         earned
-          ? 'bg-white border-gray-200'
-          : 'bg-gray-50 border-gray-100 opacity-60 grayscale'
+          ? 'bg-card border-[color:var(--badge-color)]/30 shadow-brand-sm'
+          : 'bg-muted/50 border-border opacity-60 grayscale'
       )}
     >
-      <div className="text-3xl mb-2">
-        {earned ? achievement.badge_emoji : <Lock className="w-7 h-7 mx-auto text-gray-300" />}
+      <div
+        className={cn(
+          'w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center',
+          earned ? 'bg-[color:var(--badge-color)]/15' : 'bg-muted'
+        )}
+        aria-hidden="true"
+      >
+        {earned ? (
+          <Icon
+            className="w-6 h-6"
+            style={{ color: achievement.badge_color }}
+            strokeWidth={2}
+          />
+        ) : (
+          <Lock className="w-6 h-6 text-muted-foreground" />
+        )}
       </div>
-      <p className="font-semibold text-sm text-gray-900 mb-0.5">{achievement.name}</p>
-      <p className="text-xs text-gray-500 leading-relaxed">{achievement.description}</p>
+      <p className="font-semibold text-sm text-foreground mb-0.5">{achievement.name}</p>
+      <p className="text-xs text-muted-foreground leading-relaxed">{achievement.description}</p>
       {earned && achievement.earned_at && (
-        <p className="text-xs text-gray-400 mt-2">
+        <p className="text-xs text-muted-foreground/70 mt-2">
           {new Date(achievement.earned_at).toLocaleDateString('es-PE')}
         </p>
       )}

@@ -4,9 +4,11 @@ import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 import Footer from './Footer'
 import ReassessmentModal from '@/components/auth/ReassessmentModal'
+import { useFocusMain } from '@/hooks/useFocusMain'
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  useFocusMain()
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

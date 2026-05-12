@@ -3,6 +3,7 @@ import { Lock } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 import type { Module } from '@/types/module'
 
 interface ModuleCardProps {
@@ -25,34 +26,63 @@ function getStatusBadge(module: Module) {
   return { label: 'No iniciado', variant: 'secondary' as const }
 }
 
+const LOCKED_REASON = 'Completa el módulo anterior para desbloquear este contenido.'
+
 export default function ModuleCard({ module }: ModuleCardProps) {
   const navigate = useNavigate()
   const Icon = getIcon(module.icon_name)
   const status = getStatusBadge(module)
+  const locked = module.is_locked
 
   const handleClick = () => {
-    if (!module.is_locked) {
+    if (!locked) {
       navigate(`/modules/${module.id}`)
     }
   }
 
+  const ariaLabel = locked
+    ? `${module.title} — Bloqueado. ${LOCKED_REASON}`
+    : `${module.title} — ${Math.round(module.progress_pct)}% completado`
+
   return (
-    <div
+    <article
+      role={locked ? undefined : 'button'}
+      tabIndex={locked ? -1 : 0}
       onClick={handleClick}
-      className={`bg-white rounded-xl border border-gray-200 p-6 transition-all ${
-        module.is_locked
-          ? 'opacity-60 cursor-not-allowed grayscale'
-          : 'cursor-pointer hover:shadow-md hover:border-gray-300'
-      }`}
+      onKeyDown={(e) => {
+        if (!locked && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault()
+          handleClick()
+        }
+      }}
+      aria-label={ariaLabel}
+      aria-disabled={locked || undefined}
+      title={locked ? LOCKED_REASON : undefined}
+      className={cn(
+        'relative bg-card rounded-xl border border-border p-6 transition-all',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        locked
+          ? 'opacity-70 cursor-not-allowed select-none'
+          : 'cursor-pointer hover:shadow-brand-md hover:border-border-strong'
+      )}
+      style={!locked ? ({ '--module-color': module.color_hex } as React.CSSProperties) : undefined}
     >
       {/* Icon + Badge row */}
       <div className="flex items-start justify-between mb-4">
         <div
-          className="w-12 h-12 rounded-lg flex items-center justify-center"
-          style={{ backgroundColor: module.is_locked ? '#e5e7eb' : module.color_hex + '20' }}
+          className={cn(
+            'w-12 h-12 rounded-lg flex items-center justify-center',
+            locked && 'bg-muted'
+          )}
+          style={
+            !locked
+              ? { backgroundColor: `${module.color_hex}20` }
+              : undefined
+          }
+          aria-hidden="true"
         >
-          {module.is_locked ? (
-            <Lock className="w-6 h-6 text-gray-400" />
+          {locked ? (
+            <Lock className="w-6 h-6 text-muted-foreground" />
           ) : (
             <Icon className="w-6 h-6" style={{ color: module.color_hex }} />
           )}
@@ -61,21 +91,34 @@ export default function ModuleCard({ module }: ModuleCardProps) {
       </div>
 
       {/* Title + Description */}
-      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">
+      <h3 className="font-semibold text-foreground mb-1 line-clamp-2">
         {module.title}
       </h3>
-      <p className="text-sm text-gray-500 mb-4 line-clamp-2">
+      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
         {module.description}
       </p>
 
+      {/* Locked reason banner */}
+      {locked && (
+        <div
+          className="flex items-start gap-2 mb-4 text-xs text-muted-foreground bg-muted/50 rounded-lg p-2.5"
+          role="note"
+        >
+          <Lock className="w-3.5 h-3.5 shrink-0 mt-0.5" aria-hidden="true" />
+          <span>{LOCKED_REASON}</span>
+        </div>
+      )}
+
       {/* Progress */}
       <div className="space-y-2">
-        <div className="flex justify-between text-xs text-gray-500">
-          <span>{module.completed_topics} de {module.total_topics} temas</span>
+        <div className="flex justify-between text-xs text-muted-foreground tabular-nums">
+          <span>
+            {module.completed_topics} de {module.total_topics} temas
+          </span>
           <span>{Math.round(module.progress_pct)}%</span>
         </div>
         <Progress value={module.progress_pct} className="h-2" />
       </div>
-    </div>
+    </article>
   )
 }

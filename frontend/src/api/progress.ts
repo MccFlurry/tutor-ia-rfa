@@ -1,5 +1,5 @@
 import apiClient from './client'
-import type { ProgressData, ActivityItem } from '@/types/progress'
+import type { ProgressData, ActivityItem, StreakResponse } from '@/types/progress'
 
 export const progressApi = {
   get: () =>
@@ -7,4 +7,7 @@ export const progressApi = {
 
   getActivity: () =>
     apiClient.get<ActivityItem[]>('/progress/activity'),
+
+  getStreak: () =>
+    apiClient.get<StreakResponse>('/progress/streak'),
 }

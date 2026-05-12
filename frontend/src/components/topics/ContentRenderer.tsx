@@ -6,12 +6,22 @@ interface ContentRendererProps {
   content: string
 }
 
+/**
+ * Renders topic Markdown content. Heading levels are downshifted by one so
+ * authored `# Title` becomes <h2> — the page already owns the single <h1>,
+ * preserving a clean landmark hierarchy for screen readers.
+ */
 export default function ContentRenderer({ content }: ContentRendererProps) {
   return (
-    <article className="prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:leading-relaxed prose-p:text-gray-700 prose-li:text-gray-700 prose-strong:text-gray-900 prose-a:text-primary-600 prose-code:text-primary-700 prose-code:bg-primary-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none prose-table:text-sm prose-th:bg-gray-100 prose-th:px-3 prose-th:py-2 prose-td:px-3 prose-td:py-2 prose-blockquote:border-primary-500 prose-blockquote:bg-primary-50/50 prose-blockquote:py-1 prose-blockquote:text-gray-700">
+    <article className="prose prose-gray max-w-none prose-headings:text-foreground prose-p:leading-relaxed prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-a:text-primary-600 prose-code:text-primary-700 prose-code:bg-primary-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none prose-table:text-sm prose-th:bg-muted prose-th:px-3 prose-th:py-2 prose-td:px-3 prose-td:py-2 prose-blockquote:border-primary-500 prose-blockquote:bg-primary-50/50 prose-blockquote:py-1 prose-blockquote:text-foreground">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
+          h1: ({ children, ...props }) => <h2 {...props}>{children}</h2>,
+          h2: ({ children, ...props }) => <h3 {...props}>{children}</h3>,
+          h3: ({ children, ...props }) => <h4 {...props}>{children}</h4>,
+          h4: ({ children, ...props }) => <h5 {...props}>{children}</h5>,
+          h5: ({ children, ...props }) => <h6 {...props}>{children}</h6>,
           code({ className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '')
             const codeString = String(children).replace(/\n$/, '')

@@ -2,15 +2,11 @@ import { Menu, LogOut } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useLogout } from '@/hooks/useAuth'
 import LevelBadge from './LevelBadge'
+import ThemeToggle from './ThemeToggle'
+import Avatar from '@/components/common/Avatar'
 
 interface NavbarProps {
   onMenuClick: () => void
-}
-
-function initials(fullName?: string) {
-  if (!fullName) return '??'
-  const parts = fullName.trim().split(/\s+/)
-  return (parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')
 }
 
 export default function Navbar({ onMenuClick }: NavbarProps) {
@@ -24,9 +20,13 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
     >
       <div className="flex items-center gap-3 min-w-0">
         <button
+          type="button"
           onClick={onMenuClick}
           aria-label="Abrir menú"
-          className="lg:hidden text-gray-500 hover:text-gray-800 p-2 -ml-2 rounded-lg"
+          aria-haspopup="dialog"
+          className="lg:hidden inline-flex items-center justify-center min-h-[44px] min-w-[44px] -ml-2
+                     text-muted-foreground hover:text-foreground rounded-lg
+                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Menu className="w-6 h-6" />
         </button>
@@ -41,22 +41,18 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <ThemeToggle />
         <LevelBadge />
 
         {user && (
           <div className="flex items-center gap-2">
-            <div
-              aria-hidden="true"
-              className="w-9 h-9 rounded-full bg-institutional-700 text-white flex items-center justify-center text-xs font-bold shadow-brand-sm"
-            >
-              {initials(user.full_name).toUpperCase()}
-            </div>
+            <Avatar fullName={user.full_name} src={user.avatar_url} size="md" />
             <div className="text-right hidden sm:block min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate max-w-[160px]">
+              <p className="text-sm font-semibold text-foreground truncate max-w-[160px]">
                 {user.full_name}
               </p>
-              <p className="text-xs text-gray-500 capitalize">
+              <p className="text-xs text-muted-foreground capitalize">
                 {user.role === 'admin' ? 'Administrador' : 'Estudiante'}
               </p>
             </div>

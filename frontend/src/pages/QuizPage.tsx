@@ -1,14 +1,22 @@
-import { useState, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ChevronRight, Send, Sparkles, AlertTriangle } from 'lucide-react'
+import { ChevronRight, Send, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { quizApi } from '@/api/quiz'
 import { topicsApi } from '@/api/topics'
 import { Button } from '@/components/ui/button'
 import QuizQuestionComponent from '@/components/quiz/QuizQuestion'
 import QuizResults from '@/components/quiz/QuizResults'
-import type { QuizSubmitResponse } from '@/types/quiz'
+import PageHeader from '@/components/common/PageHeader'
+import AILoadingState from '@/components/common/AILoadingState'
+import ErrorState from '@/components/common/ErrorState'
+import {
+  loadQuizState,
+  saveQuizState,
+  clearQuizState,
+} from '@/lib/quizPersistence'
+import type { QuizGenerateResponse, QuizSubmitResponse } from '@/types/quiz'
 
 export default function QuizPage() {
   const { topicId } = useParams<{ topicId: string }>()
@@ -16,35 +24,75 @@ export default function QuizPage() {
   const queryClient = useQueryClient()
   const tid = Number(topicId)
 
-  const [answers, setAnswers] = useState<Record<string, number>>({})
+  // Try to restore prior session for this topic before deciding whether to
+  // generate a new quiz. If a fresh persisted session exists, we skip the
+  // generation request and rehydrate the user's in-progress answers.
+  const [persistedQuiz, setPersistedQuiz] = useState<QuizGenerateResponse | null>(
+    () => {
+      const saved = loadQuizState(tid)
+      return saved ? { session_id: saved.session_id, questions: saved.questions } : null
+    }
+  )
+  const [answers, setAnswers] = useState<Record<string, number>>(
+    () => loadQuizState(tid)?.answers ?? {}
+  )
   const [result, setResult] = useState<QuizSubmitResponse | null>(null)
-  const [generationKey, setGenerationKey] = useState(0) // increment to force re-fetch
+  const [generationKey, setGenerationKey] = useState(0)
 
-  // Get topic info for breadcrumb
   const { data: topic } = useQuery({
     queryKey: ['topic', tid],
     queryFn: () => topicsApi.get(tid).then((r) => r.data),
     enabled: !!topicId,
   })
 
-  // Generate quiz (AI-powered)
+  // Only generate when we don't already have a persisted/active quiz.
   const {
-    data: quizData,
+    data: generated,
     isLoading: isGenerating,
     isError,
     error,
   } = useQuery({
     queryKey: ['quiz', tid, generationKey],
     queryFn: () => quizApi.generate(tid).then((r) => r.data),
-    enabled: !!topicId,
+    enabled: !!topicId && persistedQuiz === null,
     retry: false,
-    staleTime: 0, // Always re-fetch on mount
+    staleTime: 25 * 60 * 1000,
   })
 
+  // Hoist freshly generated quiz into local + persistent state.
+  useEffect(() => {
+    if (generated && !persistedQuiz) {
+      setPersistedQuiz(generated)
+      saveQuizState(tid, {
+        session_id: generated.session_id,
+        questions: generated.questions,
+        answers: {},
+      })
+    }
+  }, [generated, persistedQuiz, tid])
+
+  const quizData = persistedQuiz ?? generated ?? null
   const sessionId = quizData?.session_id ?? null
   const questions = quizData?.questions ?? []
 
-  // Submit mutation
+  // Persist answers as the student progresses.
+  useEffect(() => {
+    if (!persistedQuiz || result) return
+    saveQuizState(tid, {
+      session_id: persistedQuiz.session_id,
+      questions: persistedQuiz.questions,
+      answers,
+    })
+  }, [answers, persistedQuiz, tid, result])
+
+  const handleRetry = useCallback(() => {
+    clearQuizState(tid)
+    setAnswers({})
+    setResult(null)
+    setPersistedQuiz(null)
+    setGenerationKey((k) => k + 1)
+  }, [tid])
+
   const submitMutation = useMutation({
     mutationFn: () => {
       if (!sessionId) throw new Error('No session')
@@ -52,6 +100,7 @@ export default function QuizPage() {
     },
     onSuccess: (data) => {
       setResult(data)
+      clearQuizState(tid)
       if (data.is_passed) {
         toast.success('¡Aprobaste la autoevaluación!')
       }
@@ -86,68 +135,42 @@ export default function QuizPage() {
     submitMutation.mutate()
   }
 
-  const handleRetry = useCallback(() => {
-    setAnswers({})
-    setResult(null)
-    setGenerationKey((k) => k + 1) // Force new generation
-  }, [])
-
-  // Error state
   const errorStatus = (error as any)?.response?.status
   const isServiceUnavailable = errorStatus === 503
 
-  // Generating state (AI loading)
-  if (isGenerating) {
+  if (isGenerating && !quizData) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-8 sm:px-6">
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-6 animate-pulse">
-            <Sparkles className="w-8 h-8 text-primary-600" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            La IA está preparando tus preguntas...
-          </h2>
-          <p className="text-gray-500 text-sm max-w-md">
-            El tutor inteligente está generando preguntas personalizadas basadas en el
-            contenido del tema. Esto puede tomar unos segundos.
-          </p>
-          <div className="mt-6 flex gap-1">
-            <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-          </div>
-        </div>
+        <AILoadingState
+          title="La IA está preparando tus preguntas..."
+          subtitle="El tutor inteligente está generando preguntas personalizadas basadas en el contenido del tema. Esto puede tomar unos segundos."
+        />
       </div>
     )
   }
 
-  // Error state
-  if (isError) {
+  if (isError && !quizData) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-8 sm:px-6">
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
-            <AlertTriangle className="w-8 h-8 text-red-500" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            {isServiceUnavailable
-              ? 'Servicio no disponible'
-              : 'Error al generar preguntas'}
-          </h2>
-          <p className="text-gray-500 text-sm max-w-md mb-6">
-            {isServiceUnavailable
+        <ErrorState
+          variant={isServiceUnavailable ? 'serviceUnavailable' : 'generic'}
+          title={
+            isServiceUnavailable ? 'Servicio no disponible' : 'Error al generar preguntas'
+          }
+          description={
+            isServiceUnavailable
               ? 'El servicio de generación de preguntas no está disponible en este momento.'
-              : 'Ocurrió un error al generar las preguntas. Intenta de nuevo.'}
-          </p>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => navigate(`/topics/${tid}`)}>
-              Volver al tema
-            </Button>
-            <Button onClick={handleRetry}>
-              Reintentar
-            </Button>
-          </div>
-        </div>
+              : 'Ocurrió un error al generar las preguntas. Intenta de nuevo.'
+          }
+          action={
+            <>
+              <Button variant="outline" onClick={() => navigate(`/topics/${tid}`)}>
+                Volver al tema
+              </Button>
+              <Button onClick={handleRetry}>Reintentar</Button>
+            </>
+          }
+        />
       </div>
     )
   }
@@ -158,45 +181,42 @@ export default function QuizPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 sm:px-6">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6 flex-wrap">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6 flex-wrap" aria-label="Migas de pan">
         <Link to="/modules" className="hover:text-primary-600 transition">
           Módulos
         </Link>
         {topic && (
           <>
-            <ChevronRight className="w-4 h-4 shrink-0" />
+            <ChevronRight className="w-4 h-4 shrink-0" aria-hidden="true" />
             <Link
               to={`/modules/${topic.module.id}`}
               className="hover:text-primary-600 transition"
             >
               {topic.module.title}
             </Link>
-            <ChevronRight className="w-4 h-4 shrink-0" />
-            <Link
-              to={`/topics/${tid}`}
-              className="hover:text-primary-600 transition"
-            >
+            <ChevronRight className="w-4 h-4 shrink-0" aria-hidden="true" />
+            <Link to={`/topics/${tid}`} className="hover:text-primary-600 transition">
               {topic.title}
             </Link>
           </>
         )}
-        <ChevronRight className="w-4 h-4 shrink-0" />
-        <span className="text-gray-900 font-medium">Autoevaluación</span>
+        <ChevronRight className="w-4 h-4 shrink-0" aria-hidden="true" />
+        <span className="text-foreground font-medium">Autoevaluación</span>
       </nav>
 
-      <div className="mb-8">
-        <span className="heritage-accent-bar mb-3" aria-hidden="true" />
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 mb-2">Autoevaluación</h1>
-        <p className="text-gray-500 text-sm">
-          {topic?.title} — Responde todas las preguntas y obtén al menos 60% para aprobar.
-        </p>
-        <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-          <Sparkles className="w-3 h-3" />
-          Preguntas generadas por IA — cada intento es único
-        </p>
-      </div>
+      <PageHeader
+        title="Autoevaluación"
+        subtitle={
+          <>
+            {topic?.title} — Responde todas las preguntas y obtén al menos 60% para aprobar.
+            <span className="block text-xs mt-1 flex items-center gap-1">
+              <Sparkles className="w-3 h-3 inline" aria-hidden="true" />
+              Preguntas generadas por IA — tu progreso se guarda automáticamente
+            </span>
+          </>
+        }
+      />
 
-      {/* Show results or questions */}
       {result ? (
         <QuizResults
           result={result}
@@ -220,14 +240,11 @@ export default function QuizPage() {
           </div>
 
           {/* Submit bar */}
-          <div className="sticky bottom-0 bg-gray-50/95 backdrop-blur border-t border-gray-200 -mx-4 px-4 py-4 mt-6 flex items-center justify-between sm:-mx-6 sm:px-6">
-            <span className="text-sm text-gray-500">
+          <div className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border -mx-4 px-4 py-4 mt-6 flex items-center justify-between sm:-mx-6 sm:px-6">
+            <span className="text-sm text-muted-foreground tabular-nums">
               {answeredCount} de {totalQuestions} respondidas
             </span>
-            <Button
-              onClick={handleSubmit}
-              disabled={submitMutation.isPending}
-            >
+            <Button onClick={handleSubmit} disabled={submitMutation.isPending}>
               <Send className="w-4 h-4 mr-2" />
               {submitMutation.isPending ? 'Enviando...' : 'Enviar respuestas'}
             </Button>

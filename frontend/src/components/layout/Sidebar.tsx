@@ -6,6 +6,7 @@ import {
   BarChart3,
   Trophy,
   Settings,
+  SlidersHorizontal,
   X,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
@@ -17,6 +18,7 @@ const studentLinks = [
   { to: '/chat', icon: MessageCircle, label: 'Tutor IA' },
   { to: '/progress', icon: BarChart3, label: 'Mi progreso' },
   { to: '/achievements', icon: Trophy, label: 'Logros' },
+  { to: '/settings', icon: SlidersHorizontal, label: 'Ajustes' },
 ]
 
 const adminLinks = [
@@ -55,9 +57,12 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <div className="flex items-center justify-between">
               <BrandLogo variant="stacked" />
               <button
+                type="button"
                 onClick={onClose}
                 aria-label="Cerrar menú"
-                className="lg:hidden text-gray-400 hover:text-gray-600 p-1 rounded"
+                className="lg:hidden inline-flex items-center justify-center min-h-[44px] min-w-[44px]
+                           text-muted-foreground hover:text-foreground rounded-lg
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <X className="w-5 h-5" />
               </button>

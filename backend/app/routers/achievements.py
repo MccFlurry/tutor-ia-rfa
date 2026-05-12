@@ -37,6 +37,8 @@ async def list_achievements(
             description=a.description,
             badge_emoji=a.badge_emoji,
             badge_color=a.badge_color,
+            condition_type=a.condition_type,
+            condition_module_id=a.condition_module_id,
             is_earned=ua is not None,
             earned_at=ua.earned_at if ua else None,
         ))
