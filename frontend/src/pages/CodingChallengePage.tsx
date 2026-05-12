@@ -37,7 +37,7 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog'
-import AILoadingState from '@/components/common/AILoadingState'
+import Skeleton, { SkeletonLine } from '@/components/common/Skeleton'
 import ErrorState from '@/components/common/ErrorState'
 import { codingApi } from '@/api/coding'
 import { topicsApi } from '@/api/topics'
@@ -154,11 +154,15 @@ export default function CodingChallengePage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
-        <AILoadingState
-          title="Cargando desafío..."
-          subtitle="Estamos preparando tu reto de programación."
-        />
+      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 sm:p-6">
+        <div className="space-y-3">
+          <SkeletonLine width="40%" />
+          <SkeletonLine />
+          <SkeletonLine />
+          <SkeletonLine width="80%" />
+          <Skeleton variant="rect" className="h-24 w-full" />
+        </div>
+        <Skeleton variant="rect" className="h-[320px] lg:h-[480px] w-full" />
       </div>
     )
   }

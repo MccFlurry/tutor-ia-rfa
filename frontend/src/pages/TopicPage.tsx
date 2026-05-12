@@ -7,7 +7,7 @@ import { topicsApi } from '@/api/topics'
 import { codingApi } from '@/api/coding'
 import { modulesApi } from '@/api/modules'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
+import Skeleton, { SkeletonLine } from '@/components/common/Skeleton'
 import ContentRenderer from '@/components/topics/ContentRenderer'
 
 export default function TopicPage() {
@@ -87,10 +87,13 @@ export default function TopicPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 space-y-4">
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-8 w-96" />
-        <Skeleton className="h-[600px] w-full rounded-xl" />
+      <div className="max-w-4xl mx-auto space-y-4 p-4 sm:p-6">
+        <SkeletonLine width="40%" />
+        <SkeletonLine width="80%" />
+        <Skeleton variant="rect" className="h-48 w-full" />
+        <SkeletonLine />
+        <SkeletonLine />
+        <SkeletonLine width="90%" />
       </div>
     )
   }

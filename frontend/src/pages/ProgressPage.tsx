@@ -3,7 +3,7 @@ import { BarChart3, Clock, BookOpen, Trophy, Activity } from 'lucide-react'
 import { progressApi } from '@/api/progress'
 import { achievementsApi } from '@/api/achievements'
 import { Progress } from '@/components/ui/progress'
-import { Skeleton } from '@/components/ui/skeleton'
+import Skeleton from '@/components/common/Skeleton'
 import AchievementCard from '@/components/achievements/AchievementCard'
 import PageHeader from '@/components/common/PageHeader'
 import StatCard from '@/components/common/StatCard'
@@ -38,15 +38,17 @@ export default function ProgressPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6 space-y-6">
-        <Skeleton className="h-8 w-64" />
+      <div className="max-w-5xl mx-auto space-y-6 p-4 sm:p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Skeleton className="h-28 rounded-xl" />
-          <Skeleton className="h-28 rounded-xl" />
-          <Skeleton className="h-28 rounded-xl" />
-          <Skeleton className="h-28 rounded-xl" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} variant="card" className="h-24" />
+          ))}
         </div>
-        <Skeleton className="h-64 rounded-xl" />
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} variant="rect" className="h-12 w-full" />
+          ))}
+        </div>
       </div>
     )
   }

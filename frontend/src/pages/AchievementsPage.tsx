@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { achievementsApi } from '@/api/achievements'
-import { Skeleton } from '@/components/ui/skeleton'
+import { SkeletonCard } from '@/components/common/Skeleton'
 import AchievementCard from '@/components/achievements/AchievementCard'
 
 export default function AchievementsPage() {
@@ -14,13 +14,10 @@ export default function AchievementsPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6 space-y-6">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <Skeleton key={i} className="h-36 rounded-xl" />
-          ))}
-        </div>
+      <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-4 sm:p-6">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <SkeletonCard key={i} className="h-40" />
+        ))}
       </div>
     )
   }

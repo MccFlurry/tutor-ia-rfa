@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, Trophy, BookOpen, Sparkles, PlayCircle, BarChart3, GraduationCap, Flame } from 'lucide-react'
 import { dashboardApi } from '@/api/dashboard'
 import { progressApi } from '@/api/progress'
-import { Skeleton } from '@/components/ui/skeleton'
+import Skeleton, { SkeletonCard } from '@/components/common/Skeleton'
 import { Button } from '@/components/ui/button'
 import PageHeader from '@/components/common/PageHeader'
 import StatCard from '@/components/common/StatCard'
@@ -39,14 +39,18 @@ export default function DashboardPage() {
 
   if (isLoading || !data) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <Skeleton className="h-8 w-60 mb-2" />
-        <Skeleton className="h-5 w-96 mb-8" />
-        <Skeleton className="h-32 mb-8" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Skeleton className="h-28" />
-          <Skeleton className="h-28" />
-          <Skeleton className="h-28" />
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+        <Skeleton variant="card" className="h-32 w-full" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
         </div>
       </div>
     )

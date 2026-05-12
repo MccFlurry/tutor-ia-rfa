@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import EmptyState from '@/components/common/EmptyState'
+import Skeleton from '@/components/common/Skeleton'
 import ChatMessageComponent from '@/components/chat/ChatMessage'
 import TypingIndicator from '@/components/chat/TypingIndicator'
 import {
@@ -146,9 +147,9 @@ export default function ChatPage() {
 
         <div className="flex-1 overflow-y-auto">
           {loadingSessions ? (
-            <div className="px-3 py-4 space-y-2">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-12 bg-muted rounded-lg animate-pulse" />
+            <div className="space-y-2 p-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} variant="rect" className="h-12 w-full" />
               ))}
             </div>
           ) : sessions.length === 0 ? (
@@ -264,16 +265,10 @@ export default function ChatPage() {
               }
             />
           ) : loadingMessages ? (
-            <div className="space-y-3" aria-busy="true">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className={`flex gap-3 ${i % 2 === 0 ? 'flex-row-reverse' : ''}`}
-                >
-                  <div className="w-8 h-8 bg-muted rounded-full animate-pulse shrink-0" />
-                  <div className="h-16 bg-muted rounded-2xl animate-pulse w-2/3" />
-                </div>
-              ))}
+            <div className="space-y-4 p-4" aria-busy="true">
+              <Skeleton variant="rect" className="h-16 w-3/4" />
+              <Skeleton variant="rect" className="h-20 w-2/3 ml-auto" />
+              <Skeleton variant="rect" className="h-16 w-3/4" />
             </div>
           ) : messages.length === 0 ? (
             <EmptyState
