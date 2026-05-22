@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 
 from app.database import get_db
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_redis
 from app.models.user import User
 from app.models.module import Module
 from app.models.topic import Topic
@@ -19,6 +19,7 @@ from app.schemas.dashboard import (
     RecommendedModule,
     RecentAchievement,
 )
+from app.utils.cache import cached_json
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
@@ -30,13 +31,33 @@ LEVEL_REASON = {
     "advanced": "Perfecciona tus habilidades",
 }
 
+# Short TTL — balance entre frescura post-actividad y aliviar carga de la VM
+# sin GPU. El front lo invalida en cada login y tras completar un tema.
+DASHBOARD_CACHE_TTL = 60  # seconds
+
 
 @router.get("", response_model=DashboardResponse)
 async def get_dashboard(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    redis_client=Depends(get_redis),
 ):
     """Aggregate dashboard data: progress, last topic, recommendations, achievements, level."""
+    cache_key = f"dash:{current_user.id}"
+
+    async def _build() -> dict:
+        payload = await _compute_dashboard(current_user, db)
+        return payload.model_dump(mode="json")
+
+    cached = await cached_json(
+        redis_client, cache_key, ttl=DASHBOARD_CACHE_TTL, loader=_build
+    )
+    return DashboardResponse.model_validate(cached)
+
+
+async def _compute_dashboard(
+    current_user: User, db: AsyncSession
+) -> DashboardResponse:
     # 1. User level
     level_result = await db.execute(
         select(UserLevel).where(UserLevel.user_id == current_user.id)

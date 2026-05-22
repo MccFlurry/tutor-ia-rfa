@@ -479,7 +479,7 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - ✅ `.dockerignore` backend + frontend (excluye tests/notebooks/node_modules)
 - ✅ `docs/deploy-guide.md` — guía paso-a-paso prerequisitos GCP, DNS, Firebase, .env, rollback
 - ✅ `infra/vm_setup.sh` legacy eliminado (consolidado en `infra/scripts/provision-vm.sh`)
-- ⏸ Redis cache sobre endpoints frecuentes (dashboard/modules) — pendiente para post-deploy si latencia molesta
+- ✅ Redis cache sobre endpoints frecuentes — `app/utils/cache.py` (helper genérico con degraded mode si Redis cae) wired en `GET /dashboard` y `GET /modules` (TTL 60s). 7 unit tests del cache util.
 - ⏸ Carga inicial 15 lecciones — `seed_db.py` ya tiene 22 temas ✅ (cubre el requisito)
 - ⏸ **Ejecución real**: bloqueada hasta que usuario provea cuenta GCP/Firebase + dominio (ver `docs/deploy-guide.md` §0)
 
