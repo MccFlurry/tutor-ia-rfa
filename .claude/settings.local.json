@@ -90,7 +90,13 @@
       "Bash(MSYS_NO_PATHCONV=1 docker exec tutor_postgres *)",
       "Bash(MSYS_NO_PATHCONV=1 docker exec tutor_backend python -c ' *)",
       "Bash(MSYS_NO_PATHCONV=1 docker exec tutor_backend *)",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "Bash(netstat -ano)",
+      "Bash(tasklist *)",
+      "Bash(docker volume *)",
+      "Bash(curl -s -o /dev/null -w \"frontend:%{http_code}\\\\n\" http://localhost:5173)",
+      "Bash(curl -s -o /dev/null -w \"backend:%{http_code}\\\\n\" http://localhost:8000/docs)",
+      "Bash(curl -s -o /dev/null -w \"health:%{http_code}\\\\n\" http://localhost:8000/health)"
     ]
   }
 }
