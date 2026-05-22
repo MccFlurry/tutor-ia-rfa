@@ -7,7 +7,7 @@ export default function Footer() {
     >
       <p>
         © {year}{' '}
-        <span className="font-semibold text-institutional-700">
+        <span className="font-semibold text-institutional-700 dark:text-institutional-100">
           IESTP "República Federal de Alemania"
         </span>{' '}
         — Chiclayo, Perú

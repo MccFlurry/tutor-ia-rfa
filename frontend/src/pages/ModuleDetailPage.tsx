@@ -49,7 +49,7 @@ export default function ModuleDetailPage() {
     <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6">
       {/* Breadcrumb */}
       <nav className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mb-6">
-        <Link to="/modules" className="hover:text-primary-600 transition">
+        <Link to="/modules" className="hover:text-primary-600 dark:hover:text-primary-400 transition">
           Módulos
         </Link>
         <ChevronRight className="w-4 h-4 shrink-0" />
@@ -66,7 +66,7 @@ export default function ModuleDetailPage() {
             <Icon className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: module.color_hex }} />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="text-xl sm:text-2xl font-extrabold text-institutional-700 break-words">{module.title}</h1>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-institutional-700 dark:text-institutional-100 break-words">{module.title}</h1>
             <p className="text-sm text-muted-foreground break-words">{module.description}</p>
           </div>
         </div>

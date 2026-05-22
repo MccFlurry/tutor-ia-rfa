@@ -30,7 +30,7 @@ export default function AchievementsPage() {
       <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
         <div className="mb-8">
           <span className="heritage-accent-bar mb-3" aria-hidden="true" />
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700">Logros e Insignias</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 dark:text-institutional-100">Logros e Insignias</h1>
           <p className="text-muted-foreground mt-1">
             {earned} de {total} logros obtenidos
           </p>
@@ -56,7 +56,7 @@ export default function AchievementsPage() {
     <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
       <div className="mb-8">
         <span className="heritage-accent-bar mb-3" aria-hidden="true" />
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700">Logros e Insignias</h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 dark:text-institutional-100">Logros e Insignias</h1>
         <p className="text-muted-foreground mt-1">
           {earned} de {total} logros obtenidos
         </p>

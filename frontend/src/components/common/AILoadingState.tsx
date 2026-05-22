@@ -22,10 +22,10 @@ export default function AILoadingState({
       aria-live="polite"
     >
       <div
-        className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-6 animate-pulse"
+        className="w-16 h-16 bg-primary-100 dark:bg-primary/15 rounded-full flex items-center justify-center mb-6 animate-pulse"
         aria-hidden="true"
       >
-        <Sparkles className="w-8 h-8 text-primary-600" />
+        <Sparkles className="w-8 h-8 text-primary-600 dark:text-primary-300" />
       </div>
       <h2 className="text-xl font-bold text-foreground mb-2">{title}</h2>
       <p className="text-sm text-muted-foreground max-w-md">{subtitle}</p>

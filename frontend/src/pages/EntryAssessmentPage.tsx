@@ -26,8 +26,8 @@ const LEVEL_LABEL: Record<StudentLevel, string> = {
 
 const LEVEL_COLOR: Record<StudentLevel, string> = {
   beginner:     'bg-muted text-foreground border-border',
-  intermediate: 'bg-primary-50 text-primary-800 border-primary-200',
-  advanced:     'bg-heritage-50 text-heritage-700 border-heritage-200',
+  intermediate: 'bg-primary-50 text-primary-800 border-primary-200 dark:bg-primary/15 dark:text-primary-200 dark:border-primary-700',
+  advanced:     'bg-heritage-50 text-heritage-700 border-heritage-200 dark:bg-heritage-700/20 dark:text-heritage-200 dark:border-heritage-700',
 }
 
 const DIFFICULTY_LABEL: Record<string, string> = {
@@ -38,7 +38,7 @@ const DIFFICULTY_LABEL: Record<string, string> = {
 
 const DIFFICULTY_CHIP: Record<string, string> = {
   easy:   'bg-success/15 text-success',
-  medium: 'bg-warning/15 text-warning-foreground',
+  medium: 'bg-warning/15 text-warning-foreground dark:text-warning',
   hard:   'bg-destructive/15 text-destructive',
 }
 
@@ -216,14 +216,14 @@ export default function EntryAssessmentPage() {
               <span className="heritage-accent-bar mx-auto mb-4" />
               <div
                 className={cn(
-                  'w-16 h-16 mx-auto bg-institutional-50 rounded-full flex items-center justify-center mb-4',
+                  'w-16 h-16 mx-auto bg-institutional-50 dark:bg-institutional-700/30 rounded-full flex items-center justify-center mb-4',
                   generating && 'animate-pulse'
                 )}
                 aria-hidden="true"
               >
-                <Sparkles className="w-8 h-8 text-institutional-700" />
+                <Sparkles className="w-8 h-8 text-institutional-700 dark:text-institutional-100" />
               </div>
-              <h1 className="text-2xl font-extrabold text-institutional-700 mb-2">
+              <h1 className="text-2xl font-extrabold text-institutional-700 dark:text-institutional-100 mb-2">
                 Evaluación de Entrada
               </h1>
               <p className="text-muted-foreground text-sm leading-relaxed">
@@ -248,7 +248,7 @@ export default function EntryAssessmentPage() {
             {startMutation.isError && (
               <div
                 role="alert"
-                className="mt-4 p-3 rounded-lg bg-warning/10 border border-warning/30 text-warning-foreground text-sm flex gap-2"
+                className="mt-4 p-3 rounded-lg bg-warning/10 border border-warning/30 text-warning-foreground dark:text-warning text-sm flex gap-2"
               >
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
                 <span>

@@ -121,7 +121,7 @@ export default function ChatPage() {
           type="button"
           aria-label="Cerrar historial"
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 top-16 z-30 bg-foreground/40 lg:hidden"
+          className="fixed inset-0 top-16 z-30 bg-institutional-900/60 lg:hidden"
         />
       )}
       {/* Sessions sidebar — overlay drawer on mobile, in-flow on lg+ */}

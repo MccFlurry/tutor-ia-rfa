@@ -101,6 +101,9 @@ export default function QuizPage() {
     onSuccess: (data) => {
       setResult(data)
       clearQuizState(tid)
+      // Drop cached quiz so re-entering the topic forces a fresh generation
+      // (the persisted server session is now is_submitted=True).
+      queryClient.removeQueries({ queryKey: ['quiz', tid] })
       if (data.is_passed) {
         toast.success('¡Aprobaste la autoevaluación!')
       }
@@ -182,7 +185,7 @@ export default function QuizPage() {
     <div className="max-w-3xl mx-auto px-4 py-8 sm:px-6">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6 flex-wrap" aria-label="Migas de pan">
-        <Link to="/modules" className="hover:text-primary-600 transition">
+        <Link to="/modules" className="hover:text-primary-600 dark:hover:text-primary-400 transition">
           Módulos
         </Link>
         {topic && (
@@ -190,12 +193,12 @@ export default function QuizPage() {
             <ChevronRight className="w-4 h-4 shrink-0" aria-hidden="true" />
             <Link
               to={`/modules/${topic.module.id}`}
-              className="hover:text-primary-600 transition"
+              className="hover:text-primary-600 dark:hover:text-primary-400 transition"
             >
               {topic.module.title}
             </Link>
             <ChevronRight className="w-4 h-4 shrink-0" aria-hidden="true" />
-            <Link to={`/topics/${tid}`} className="hover:text-primary-600 transition">
+            <Link to={`/topics/${tid}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition">
               {topic.title}
             </Link>
           </>

@@ -84,7 +84,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
                   isActive
-                    ? 'bg-primary-50 text-primary-800 shadow-brand-sm'
+                    ? 'bg-primary-50 text-primary-800 dark:bg-primary/15 dark:text-primary-200 shadow-brand-sm'
                     : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground'
                 }`
               }
@@ -98,7 +98,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         {/* Institutional footer inside sidebar */}
         <div className="px-4 py-4 border-t border-border bg-muted/50">
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            IESTP <span className="font-semibold text-institutional-700">"República Federal de Alemania"</span>
+            IESTP <span className="font-semibold text-institutional-700 dark:text-institutional-100">"República Federal de Alemania"</span>
           </p>
           <p className="text-[11px] text-muted-foreground mt-0.5">Chiclayo · Perú</p>
         </div>

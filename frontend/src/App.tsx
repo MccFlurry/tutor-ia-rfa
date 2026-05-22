@@ -128,11 +128,16 @@ function AppRoutes() {
 function App() {
   const isDesktop = useMediaQuery('(min-width: 640px)')
   const initTheme = useThemeStore((s) => s.init)
+  const isDark = useThemeStore((s) => s.isDark)
 
   useEffect(() => {
     const cleanup = initTheme()
     return cleanup
   }, [initTheme])
+
+  const toastStyle = isDark
+    ? { background: 'hsl(222 47% 9%)', color: 'hsl(210 40% 96%)', border: '1px solid hsl(217 33% 22%)' }
+    : { background: '#ffffff', color: 'hsl(222 47% 11%)', border: '1px solid hsl(214 32% 91%)' }
 
   return (
     <ErrorBoundary>
@@ -141,6 +146,7 @@ function App() {
         <Toaster
           position={isDesktop ? 'top-right' : 'top-center'}
           toastOptions={{
+            style: toastStyle,
             success: { ariaProps: { role: 'status', 'aria-live': 'polite' } },
             error:   { ariaProps: { role: 'alert',  'aria-live': 'assertive' } },
             blank:   { ariaProps: { role: 'status', 'aria-live': 'polite' } },

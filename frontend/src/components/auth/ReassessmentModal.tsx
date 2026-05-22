@@ -74,7 +74,7 @@ export default function ReassessmentModal() {
     : `Notamos que el nivel ${LABEL[data.current_level!]} está siendo exigente. ¿Quieres bajar a ${LABEL[data.proposed_level!]} para consolidar conceptos?`
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-institutional-900/60 backdrop-blur-sm">
       <div className="bg-card rounded-2xl shadow-xl max-w-md w-full p-6 relative">
         <button
           onClick={handleDismiss}
@@ -90,7 +90,7 @@ export default function ReassessmentModal() {
           )}
         >
           <Icon
-            className={cn('w-7 h-7', isUp ? 'text-success' : 'text-warning-foreground')}
+            className={cn('w-7 h-7', isUp ? 'text-success' : 'text-warning-foreground dark:text-warning')}
           />
         </div>
 

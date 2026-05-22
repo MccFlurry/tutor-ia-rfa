@@ -32,10 +32,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
         </button>
 
         <div className="hidden lg:flex flex-col leading-tight">
-          <span className="text-xs font-semibold uppercase tracking-wider text-heritage-600">
+          <span className="text-xs font-semibold uppercase tracking-wider text-heritage-600 dark:text-heritage-400">
             IESTP RFA · Chiclayo
           </span>
-          <h1 className="text-base font-bold text-institutional-700">
+          <h1 className="text-base font-bold text-institutional-700 dark:text-institutional-100">
             Sistema de Tutoría Inteligente
           </h1>
         </div>
@@ -62,7 +62,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
         <button
           onClick={logout}
           aria-label="Cerrar sesión"
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-peru-600 transition p-2 rounded-lg min-h-[44px] min-w-[44px] justify-center"
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-peru-600 dark:hover:text-peru-400 transition p-2 rounded-lg min-h-[44px] min-w-[44px] justify-center"
           title="Cerrar sesión"
         >
           <LogOut className="w-4 h-4" />

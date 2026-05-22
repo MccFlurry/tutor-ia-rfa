@@ -23,8 +23,8 @@ export default function AdminPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6">
       <header className="mb-6">
-        <span className="chip bg-heritage-100 text-heritage-700 mb-2">Acceso admin</span>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700">
+        <span className="chip bg-heritage-100 text-heritage-700 dark:bg-heritage-700/20 dark:text-heritage-200 mb-2">Acceso admin</span>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 dark:text-institutional-100">
           Panel de Administración
         </h1>
         <p className="text-muted-foreground mt-1">
@@ -43,7 +43,7 @@ export default function AdminPage() {
               className={cn(
                 'flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition',
                 tab === t.id
-                  ? 'border-primary-500 text-primary-700'
+                  ? 'border-primary-500 text-primary-700 dark:text-primary-300'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               )}
             >

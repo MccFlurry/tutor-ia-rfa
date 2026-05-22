@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 
 const DIFF_COLOR: Record<Difficulty, string> = {
   easy: 'bg-success/10 text-success',
-  medium: 'bg-warning/10 text-warning-foreground',
+  medium: 'bg-warning/10 text-warning-foreground dark:text-warning',
   hard: 'bg-destructive/10 text-destructive',
 }
 

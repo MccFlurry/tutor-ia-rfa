@@ -20,8 +20,8 @@ const LEVEL_LABEL: Record<StudentLevel, string> = {
 
 const LEVEL_STYLE: Record<StudentLevel, string> = {
   beginner:     'bg-muted text-foreground border-border',
-  intermediate: 'bg-primary-50 text-primary-800 border-primary-200',
-  advanced:     'bg-heritage-50 text-heritage-700 border-heritage-200',
+  intermediate: 'bg-primary-50 text-primary-800 border-primary-200 dark:bg-primary/15 dark:text-primary-200 dark:border-primary-700',
+  advanced:     'bg-heritage-50 text-heritage-700 border-heritage-200 dark:bg-heritage-700/20 dark:text-heritage-200 dark:border-heritage-700',
 }
 
 export default function DashboardPage() {
@@ -126,7 +126,7 @@ export default function DashboardPage() {
             <Button
               variant="secondary"
               size="lg"
-              className="bg-white text-institutional-700 hover:bg-heritage-50 shadow-brand-md w-full sm:w-auto"
+              className="bg-white text-institutional-700 hover:bg-heritage-50 dark:bg-white dark:text-institutional-700 dark:hover:bg-heritage-50 shadow-brand-md w-full sm:w-auto"
               onClick={() => navigate(`/topics/${data.last_accessed_topic!.topic_id}`)}
             >
               Retomar
@@ -251,7 +251,7 @@ export default function DashboardPage() {
               id="recent-achievements-heading"
               className="font-semibold text-foreground flex items-center gap-2"
             >
-              <Trophy className="w-4 h-4 text-heritage-600" aria-hidden="true" />
+              <Trophy className="w-4 h-4 text-heritage-600 dark:text-heritage-400" aria-hidden="true" />
               Logros recientes
             </h2>
             <Button variant="ghost" size="sm" onClick={() => navigate('/achievements')}>

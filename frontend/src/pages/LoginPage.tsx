@@ -190,10 +190,10 @@ export default function LoginPage() {
 
           <div className="bg-card rounded-2xl shadow-brand-lg border border-border p-5 sm:p-8 animate-fade-in-up">
             <header className="mb-6">
-              <span className="chip bg-heritage-100 text-heritage-700 mb-3">
+              <span className="chip bg-heritage-100 text-heritage-700 dark:bg-heritage-700/20 dark:text-heritage-200 mb-3">
                 {isRegister ? 'Nuevo estudiante' : 'Portal del estudiante'}
               </span>
-              <h1 className="text-2xl font-extrabold text-institutional-700">
+              <h1 className="text-2xl font-extrabold text-institutional-700 dark:text-institutional-100">
                 {isRegister ? 'Crea tu cuenta' : 'Inicia sesión'}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
@@ -207,11 +207,11 @@ export default function LoginPage() {
               <div
                 role="alert"
                 aria-live="polite"
-                className="mb-4 p-3 bg-peru-50 border border-peru-500/30 rounded-lg text-sm text-peru-700"
+                className="mb-4 p-3 bg-peru-50 dark:bg-peru-700/20 border border-peru-500/30 rounded-lg text-sm text-peru-700 dark:text-peru-300"
               >
                 {errorMessage}
                 {failedAttempts > 0 && failedAttempts < MAX_ATTEMPTS && !isRegister && (
-                  <span className="block text-xs text-peru-600 mt-1">
+                  <span className="block text-xs text-peru-600 dark:text-peru-400 mt-1">
                     Intentos restantes: {MAX_ATTEMPTS - failedAttempts}
                   </span>
                 )}
@@ -222,13 +222,13 @@ export default function LoginPage() {
               <div
                 role="alert"
                 aria-live="assertive"
-                className="mb-4 p-4 bg-peru-50 border border-peru-500/30 rounded-lg text-center"
+                className="mb-4 p-4 bg-peru-50 dark:bg-peru-700/20 border border-peru-500/30 rounded-lg text-center"
               >
-                <Lock className="w-5 h-5 text-peru-600 mx-auto mb-2" aria-hidden="true" />
-                <p className="text-sm font-semibold text-peru-700">
+                <Lock className="w-5 h-5 text-peru-600 dark:text-peru-400 mx-auto mb-2" aria-hidden="true" />
+                <p className="text-sm font-semibold text-peru-700 dark:text-peru-300">
                   Demasiados intentos fallidos
                 </p>
-                <p className="text-xs text-peru-600 mt-1">
+                <p className="text-xs text-peru-600 dark:text-peru-400 mt-1">
                   Inténtalo nuevamente en{' '}
                   <span className="font-mono">{formatTime(remainingSeconds)}</span>
                 </p>
@@ -339,7 +339,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading || isLocked}
-                className="w-full h-11 bg-institutional-700 hover:bg-institutional-500 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-brand-md
+                className="w-full h-11 bg-institutional-700 hover:bg-institutional-500 dark:bg-primary dark:hover:bg-primary/90 text-white dark:text-primary-foreground font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-brand-md
                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 {isLocked
@@ -356,7 +356,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={handleToggleMode}
-                className="text-sm text-primary-700 hover:text-primary-800 font-semibold underline-offset-4 hover:underline
+                className="text-sm text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200 font-semibold underline-offset-4 hover:underline
                            inline-flex items-center justify-center min-h-[44px] px-3
                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
               >

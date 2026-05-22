@@ -24,7 +24,7 @@ export default function PageHeader({
         ) : (
           <span className="heritage-accent-bar mb-3" aria-hidden="true" />
         )}
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 mb-1">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 dark:text-institutional-100 mb-1">
           {title}
         </h1>
         {subtitle && (

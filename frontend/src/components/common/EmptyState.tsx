@@ -48,7 +48,7 @@ export default function EmptyState({
       )}
       {showIcon && Icon && (
         <div
-          className="w-14 h-14 bg-primary-50 rounded-full flex items-center justify-center mb-4"
+          className="w-14 h-14 bg-primary-50 dark:bg-primary/15 rounded-full flex items-center justify-center mb-4"
           aria-hidden="true"
         >
           <Icon className="w-7 h-7 text-primary-500" />

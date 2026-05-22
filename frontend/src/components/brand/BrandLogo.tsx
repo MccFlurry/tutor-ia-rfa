@@ -29,7 +29,7 @@ export default function BrandLogo({
   subtitle,
   size = 40,
 }: BrandLogoProps) {
-  const textColor = onDark ? 'text-white' : 'text-institutional-700'
+  const textColor = onDark ? 'text-white' : 'text-institutional-700 dark:text-institutional-100'
   const subColor = onDark ? 'text-primary-200' : 'text-muted-foreground'
 
   return (

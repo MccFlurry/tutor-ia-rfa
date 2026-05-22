@@ -35,7 +35,7 @@ const OptionRadio = React.forwardRef<HTMLButtonElement, OptionRadioProps>(
           'data-[state=checked]:border-primary data-[state=checked]:bg-primary-50',
           'data-[state=checked]:text-primary-800',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          'dark:data-[state=checked]:bg-primary/10',
+          'dark:data-[state=checked]:bg-primary/10 dark:data-[state=checked]:text-primary-200',
           className
         )}
       >

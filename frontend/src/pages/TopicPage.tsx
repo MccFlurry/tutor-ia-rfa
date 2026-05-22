@@ -118,13 +118,13 @@ export default function TopicPage() {
     <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 pb-24 sm:pb-8">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6 flex-wrap">
-        <Link to="/modules" className="hover:text-primary-600 transition">
+        <Link to="/modules" className="hover:text-primary-600 dark:hover:text-primary-400 transition">
           Módulos
         </Link>
         <ChevronRight className="w-4 h-4 shrink-0" />
         <Link
           to={`/modules/${topic.module.id}`}
-          className="hover:text-primary-600 transition"
+          className="hover:text-primary-600 dark:hover:text-primary-400 transition"
         >
           {topic.module.title}
         </Link>
@@ -134,7 +134,7 @@ export default function TopicPage() {
 
       {/* Topic header */}
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 mb-2 break-words">{topic.title}</h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 dark:text-institutional-100 mb-2 break-words">{topic.title}</h1>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
           <span>{topic.estimated_minutes} min de lectura</span>
           {topic.has_quiz && (
@@ -154,7 +154,7 @@ export default function TopicPage() {
 
       {/* Video embed */}
       {topic.video_url && (
-        <div className="mb-8 aspect-video rounded-xl overflow-hidden bg-foreground/90">
+        <div className="mb-8 aspect-video rounded-xl overflow-hidden bg-foreground/90 dark:bg-card">
           <iframe
             src={topic.video_url}
             title={topic.title}
@@ -197,7 +197,7 @@ export default function TopicPage() {
             onClick={() => startCodingMutation.mutate()}
             disabled={startCodingMutation.isPending}
             variant="outline"
-            className="border-heritage-300 text-heritage-700 hover:bg-heritage-50 w-full sm:w-auto min-h-[44px]"
+            className="border-heritage-300 text-heritage-700 hover:bg-heritage-50 dark:border-heritage-700 dark:text-heritage-200 dark:hover:bg-heritage-700/20 w-full sm:w-auto min-h-[44px]"
           >
             {startCodingMutation.isPending ? (
               <>

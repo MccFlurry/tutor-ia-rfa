@@ -28,7 +28,7 @@ export default function Avatar({ fullName, src, size = 'md', className }: Avatar
       aria-hidden="true"
       className={cn(
         'inline-flex items-center justify-center rounded-full shrink-0 overflow-hidden',
-        'bg-institutional-700 text-white font-bold shadow-brand-sm',
+        'bg-institutional-700 dark:bg-institutional-500 text-white font-bold shadow-brand-sm',
         SIZE_CLASS[size],
         className
       )}

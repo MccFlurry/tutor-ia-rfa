@@ -378,7 +378,7 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
                     className={cn(
                       'px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase',
                       c.difficulty === 'easy' && 'bg-success/10 text-success',
-                      c.difficulty === 'medium' && 'bg-warning/10 text-warning-foreground',
+                      c.difficulty === 'medium' && 'bg-warning/10 text-warning-foreground dark:text-warning',
                       c.difficulty === 'hard' && 'bg-destructive/10 text-destructive'
                     )}
                   >
@@ -397,9 +397,9 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
         )}
 
         {genPreview && (
-          <div className="mt-3 bg-card border-2 border-dashed border-primary-300 rounded-lg p-4">
+          <div className="mt-3 bg-card border-2 border-dashed border-primary-300 dark:border-primary-700 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-primary-700 uppercase">
+              <span className="text-xs font-bold text-primary-700 dark:text-primary-300 uppercase">
                 Vista previa IA (no guardada)
               </span>
               <Button size="sm" variant="ghost" onClick={() => setGenPreview(null)}>

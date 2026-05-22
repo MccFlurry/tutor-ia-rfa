@@ -17,7 +17,7 @@ interface StatCardProps {
 const ACCENT_ICON_BG: Record<Accent, string> = {
   primary:   'bg-primary/10 text-primary',
   success:   'bg-success/10 text-success',
-  warning:   'bg-warning/15 text-warning-foreground',
+  warning:   'bg-warning/15 text-warning-foreground dark:text-warning',
   heritage:  'bg-heritage-100 text-heritage-700 dark:bg-heritage-700/20 dark:text-heritage-400',
   info:      'bg-info/10 text-info',
   neutral:   'bg-muted text-muted-foreground',

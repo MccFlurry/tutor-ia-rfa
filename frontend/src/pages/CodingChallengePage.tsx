@@ -47,7 +47,7 @@ import type { CodingEvaluation } from '@/types/coding'
 
 const difficultyConfig = {
   easy:   { label: 'Fácil',      color: 'bg-success/15 text-success' },
-  medium: { label: 'Intermedio', color: 'bg-warning/15 text-warning-foreground' },
+  medium: { label: 'Intermedio', color: 'bg-warning/15 text-warning-foreground dark:text-warning' },
   hard:   { label: 'Difícil',    color: 'bg-destructive/15 text-destructive' },
 }
 
@@ -195,15 +195,15 @@ export default function CodingChallengePage() {
     <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6 flex-wrap" aria-label="Migas de pan">
-        <Link to="/modules" className="hover:text-primary-600 transition">Módulos</Link>
+        <Link to="/modules" className="hover:text-primary-600 dark:hover:text-primary-400 transition">Módulos</Link>
         {topic?.module && (
           <>
             <ChevronRight className="w-4 h-4 shrink-0" aria-hidden="true" />
-            <Link to={`/modules/${topic.module.id}`} className="hover:text-primary-600 transition">
+            <Link to={`/modules/${topic.module.id}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition">
               {topic.module.title}
             </Link>
             <ChevronRight className="w-4 h-4 shrink-0" aria-hidden="true" />
-            <Link to={`/topics/${topic.id}`} className="hover:text-primary-600 transition">
+            <Link to={`/topics/${topic.id}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition">
               {topic.title}
             </Link>
           </>
@@ -216,25 +216,25 @@ export default function CodingChallengePage() {
       <div className="mb-6 flex items-start justify-between flex-wrap gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-3 mb-2 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700">{challenge.title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 dark:text-institutional-100">{challenge.title}</h1>
             {diff && (
               <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${diff.color}`}>
                 {diff.label}
               </span>
             )}
             {challenge.is_ai_generated && (
-              <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-heritage-100 text-heritage-700">
+              <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-heritage-100 text-heritage-700 dark:bg-heritage-700/20 dark:text-heritage-200">
                 <Sparkles className="w-3 h-3" aria-hidden="true" />
                 Generado con IA
                 {challenge.student_level && (
-                  <span className="ml-1 text-heritage-600">· nivel {challenge.student_level}</span>
+                  <span className="ml-1 text-heritage-600 dark:text-heritage-400">· nivel {challenge.student_level}</span>
                 )}
               </span>
             )}
           </div>
           {bestSubmission && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Trophy className="w-4 h-4 text-heritage-600" aria-hidden="true" />
+              <Trophy className="w-4 h-4 text-heritage-600 dark:text-heritage-400" aria-hidden="true" />
               <span className="tabular-nums">Mejor puntuación: {bestSubmission.score}/100</span>
             </div>
           )}
@@ -270,7 +270,7 @@ export default function CodingChallengePage() {
               <Code2 className="w-4 h-4 text-primary-500" aria-hidden="true" />
               Descripción del Problema
             </h2>
-            <div className="prose prose-sm prose-gray max-w-none prose-code:text-primary-700 prose-code:bg-primary-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:before:content-none prose-code:after:content-none">
+            <div className="prose prose-sm prose-gray dark:prose-invert max-w-none prose-code:text-primary-700 dark:prose-code:text-primary-300 prose-code:bg-primary-50 dark:prose-code:bg-primary/15 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:before:content-none prose-code:after:content-none">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -293,7 +293,7 @@ export default function CodingChallengePage() {
               <button
                 onClick={() => setShowHints(!showHints)}
                 aria-expanded={showHints}
-                className="flex items-center gap-2 text-sm font-medium text-warning-foreground w-full min-h-[44px]
+                className="flex items-center gap-2 text-sm font-medium text-warning-foreground dark:text-warning w-full min-h-[44px]
                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
               >
                 <Lightbulb className="w-4 h-4" aria-hidden="true" />
@@ -323,7 +323,7 @@ export default function CodingChallengePage() {
                 </div>
               </div>
 
-              <div className="prose prose-sm prose-gray max-w-none prose-code:text-primary-700 prose-code:bg-primary-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:before:content-none prose-code:after:content-none">
+              <div className="prose prose-sm prose-gray dark:prose-invert max-w-none prose-code:text-primary-700 dark:prose-code:text-primary-300 prose-code:bg-primary-50 dark:prose-code:bg-primary/15 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:before:content-none prose-code:after:content-none">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
@@ -356,7 +356,7 @@ export default function CodingChallengePage() {
 
               {result.improvements && result.improvements.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-semibold text-warning-foreground mb-2 flex items-center gap-1">
+                  <h3 className="text-xs font-semibold text-warning-foreground dark:text-warning mb-2 flex items-center gap-1">
                     <ArrowUp className="w-3.5 h-3.5" aria-hidden="true" /> Áreas de mejora
                   </h3>
                   <ul className="space-y-1">
@@ -374,8 +374,8 @@ export default function CodingChallengePage() {
 
         {/* Right column: Code editor */}
         <div className="space-y-4">
-          <div className="bg-[#1e1e1e] dark:bg-card rounded-xl overflow-hidden border border-border">
-            <div className="flex items-center justify-between px-4 py-2 bg-[#252525] dark:bg-muted border-b border-border">
+          <div className="bg-card rounded-xl overflow-hidden border border-border">
+            <div className="flex items-center justify-between px-4 py-2 bg-muted border-b border-border">
               <span className="text-xs text-muted-foreground font-mono">{challenge.language}</span>
               <span className="hidden sm:inline text-[10px] text-muted-foreground/70 font-mono tabular-nums">
                 Ctrl+Enter para enviar
