@@ -147,7 +147,7 @@ export default function LoginPage() {
         <div className="absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-heritage-500/10 blur-3xl" />
 
         <div className="relative">
-          <BrandLogo variant="stacked" onDark />
+          <BrandLogo variant="stacked" onDark size={64} />
         </div>
 
         <div className="relative">
@@ -185,7 +185,7 @@ export default function LoginPage() {
       <main className="flex items-center justify-center px-4 py-6 sm:p-10 bg-gradient-to-br from-muted to-background">
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-6 flex justify-center">
-            <BrandLogo variant="stacked" />
+            <BrandLogo variant="stacked" size={56} />
           </div>
 
           <div className="bg-card rounded-2xl shadow-brand-lg border border-border p-5 sm:p-8 animate-fade-in-up">

@@ -209,7 +209,7 @@ export default function EntryAssessmentPage() {
       <div className="min-h-dvh bg-gradient-to-br from-institutional-50 via-background to-heritage-50 py-10 px-4 flex items-center">
         <div className="max-w-2xl mx-auto w-full">
           <div className="flex justify-center mb-6">
-            <BrandLogo variant="stacked" />
+            <BrandLogo variant="stacked" size={64} />
           </div>
           <div className="bg-card rounded-2xl shadow-brand-lg border border-border p-5 sm:p-8 animate-fade-in-up">
             <div className="text-center mb-6">
