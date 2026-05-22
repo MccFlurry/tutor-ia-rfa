@@ -22,7 +22,7 @@ const Editor = lazy(() => import('@monaco-editor/react'))
 
 function EditorFallback() {
   return (
-    <div className="h-[480px] bg-gray-900 flex items-center justify-center text-sm text-gray-400">
+    <div className="h-[320px] lg:h-[480px] bg-foreground/90 dark:bg-card flex items-center justify-center text-sm text-muted-foreground">
       Cargando editor de código...
     </div>
   )
@@ -37,10 +37,12 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog'
-import AILoadingState from '@/components/common/AILoadingState'
+import Skeleton, { SkeletonLine } from '@/components/common/Skeleton'
 import ErrorState from '@/components/common/ErrorState'
 import { codingApi } from '@/api/coding'
 import { topicsApi } from '@/api/topics'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useThemeStore } from '@/store/themeStore'
 import type { CodingEvaluation } from '@/types/coding'
 
 const difficultyConfig = {
@@ -58,6 +60,9 @@ export default function CodingChallengePage() {
   const [showHints, setShowHints] = useState(false)
   const [result, setResult] = useState<CodingEvaluation | null>(null)
   const [regenerateDialogOpen, setRegenerateDialogOpen] = useState(false)
+  const isLgUp = useMediaQuery('(min-width: 1024px)')
+  const editorHeight = isLgUp ? '480px' : '320px'
+  const isDark = useThemeStore((s) => s.isDark)
 
   const { data: challenge, isLoading, isError } = useQuery({
     queryKey: ['coding-challenge', cid],
@@ -151,11 +156,15 @@ export default function CodingChallengePage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
-        <AILoadingState
-          title="Cargando desafío..."
-          subtitle="Estamos preparando tu reto de programación."
-        />
+      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 sm:p-6">
+        <div className="space-y-3">
+          <SkeletonLine width="40%" />
+          <SkeletonLine />
+          <SkeletonLine />
+          <SkeletonLine width="80%" />
+          <Skeleton variant="rect" className="h-24 w-full" />
+        </div>
+        <Skeleton variant="rect" className="h-[320px] lg:h-[480px] w-full" />
       </div>
     )
   }
@@ -229,9 +238,9 @@ export default function CodingChallengePage() {
         {challenge.is_ai_generated && (
           <Button
             variant="outline"
-            size="sm"
             onClick={() => setRegenerateDialogOpen(true)}
             disabled={regenerateMutation.isPending}
+            className="w-full sm:w-auto min-h-[44px]"
           >
             {regenerateMutation.isPending ? (
               <>
@@ -279,7 +288,7 @@ export default function CodingChallengePage() {
               <button
                 onClick={() => setShowHints(!showHints)}
                 aria-expanded={showHints}
-                className="flex items-center gap-2 text-sm font-medium text-warning-foreground w-full
+                className="flex items-center gap-2 text-sm font-medium text-warning-foreground w-full min-h-[44px]
                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
               >
                 <Lightbulb className="w-4 h-4" aria-hidden="true" />
@@ -360,18 +369,18 @@ export default function CodingChallengePage() {
 
         {/* Right column: Code editor */}
         <div className="space-y-4">
-          <div className="bg-gray-900 rounded-xl overflow-hidden border border-gray-700">
-            <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
-              <span className="text-xs text-gray-400 font-mono">{challenge.language}</span>
+          <div className="bg-[#1e1e1e] dark:bg-card rounded-xl overflow-hidden border border-border">
+            <div className="flex items-center justify-between px-4 py-2 bg-[#252525] dark:bg-muted border-b border-border">
+              <span className="text-xs text-muted-foreground font-mono">{challenge.language}</span>
             </div>
             <Suspense fallback={<EditorFallback />}>
               <Editor
                 value={code}
                 onChange={(value) => setCode(value ?? '')}
                 language={challenge.language?.toLowerCase() === 'kotlin' ? 'kotlin' : 'plaintext'}
-                theme="vs-dark"
-                height="480px"
-                loading={<div className="p-4 text-sm text-gray-500">Cargando editor...</div>}
+                theme={isDark ? 'vs-dark' : 'light'}
+                height={editorHeight}
+                loading={<div className="p-4 text-sm text-muted-foreground">Cargando editor...</div>}
                 options={{
                   fontFamily: 'JetBrains Mono, monospace',
                   fontSize: 14,
@@ -392,14 +401,14 @@ export default function CodingChallengePage() {
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {result ? (
               <>
-                <Button onClick={handleRetry} variant="outline" className="flex-1 gap-2">
+                <Button onClick={handleRetry} variant="outline" className="flex-1 gap-2 min-h-[44px]">
                   <RotateCcw className="w-4 h-4" />
                   Intentar de nuevo
                 </Button>
-                <Button onClick={handleSubmit} disabled={submitMutation.isPending} className="flex-1 gap-2">
+                <Button onClick={handleSubmit} disabled={submitMutation.isPending} className="flex-1 gap-2 min-h-[44px]">
                   <Play className="w-4 h-4" />
                   Reenviar código
                 </Button>
@@ -408,7 +417,7 @@ export default function CodingChallengePage() {
               <Button
                 onClick={handleSubmit}
                 disabled={submitMutation.isPending || !code.trim()}
-                className="w-full gap-2"
+                className="w-full gap-2 min-h-[44px]"
               >
                 {submitMutation.isPending ? (
                   <>

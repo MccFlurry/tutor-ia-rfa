@@ -3,23 +3,42 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 from app.database import get_db
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_redis
 from app.models.user import User
 from app.models.module import Module
 from app.models.topic import Topic
 from app.models.progress import UserTopicProgress
 from app.models.coding import CodingChallenge
 from app.schemas.module import ModuleResponse, ModuleDetailResponse, TopicBrief
+from app.utils.cache import cached_json
 
 router = APIRouter(prefix="/modules", tags=["modules"])
+
+MODULES_LIST_CACHE_TTL = 60  # seconds — short TTL para mantener frescura
 
 
 @router.get("", response_model=list[ModuleResponse])
 async def list_modules(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    redis_client=Depends(get_redis),
 ):
     """List all active modules with progress for the current user."""
+    cache_key = f"modules:list:{current_user.id}"
+
+    async def _build() -> list[dict]:
+        items = await _compute_modules_list(current_user, db)
+        return [m.model_dump(mode="json") for m in items]
+
+    cached = await cached_json(
+        redis_client, cache_key, ttl=MODULES_LIST_CACHE_TTL, loader=_build
+    )
+    return [ModuleResponse.model_validate(m) for m in cached]
+
+
+async def _compute_modules_list(
+    current_user: User, db: AsyncSession
+) -> list[ModuleResponse]:
     # Get all active modules ordered
     result = await db.execute(
         select(Module).where(Module.is_active == True).order_by(Module.order_index)

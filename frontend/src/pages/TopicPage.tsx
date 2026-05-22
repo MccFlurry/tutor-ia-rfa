@@ -7,7 +7,7 @@ import { topicsApi } from '@/api/topics'
 import { codingApi } from '@/api/coding'
 import { modulesApi } from '@/api/modules'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
+import Skeleton, { SkeletonLine } from '@/components/common/Skeleton'
 import ContentRenderer from '@/components/topics/ContentRenderer'
 
 export default function TopicPage() {
@@ -87,10 +87,13 @@ export default function TopicPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 space-y-4">
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-8 w-96" />
-        <Skeleton className="h-[600px] w-full rounded-xl" />
+      <div className="max-w-4xl mx-auto space-y-4 p-4 sm:p-6">
+        <SkeletonLine width="40%" />
+        <SkeletonLine width="80%" />
+        <Skeleton variant="rect" className="h-48 w-full" />
+        <SkeletonLine />
+        <SkeletonLine />
+        <SkeletonLine width="90%" />
       </div>
     )
   }
@@ -98,7 +101,7 @@ export default function TopicPage() {
   if (!topic) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8 text-center">
-        <p className="text-gray-500">Tema no encontrado.</p>
+        <p className="text-muted-foreground">Tema no encontrado.</p>
       </div>
     )
   }
@@ -112,9 +115,9 @@ export default function TopicPage() {
   const isCompleted = topic.progress_info?.is_completed ?? false
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6">
+    <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 pb-24 sm:pb-8">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6 flex-wrap">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6 flex-wrap">
         <Link to="/modules" className="hover:text-primary-600 transition">
           Módulos
         </Link>
@@ -126,13 +129,13 @@ export default function TopicPage() {
           {topic.module.title}
         </Link>
         <ChevronRight className="w-4 h-4 shrink-0" />
-        <span className="text-gray-900 font-medium">{topic.title}</span>
+        <span className="text-foreground font-medium">{topic.title}</span>
       </nav>
 
       {/* Topic header */}
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 mb-2">{topic.title}</h1>
-        <div className="flex items-center gap-4 text-sm text-gray-500">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 mb-2 break-words">{topic.title}</h1>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
           <span>{topic.estimated_minutes} min de lectura</span>
           {topic.has_quiz && (
             <span className="flex items-center gap-1">
@@ -141,7 +144,7 @@ export default function TopicPage() {
             </span>
           )}
           {isCompleted && (
-            <span className="flex items-center gap-1 text-green-600">
+            <span className="flex items-center gap-1 text-success">
               <CheckCircle2 className="w-4 h-4" />
               Completado
             </span>
@@ -151,7 +154,7 @@ export default function TopicPage() {
 
       {/* Video embed */}
       {topic.video_url && (
-        <div className="mb-8 aspect-video rounded-xl overflow-hidden bg-gray-900">
+        <div className="mb-8 aspect-video rounded-xl overflow-hidden bg-foreground/90">
           <iframe
             src={topic.video_url}
             title={topic.title}
@@ -163,7 +166,7 @@ export default function TopicPage() {
       )}
 
       {/* Content */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 mb-8">
+      <div className="bg-card rounded-xl border border-border p-4 sm:p-8 mb-8">
         <ContentRenderer content={topic.content_markdown} />
       </div>
 
@@ -173,7 +176,7 @@ export default function TopicPage() {
           <Button
             onClick={() => completeMutation.mutate()}
             disabled={completeMutation.isPending}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-success hover:bg-success/90 text-success-foreground w-full sm:w-auto min-h-[44px]"
           >
             <CheckCircle2 className="w-4 h-4 mr-2" />
             {completeMutation.isPending ? 'Marcando...' : 'Marcar como completado'}
@@ -183,6 +186,7 @@ export default function TopicPage() {
           <Button
             onClick={() => navigate(`/quiz/${topic.id}`)}
             variant="outline"
+            className="w-full sm:w-auto min-h-[44px]"
           >
             <FileQuestion className="w-4 h-4 mr-2" />
             Ir a la Autoevaluación
@@ -193,7 +197,7 @@ export default function TopicPage() {
             onClick={() => startCodingMutation.mutate()}
             disabled={startCodingMutation.isPending}
             variant="outline"
-            className="border-heritage-300 text-heritage-700 hover:bg-heritage-50"
+            className="border-heritage-300 text-heritage-700 hover:bg-heritage-50 w-full sm:w-auto min-h-[44px]"
           >
             {startCodingMutation.isPending ? (
               <>
@@ -210,22 +214,22 @@ export default function TopicPage() {
         )}
       </div>
 
-      {/* Prev / Next navigation */}
-      <div className="flex items-center justify-between border-t border-gray-200 pt-6">
+      {/* Prev / Next navigation — sticky on mobile so it stays reachable */}
+      <div className="sticky bottom-0 sm:static -mx-4 sm:mx-0 px-4 sm:px-0 py-3 sm:py-0 bg-background/95 sm:bg-transparent backdrop-blur sm:backdrop-blur-0 border-t border-border sm:pt-6 flex items-center justify-between gap-2">
         {prevTopic ? (
           <Button
             variant="ghost"
             onClick={() => navigate(`/topics/${prevTopic.id}`)}
-            className="text-gray-600"
+            className="text-muted-foreground min-h-[44px] max-w-[45%] sm:max-w-none"
           >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            {prevTopic.title}
+            <ChevronLeft className="w-4 h-4 mr-1 shrink-0" />
+            <span className="truncate">{prevTopic.title}</span>
           </Button>
         ) : (
           <div />
         )}
 
-        <span className="text-xs text-gray-400 hidden sm:block">
+        <span className="text-xs text-muted-foreground hidden sm:block">
           {currentIdx + 1} de {siblings.length}
         </span>
 
@@ -233,10 +237,10 @@ export default function TopicPage() {
           <Button
             variant="ghost"
             onClick={() => navigate(`/topics/${nextTopic.id}`)}
-            className="text-gray-600"
+            className="text-muted-foreground min-h-[44px] max-w-[45%] sm:max-w-none"
           >
-            {nextTopic.title}
-            <ArrowRight className="w-4 h-4 ml-1" />
+            <span className="truncate">{nextTopic.title}</span>
+            <ArrowRight className="w-4 h-4 ml-1 shrink-0" />
           </Button>
         ) : (
           <div />

@@ -1,12 +1,13 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, Trophy, BookOpen, Sparkles, PlayCircle, BarChart3, GraduationCap, Flame } from 'lucide-react'
 import { dashboardApi } from '@/api/dashboard'
 import { progressApi } from '@/api/progress'
-import { Skeleton } from '@/components/ui/skeleton'
+import Skeleton, { SkeletonCard } from '@/components/common/Skeleton'
 import { Button } from '@/components/ui/button'
 import PageHeader from '@/components/common/PageHeader'
 import StatCard from '@/components/common/StatCard'
+import EmptyState from '@/components/common/EmptyState'
 import { getAchievementIcon } from '@/lib/achievementIcon'
 import { cn } from '@/lib/utils'
 import type { StudentLevel } from '@/types/assessment'
@@ -39,14 +40,18 @@ export default function DashboardPage() {
 
   if (isLoading || !data) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <Skeleton className="h-8 w-60 mb-2" />
-        <Skeleton className="h-5 w-96 mb-8" />
-        <Skeleton className="h-32 mb-8" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Skeleton className="h-28" />
-          <Skeleton className="h-28" />
-          <Skeleton className="h-28" />
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+        <Skeleton variant="card" className="h-32 w-full" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
         </div>
       </div>
     )
@@ -54,6 +59,28 @@ export default function DashboardPage() {
 
   const firstName = data.user_name.split(' ')[0]
   const pct = Math.round(data.overall_progress_pct)
+
+  // Empty state: brand-new user with no activity yet
+  if (data.total_topics_completed === 0 && !data.last_accessed_topic) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-8 sm:px-6">
+        <PageHeader title={`¡Hola, ${firstName}!`} />
+        <EmptyState
+          icon={Sparkles}
+          title="¡Comencemos tu aprendizaje!"
+          description="Aún no has iniciado ningún módulo. Cuando comiences, verás aquí tu progreso, logros y recomendaciones."
+          action={
+            <Link
+              to="/modules"
+              className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+            >
+              Comenzar primer módulo
+            </Link>
+          }
+        />
+      </div>
+    )
+  }
 
   const levelChip = data.user_level && (
     <span
@@ -83,23 +110,23 @@ export default function DashboardPage() {
         >
           <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-heritage-500/15 blur-3xl" aria-hidden="true" />
           <div className="absolute bottom-0 left-0 h-1 w-full bg-heritage-accent" aria-hidden="true" />
-          <div className="relative flex items-center justify-between flex-wrap gap-4">
+          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="text-xs text-primary-200 mb-1 flex items-center gap-1 uppercase tracking-wider font-semibold">
                 <PlayCircle className="w-4 h-4" aria-hidden="true" />
                 Continuar donde lo dejaste
               </p>
-              <h2 id="hero-resume" className="font-extrabold text-lg sm:text-xl truncate">
+              <h2 id="hero-resume" className="font-extrabold text-lg sm:text-xl break-words sm:truncate">
                 {data.last_accessed_topic.topic_title}
               </h2>
-              <p className="text-sm text-primary-100 mt-1">
+              <p className="text-sm text-primary-100 mt-1 break-words">
                 {data.last_accessed_topic.module_title}
               </p>
             </div>
             <Button
               variant="secondary"
               size="lg"
-              className="bg-white text-institutional-700 hover:bg-heritage-50 shadow-brand-md"
+              className="bg-white text-institutional-700 hover:bg-heritage-50 shadow-brand-md w-full sm:w-auto"
               onClick={() => navigate(`/topics/${data.last_accessed_topic!.topic_id}`)}
             >
               Retomar
@@ -175,7 +202,7 @@ export default function DashboardPage() {
               <BookOpen className="w-4 h-4 mr-1" /> Ver todos
             </Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.recommended_modules.map((m) => (
               <button
                 key={m.id}

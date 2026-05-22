@@ -28,7 +28,7 @@ const OptionRadio = React.forwardRef<HTMLButtonElement, OptionRadioProps>(
         disabled={disabled}
         aria-labelledby={labelId}
         className={cn(
-          'group w-full text-left px-4 py-3 rounded-lg border-2 transition-colors text-sm',
+          'group w-full text-left px-4 py-3 min-h-[44px] rounded-lg border-2 transition-colors text-sm leading-relaxed',
           'border-border bg-card text-card-foreground',
           'hover:border-border-strong',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',

@@ -4,12 +4,13 @@ import { Upload, RefreshCw, Trash2, FileText, CheckCircle2, AlertCircle, Loader2
 import toast from 'react-hot-toast'
 import { adminApi, type DocumentAdmin } from '@/api/admin'
 import { Button } from '@/components/ui/button'
+import EmptyState from '@/components/common/EmptyState'
 
 const STATUS_STYLE: Record<DocumentAdmin['status'], { label: string; cls: string; icon: React.ComponentType<{ className?: string }> }> = {
-  pending: { label: 'Pendiente', cls: 'bg-gray-100 text-gray-700', icon: Loader2 },
-  processing: { label: 'Procesando', cls: 'bg-blue-100 text-blue-700', icon: Loader2 },
-  active: { label: 'Activo', cls: 'bg-green-100 text-green-700', icon: CheckCircle2 },
-  error: { label: 'Error', cls: 'bg-red-100 text-red-700', icon: AlertCircle },
+  pending: { label: 'Pendiente', cls: 'bg-muted text-muted-foreground', icon: Loader2 },
+  processing: { label: 'Procesando', cls: 'bg-info/10 text-info', icon: Loader2 },
+  active: { label: 'Activo', cls: 'bg-success/10 text-success', icon: CheckCircle2 },
+  error: { label: 'Error', cls: 'bg-destructive/10 text-destructive', icon: AlertCircle },
 }
 
 export default function CorpusTab() {
@@ -60,8 +61,8 @@ export default function CorpusTab() {
     <div>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <div>
-          <h3 className="font-semibold text-gray-900">Documentos del corpus</h3>
-          <p className="text-sm text-gray-500">PDF, DOCX, TXT, MD — máx 50 MB cada uno</p>
+          <h3 className="font-semibold text-foreground">Documentos del corpus</h3>
+          <p className="text-sm text-muted-foreground">PDF, DOCX, TXT, MD — máx 50 MB cada uno</p>
         </div>
         <div>
           <input
@@ -78,16 +79,27 @@ export default function CorpusTab() {
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-500">Cargando...</div>
+          <div className="p-8 text-center text-muted-foreground">Cargando...</div>
         ) : !data || data.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 text-sm">
-            No hay documentos. Sube el primero para alimentar el corpus RAG.
-          </div>
+          <EmptyState
+            icon={Upload}
+            title="Sin documentos cargados"
+            description="Sube documentos PDF, DOCX o MD para alimentar el corpus RAG."
+            action={
+              <button
+                onClick={() => fileInput.current?.click()}
+                disabled={upload.isPending}
+                className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                Subir documento
+              </button>
+            }
+          />
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+          <table className="w-full text-sm min-w-[640px]">
+            <thead className="bg-muted text-muted-foreground text-xs uppercase">
               <tr>
                 <th className="px-4 py-3 text-left">Archivo</th>
                 <th className="px-4 py-3 text-left">Estado</th>
@@ -101,16 +113,16 @@ export default function CorpusTab() {
                 const style = STATUS_STYLE[doc.status]
                 const Icon = style.icon
                 return (
-                  <tr key={doc.id} className="border-t border-gray-100">
+                  <tr key={doc.id} className="border-t border-border">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-gray-400 shrink-0" />
-                        <span className="font-medium text-gray-800 truncate max-w-xs">
+                        <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <span className="font-medium text-foreground truncate max-w-xs">
                           {doc.original_filename}
                         </span>
                       </div>
                       {doc.error_message && (
-                        <p className="text-xs text-red-500 mt-1">{doc.error_message}</p>
+                        <p className="text-xs text-destructive mt-1">{doc.error_message}</p>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -127,8 +139,8 @@ export default function CorpusTab() {
                         {style.label}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right text-gray-700">{doc.chunk_count}</td>
-                    <td className="px-4 py-3 text-right text-gray-600 text-xs">
+                    <td className="px-4 py-3 text-right text-foreground">{doc.chunk_count}</td>
+                    <td className="px-4 py-3 text-right text-muted-foreground text-xs">
                       {doc.file_size_bytes
                         ? `${(doc.file_size_bytes / 1024).toFixed(0)} KB`
                         : '—'}
@@ -156,7 +168,7 @@ export default function CorpusTab() {
                           }}
                           disabled={remove.isPending}
                         >
-                          <Trash2 className="w-3 h-3 text-red-500" />
+                          <Trash2 className="w-3 h-3 text-destructive" />
                         </Button>
                       </div>
                     </td>

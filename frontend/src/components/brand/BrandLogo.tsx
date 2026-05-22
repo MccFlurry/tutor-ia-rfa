@@ -11,24 +11,42 @@ interface BrandLogoProps {
    * Optional label override — defaults to IESTP RFA copy.
    */
   subtitle?: string
+  /**
+   * Render size of the institutional shield in px (square).
+   */
+  size?: number
 }
 
 /**
- * Institutional brand mark for IESTP República Federal de Alemania (Chiclayo).
- * Shield + "RFA" monogram, navy + heritage gold.
+ * Institutional brand mark for IESTP "República Federal de Alemania" (Chiclayo).
+ * Uses the official heraldic shield (gear, satellite, books, nurse, vehicle)
+ * served from /logo-iestp-rfa.png.
  */
 export default function BrandLogo({
   variant = 'compact',
   className,
   onDark = false,
   subtitle,
+  size = 40,
 }: BrandLogoProps) {
   const textColor = onDark ? 'text-white' : 'text-institutional-700'
-  const subColor = onDark ? 'text-primary-200' : 'text-gray-500'
+  const subColor = onDark ? 'text-primary-200' : 'text-muted-foreground'
 
   return (
     <div className={cn('flex items-center gap-3', className)}>
-      <Shield />
+      <img
+        src="/logo-iestp-rfa.png"
+        alt='Escudo oficial IESTP "República Federal de Alemania" — Chiclayo'
+        width={size}
+        height={size}
+        loading="eager"
+        decoding="async"
+        className={cn(
+          'shrink-0 object-contain drop-shadow-sm',
+          onDark && 'drop-shadow-[0_1px_4px_rgba(0,0,0,0.35)]'
+        )}
+        style={{ width: size, height: size }}
+      />
       {variant !== 'compact' && (
         <div className="flex flex-col leading-tight">
           <span className={cn('font-bold text-sm tracking-tight', textColor)}>
@@ -46,44 +64,5 @@ export default function BrandLogo({
         </span>
       )}
     </div>
-  )
-}
-
-function Shield({ size = 32 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-label="Escudo institucional IESTP RFA"
-      className="shrink-0"
-    >
-      <defs>
-        <linearGradient id="brand-navy" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#1e3a8a" />
-          <stop offset="1" stopColor="#0b1845" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M32 4 L58 12 V30 C58 45 46 56 32 60 C18 56 6 45 6 30 V12 Z"
-        fill="url(#brand-navy)"
-        stroke="#f59e0b"
-        strokeWidth="2"
-      />
-      <rect x="14" y="40" width="36" height="3" rx="1.5" fill="#f59e0b" />
-      <text
-        x="32"
-        y="34"
-        fontFamily="Plus Jakarta Sans, system-ui, sans-serif"
-        fontSize="18"
-        fontWeight="800"
-        fill="#ffffff"
-        textAnchor="middle"
-      >
-        RFA
-      </text>
-    </svg>
   )
 }

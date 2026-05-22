@@ -47,13 +47,13 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
       <aside
         aria-label="Navegación principal"
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 flex flex-col
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-card border-r border-border flex flex-col
                     transform transition-transform duration-200 lg:translate-x-0 lg:static lg:z-0
                     ${open ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* Brand header with heritage accent */}
         <div className="relative">
-          <div className="px-4 py-4 border-b border-gray-100">
+          <div className="px-4 py-4 border-b border-border">
             <div className="flex items-center justify-between">
               <BrandLogo variant="stacked" />
               <button
@@ -73,7 +73,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
         {/* Nav links */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+          <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Plataforma
           </p>
           {links.map((link) => (
@@ -85,7 +85,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
                   isActive
                     ? 'bg-primary-50 text-primary-800 shadow-brand-sm'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground'
                 }`
               }
             >
@@ -96,11 +96,11 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         {/* Institutional footer inside sidebar */}
-        <div className="px-4 py-4 border-t border-gray-100 bg-gray-50/50">
-          <p className="text-[11px] text-gray-500 leading-relaxed">
+        <div className="px-4 py-4 border-t border-border bg-muted/50">
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
             IESTP <span className="font-semibold text-institutional-700">"República Federal de Alemania"</span>
           </p>
-          <p className="text-[11px] text-gray-400 mt-0.5">Chiclayo · Perú</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Chiclayo · Perú</p>
         </div>
       </aside>
     </>

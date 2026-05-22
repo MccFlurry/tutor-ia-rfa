@@ -12,9 +12,9 @@ const LABELS: Record<StudentLevel, string> = {
 }
 
 const STYLES: Record<StudentLevel, string> = {
-  beginner:     'bg-gray-100 text-gray-700',
-  intermediate: 'bg-primary-50 text-primary-800',
-  advanced:     'bg-heritage-100 text-heritage-700',
+  beginner:     'bg-muted text-muted-foreground',
+  intermediate: 'bg-primary/10 text-primary',
+  advanced:     'bg-heritage-100 text-heritage-700 dark:bg-heritage-700/20 dark:text-heritage-400',
 }
 
 export default function LevelBadge() {

@@ -16,7 +16,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
   return (
     <header
       role="banner"
-      className="bg-white/95 backdrop-blur border-b border-gray-200 px-4 py-3 flex items-center justify-between lg:px-6 sticky top-0 z-30"
+      className="bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between lg:px-6 sticky top-0 z-30"
     >
       <div className="flex items-center gap-3 min-w-0">
         <button
@@ -62,7 +62,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
         <button
           onClick={logout}
           aria-label="Cerrar sesión"
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-peru-600 transition p-2 rounded-lg min-h-[44px] min-w-[44px] justify-center"
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-peru-600 transition p-2 rounded-lg min-h-[44px] min-w-[44px] justify-center"
           title="Cerrar sesión"
         >
           <LogOut className="w-4 h-4" />

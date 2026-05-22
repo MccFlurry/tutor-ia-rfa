@@ -42,7 +42,7 @@ export default function CodeBlock({ language, children }: CodeBlockProps) {
       <SyntaxHighlighter
         language={language}
         style={vscDarkPlus}
-        customStyle={{ margin: 0, borderRadius: 0, fontSize: '0.85rem' }}
+        customStyle={{ margin: 0, borderRadius: 0, fontSize: '0.85rem', overflowX: 'auto' }}
       >
         {children}
       </SyntaxHighlighter>

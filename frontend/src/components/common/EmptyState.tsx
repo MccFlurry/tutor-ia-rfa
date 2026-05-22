@@ -4,6 +4,8 @@ import { cn } from '@/lib/utils'
 
 interface EmptyStateProps {
   icon?: LucideIcon
+  illustration?: string | React.ReactNode
+  illustrationAlt?: string
   title: string
   description?: React.ReactNode
   action?: React.ReactNode
@@ -12,11 +14,16 @@ interface EmptyStateProps {
 
 export default function EmptyState({
   icon: Icon,
+  illustration,
+  illustrationAlt,
   title,
   description,
   action,
   className,
 }: EmptyStateProps) {
+  const showIllustration = !!illustration
+  const showIcon = !showIllustration && !!Icon
+
   return (
     <div
       className={cn(
@@ -24,7 +31,22 @@ export default function EmptyState({
         className
       )}
     >
-      {Icon && (
+      {showIllustration && (
+        <div className="mb-6 max-w-[280px] w-full">
+          {typeof illustration === 'string' ? (
+            <img
+              src={illustration}
+              alt={illustrationAlt ?? ''}
+              className="w-full h-auto select-none"
+              loading="lazy"
+              draggable={false}
+            />
+          ) : (
+            illustration
+          )}
+        </div>
+      )}
+      {showIcon && Icon && (
         <div
           className="w-14 h-14 bg-primary-50 rounded-full flex items-center justify-center mb-4"
           aria-hidden="true"

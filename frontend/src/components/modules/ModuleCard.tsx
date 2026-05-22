@@ -63,7 +63,7 @@ export default function ModuleCard({ module }: ModuleCardProps) {
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         locked
           ? 'opacity-70 cursor-not-allowed select-none'
-          : 'cursor-pointer hover:shadow-brand-md hover:border-border-strong'
+          : 'cursor-pointer hover:shadow-brand-md hover:border-border-strong motion-safe:hover:-translate-y-0.5'
       )}
       style={!locked ? ({ '--module-color': module.color_hex } as React.CSSProperties) : undefined}
     >

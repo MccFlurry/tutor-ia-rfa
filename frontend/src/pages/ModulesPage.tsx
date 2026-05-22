@@ -1,8 +1,9 @@
+import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { BookOpen } from 'lucide-react'
+import { BookOpen, Lock } from 'lucide-react'
 import { modulesApi } from '@/api/modules'
 import ModuleCard from '@/components/modules/ModuleCard'
-import { Skeleton } from '@/components/ui/skeleton'
+import { SkeletonCard } from '@/components/common/Skeleton'
 import PageHeader from '@/components/common/PageHeader'
 import EmptyState from '@/components/common/EmptyState'
 
@@ -20,9 +21,9 @@ export default function ModulesPage() {
       />
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-56 rounded-xl" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} className="h-48" />
           ))}
         </div>
       ) : !modules || modules.length === 0 ? (
@@ -31,8 +32,22 @@ export default function ModulesPage() {
           title="Sin módulos disponibles"
           description="Aún no hay módulos publicados. Vuelve más tarde o contacta al administrador."
         />
+      ) : modules.every((m) => m.is_locked) ? (
+        <EmptyState
+          icon={Lock}
+          title="Necesitas completar tu evaluación"
+          description="Para desbloquear los módulos, primero realiza la evaluación inicial."
+          action={
+            <Link
+              to="/assessment"
+              className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+            >
+              Ir a evaluación
+            </Link>
+          }
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {modules.map((module) => (
             <ModuleCard key={module.id} module={module} />
           ))}

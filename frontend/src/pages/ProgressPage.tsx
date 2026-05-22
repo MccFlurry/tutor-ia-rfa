@@ -1,9 +1,10 @@
+import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { BarChart3, Clock, BookOpen, Trophy, Activity } from 'lucide-react'
+import { BarChart3, Clock, BookOpen, Trophy, Activity, TrendingUp } from 'lucide-react'
 import { progressApi } from '@/api/progress'
 import { achievementsApi } from '@/api/achievements'
 import { Progress } from '@/components/ui/progress'
-import { Skeleton } from '@/components/ui/skeleton'
+import Skeleton from '@/components/common/Skeleton'
 import AchievementCard from '@/components/achievements/AchievementCard'
 import PageHeader from '@/components/common/PageHeader'
 import StatCard from '@/components/common/StatCard'
@@ -38,19 +39,47 @@ export default function ProgressPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6 space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Skeleton className="h-28 rounded-xl" />
-          <Skeleton className="h-28 rounded-xl" />
-          <Skeleton className="h-28 rounded-xl" />
+      <div className="max-w-5xl mx-auto space-y-6 p-4 sm:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} variant="card" className="h-24" />
+          ))}
         </div>
-        <Skeleton className="h-64 rounded-xl" />
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} variant="rect" className="h-12 w-full" />
+          ))}
+        </div>
       </div>
     )
   }
 
   const earnedCount = achievements?.filter((a) => a.is_earned).length ?? 0
+
+  // Empty state: no topics completed yet
+  if (progress && progress.topics_completed === 0) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
+        <PageHeader
+          title="Mi Progreso"
+          subtitle="Avance, tiempo invertido y desempeño por módulo."
+        />
+        <EmptyState
+          icon={TrendingUp}
+          title="Tu progreso aparecerá aquí"
+          description="Cuando completes temas, verás tu avance por módulo, tiempo de estudio y logros."
+          action={
+            <Link
+              to="/modules"
+              className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+            >
+              Explorar módulos
+            </Link>
+          }
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
@@ -94,7 +123,7 @@ export default function ProgressPage() {
       {/* Progress per module */}
       <section
         aria-labelledby="modules-progress-heading"
-        className="bg-card rounded-xl border border-border p-6 mb-8"
+        className="bg-card rounded-xl border border-border p-4 sm:p-6 mb-8"
       >
         <h2
           id="modules-progress-heading"
@@ -105,11 +134,11 @@ export default function ProgressPage() {
         <div className="space-y-4">
           {progress?.modules.map((mod) => (
             <div key={mod.id}>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-sm font-medium text-foreground truncate pr-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 mb-1.5">
+                <span className="text-sm font-medium text-foreground sm:truncate sm:pr-4">
                   {mod.title}
                 </span>
-                <span className="text-sm text-muted-foreground shrink-0 tabular-nums">
+                <span className="text-xs sm:text-sm text-muted-foreground shrink-0 tabular-nums">
                   {mod.completed}/{mod.total} — {Math.round(mod.pct)}%
                 </span>
               </div>
@@ -122,9 +151,9 @@ export default function ProgressPage() {
       {/* Achievements */}
       <section
         aria-labelledby="achievements-heading"
-        className="bg-card rounded-xl border border-border p-6 mb-8"
+        className="bg-card rounded-xl border border-border p-4 sm:p-6 mb-8"
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-4">
           <h2 id="achievements-heading" className="font-semibold text-foreground">
             Logros e Insignias
           </h2>
@@ -142,7 +171,7 @@ export default function ProgressPage() {
       {/* Activity log */}
       <section
         aria-labelledby="activity-heading"
-        className="bg-card rounded-xl border border-border p-6"
+        className="bg-card rounded-xl border border-border p-4 sm:p-6"
       >
         <h2 id="activity-heading" className="font-semibold text-foreground mb-4">
           Actividad reciente

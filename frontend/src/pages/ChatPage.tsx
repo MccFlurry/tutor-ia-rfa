@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import EmptyState from '@/components/common/EmptyState'
+import Skeleton from '@/components/common/Skeleton'
 import ChatMessageComponent from '@/components/chat/ChatMessage'
 import TypingIndicator from '@/components/chat/TypingIndicator'
 import {
@@ -27,7 +28,10 @@ import type { ChatMessage } from '@/types/chat'
 export default function ChatPage() {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
   const [input, setInput] = useState('')
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  // Default closed on mobile (<lg) so chat area is visible on first paint.
+  const [sidebarOpen, setSidebarOpen] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
+  )
   const [optimisticMessages, setOptimisticMessages] = useState<ChatMessage[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -58,6 +62,13 @@ export default function ChatPage() {
     const session = await createSession.mutateAsync()
     setActiveSessionId(session.id)
     setOptimisticMessages([])
+    // Auto-close drawer on mobile so the chat surface is visible
+    if (
+      typeof window !== 'undefined' &&
+      !window.matchMedia('(min-width: 1024px)').matches
+    ) {
+      setSidebarOpen(false)
+    }
     textareaRef.current?.focus()
   }, [createSession])
 
@@ -103,13 +114,24 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
-      {/* Sessions sidebar */}
+    <div className="relative flex h-[calc(100dvh-4rem)] overflow-hidden">
+      {/* Mobile backdrop when sidebar is open (<lg only) */}
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Cerrar historial"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 top-16 z-30 bg-foreground/40 lg:hidden"
+        />
+      )}
+      {/* Sessions sidebar — overlay drawer on mobile, in-flow on lg+ */}
       <aside
         aria-label="Historial de conversaciones"
         className={`${
-          sidebarOpen ? 'w-72' : 'w-0'
-        } transition-all duration-200 bg-card border-r border-border flex flex-col overflow-hidden shrink-0`}
+          sidebarOpen
+            ? 'translate-x-0 w-72 lg:w-72'
+            : '-translate-x-full w-72 lg:w-0 lg:translate-x-0'
+        } fixed lg:static inset-y-16 left-0 z-40 lg:z-auto lg:inset-auto transition-all duration-200 bg-card border-r border-border flex flex-col overflow-hidden shrink-0`}
       >
         <div className="p-3 border-b border-border">
           <Button
@@ -125,16 +147,26 @@ export default function ChatPage() {
 
         <div className="flex-1 overflow-y-auto">
           {loadingSessions ? (
-            <div className="px-3 py-4 space-y-2">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-12 bg-muted rounded-lg animate-pulse" />
+            <div className="space-y-2 p-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} variant="rect" className="h-12 w-full" />
               ))}
             </div>
           ) : sessions.length === 0 ? (
             <EmptyState
               icon={MessageCircle}
-              title="Sin conversaciones aún"
-              description="Empieza una nueva para preguntar al tutor IA."
+              title="Sin conversaciones"
+              description="Inicia tu primera conversación con el tutor IA."
+              action={
+                <button
+                  onClick={handleNewSession}
+                  disabled={createSession.isPending}
+                  className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors text-sm disabled:opacity-50"
+                >
+                  Nueva conversación
+                </button>
+              }
+              className="py-6"
             />
           ) : (
             <ul className="p-2 space-y-0.5">
@@ -144,7 +176,7 @@ export default function ChatPage() {
                   <li key={session.id}>
                     <div
                       className={`group relative rounded-lg transition-colors ${
-                        isActive ? 'bg-primary-50 text-primary-700' : 'text-foreground hover:bg-muted'
+                        isActive ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted'
                       }`}
                     >
                       <button
@@ -152,6 +184,13 @@ export default function ChatPage() {
                         onClick={() => {
                           setActiveSessionId(session.id)
                           setOptimisticMessages([])
+                          // Auto-close drawer on mobile after selection
+                          if (
+                            typeof window !== 'undefined' &&
+                            !window.matchMedia('(min-width: 1024px)').matches
+                          ) {
+                            setSidebarOpen(false)
+                          }
                         }}
                         aria-current={isActive ? 'true' : undefined}
                         className="w-full text-left pl-3 pr-10 py-2.5 text-sm
@@ -205,8 +244,16 @@ export default function ChatPage() {
             <h1 className="font-semibold text-foreground">Tutor IA</h1>
           </div>
           {remaining && (
-            <span className="ml-auto text-xs text-muted-foreground tabular-nums">
-              {remaining.remaining} de {remaining.limit} consultas disponibles
+            <span
+              className="ml-auto text-xs text-muted-foreground tabular-nums whitespace-nowrap"
+              aria-label={`${remaining.remaining} de ${remaining.limit} consultas disponibles`}
+            >
+              <span className="sm:hidden">
+                {remaining.remaining}/{remaining.limit}
+              </span>
+              <span className="hidden sm:inline">
+                {remaining.remaining} de {remaining.limit} consultas disponibles
+              </span>
             </span>
           )}
         </div>
@@ -228,23 +275,17 @@ export default function ChatPage() {
               }
             />
           ) : loadingMessages ? (
-            <div className="space-y-3" aria-busy="true">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className={`flex gap-3 ${i % 2 === 0 ? 'flex-row-reverse' : ''}`}
-                >
-                  <div className="w-8 h-8 bg-muted rounded-full animate-pulse shrink-0" />
-                  <div className="h-16 bg-muted rounded-2xl animate-pulse w-2/3" />
-                </div>
-              ))}
+            <div className="space-y-4 p-4" aria-busy="true">
+              <Skeleton variant="rect" className="h-16 w-3/4" />
+              <Skeleton variant="rect" className="h-20 w-2/3 ml-auto" />
+              <Skeleton variant="rect" className="h-16 w-3/4" />
             </div>
           ) : messages.length === 0 ? (
             <EmptyState
               icon={MessageCircle}
-              title="Escribe tu primera pregunta"
+              title="¿Sobre qué quieres aprender?"
               description={
-                'Por ejemplo: "¿Cómo creo un RecyclerView en Android?" o "Explícame las funciones lambda en Kotlin"'
+                "Pregúntale al tutor sobre los temas del curso. Por ejemplo: '¿Qué es Jetpack Compose?'"
               }
             />
           ) : (
@@ -283,7 +324,7 @@ export default function ChatPage() {
                   rows={1}
                   aria-label="Mensaje al tutor"
                   disabled={sendMessage.isPending || (remaining?.remaining ?? 1) <= 0}
-                  className="flex-1 min-h-[44px] !h-auto resize-none text-sm bg-muted/50"
+                  className="flex-1 min-h-[44px] !h-auto resize-none text-base sm:text-sm bg-muted/50"
                 />
                 <Button
                   onClick={handleSend}

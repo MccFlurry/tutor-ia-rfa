@@ -63,29 +63,29 @@ export default function ContentTab() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="font-semibold text-gray-900">Árbol del curso</h3>
+        <h3 className="font-semibold text-foreground">Árbol del curso</h3>
         <Button size="sm" onClick={handleCreateModule}>
           <Plus className="w-4 h-4 mr-1" /> Módulo nuevo
         </Button>
       </div>
 
       {!modules || modules.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-500 text-sm">
+        <div className="bg-card border border-border rounded-xl p-8 text-center text-muted-foreground text-sm">
           Sin módulos aún.
         </div>
       ) : (
         <div className="space-y-2">
           {modules.map((m) => (
-            <div key={m.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 hover:bg-gray-50">
+            <div key={m.id} className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 hover:bg-surface-hover">
                 <button
                   onClick={() => setExpandedModule((prev) => (prev === m.id ? null : m.id))}
                   className="flex items-center gap-2 flex-1 min-w-0 text-left"
                 >
                   {expandedModule === m.id ? (
-                    <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                    <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                   )}
                   <span
                     className="w-6 h-6 rounded text-xs text-white flex items-center justify-center font-bold shrink-0"
@@ -93,14 +93,14 @@ export default function ContentTab() {
                   >
                     {m.order_index}
                   </span>
-                  <span className="font-medium text-gray-900 truncate">{m.title}</span>
+                  <span className="font-medium text-foreground truncate">{m.title}</span>
                 </button>
                 <div className="flex gap-1 shrink-0">
                   <Button size="sm" variant="ghost" onClick={() => handleEditModule(m)}>
                     <Pencil className="w-3 h-3" />
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => handleDeleteModule(m)}>
-                    <Trash2 className="w-3 h-3 text-red-500" />
+                    <Trash2 className="w-3 h-3 text-destructive" />
                   </Button>
                 </div>
               </div>
@@ -184,35 +184,35 @@ function ModuleDetail({
   }
 
   return (
-    <div className="bg-gray-50 px-4 py-3 border-t border-gray-200">
+    <div className="bg-muted px-4 py-3 border-t border-border">
       <div className="flex justify-between items-center mb-3">
-        <span className="text-xs font-semibold uppercase text-gray-500">Temas</span>
+        <span className="text-xs font-semibold uppercase text-muted-foreground">Temas</span>
         <Button size="sm" variant="outline" onClick={handleCreate}>
           <Plus className="w-3 h-3 mr-1" /> Tema
         </Button>
       </div>
       {!topics || topics.length === 0 ? (
-        <p className="text-xs text-gray-400 italic">Sin temas</p>
+        <p className="text-xs text-muted-foreground italic">Sin temas</p>
       ) : (
         <div className="space-y-2">
           {topics.map((t) => (
-            <div key={t.id} className="bg-white rounded-lg border border-gray-200">
+            <div key={t.id} className="bg-card rounded-lg border border-border">
               <div className="flex items-center px-3 py-2 gap-2">
                 <button
                   onClick={() => onToggleTopic(t.id)}
                   className="flex items-center gap-2 flex-1 text-left min-w-0"
                 >
                   {expandedTopic === t.id ? (
-                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                    <ChevronDown className="w-3 h-3 text-muted-foreground" />
                   ) : (
-                    <ChevronRight className="w-3 h-3 text-gray-400" />
+                    <ChevronRight className="w-3 h-3 text-muted-foreground" />
                   )}
-                  <FileText className="w-3 h-3 text-gray-400" />
-                  <span className="text-sm text-gray-800 truncate">
+                  <FileText className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-sm text-foreground truncate">
                     {t.order_index}. {t.title}
                   </span>
                   {t.has_quiz && (
-                    <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] bg-info/10 text-info px-1.5 py-0.5 rounded">
                       Quiz
                     </span>
                   )}
@@ -221,7 +221,7 @@ function ModuleDetail({
                   <Pencil className="w-3 h-3" />
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => handleDelete(t)}>
-                  <Trash2 className="w-3 h-3 text-red-500" />
+                  <Trash2 className="w-3 h-3 text-destructive" />
                 </Button>
               </div>
               {expandedTopic === t.id && <TopicDetail topic={t} onRefresh={onRefresh} />}
@@ -322,11 +322,11 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
   }
 
   return (
-    <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 space-y-4">
+    <div className="px-4 py-3 border-t border-border bg-muted space-y-4">
       {/* Quiz questions */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold uppercase text-gray-500 flex items-center gap-1">
+          <span className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1">
             <HelpCircle className="w-3 h-3" /> Preguntas quiz (BD fallback)
           </span>
           <Button size="sm" variant="outline" onClick={handleCreateQuestion}>
@@ -334,16 +334,16 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
           </Button>
         </div>
         {!questions || questions.length === 0 ? (
-          <p className="text-xs text-gray-400 italic">Sin preguntas estáticas</p>
+          <p className="text-xs text-muted-foreground italic">Sin preguntas estáticas</p>
         ) : (
           <ul className="space-y-1">
             {questions.map((q) => (
-              <li key={q.id} className="flex items-center justify-between text-xs bg-white px-3 py-2 rounded border border-gray-100">
-                <span className="truncate flex-1 text-gray-700">{q.question_text}</span>
+              <li key={q.id} className="flex items-center justify-between text-xs bg-card px-3 py-2 rounded border border-border">
+                <span className="truncate flex-1 text-foreground">{q.question_text}</span>
                 <Button size="sm" variant="ghost" onClick={() => {
                   if (confirm('¿Eliminar pregunta?')) deleteQ.mutate(q.id)
                 }}>
-                  <Trash2 className="w-3 h-3 text-red-500" />
+                  <Trash2 className="w-3 h-3 text-destructive" />
                 </Button>
               </li>
             ))}
@@ -354,7 +354,7 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
       {/* Coding challenges */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold uppercase text-gray-500 flex items-center gap-1">
+          <span className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1">
             <Code2 className="w-3 h-3" /> Desafíos de código
           </span>
           <Button
@@ -368,28 +368,28 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
           </Button>
         </div>
         {!challenges || challenges.length === 0 ? (
-          <p className="text-xs text-gray-400 italic">Sin desafíos</p>
+          <p className="text-xs text-muted-foreground italic">Sin desafíos</p>
         ) : (
           <ul className="space-y-1">
             {challenges.map((c) => (
-              <li key={c.id} className="flex items-center justify-between text-xs bg-white px-3 py-2 rounded border border-gray-100">
+              <li key={c.id} className="flex items-center justify-between text-xs bg-card px-3 py-2 rounded border border-border">
                 <span className="flex items-center gap-2 flex-1 truncate">
                   <span
                     className={cn(
                       'px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase',
-                      c.difficulty === 'easy' && 'bg-green-100 text-green-700',
-                      c.difficulty === 'medium' && 'bg-yellow-100 text-yellow-700',
-                      c.difficulty === 'hard' && 'bg-red-100 text-red-700'
+                      c.difficulty === 'easy' && 'bg-success/10 text-success',
+                      c.difficulty === 'medium' && 'bg-warning/10 text-warning-foreground',
+                      c.difficulty === 'hard' && 'bg-destructive/10 text-destructive'
                     )}
                   >
                     {c.difficulty}
                   </span>
-                  <span className="text-gray-700 truncate">{c.title}</span>
+                  <span className="text-foreground truncate">{c.title}</span>
                 </span>
                 <Button size="sm" variant="ghost" onClick={() => {
                   if (confirm('¿Eliminar desafío?')) deleteC.mutate(c.id)
                 }}>
-                  <Trash2 className="w-3 h-3 text-red-500" />
+                  <Trash2 className="w-3 h-3 text-destructive" />
                 </Button>
               </li>
             ))}
@@ -397,7 +397,7 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
         )}
 
         {genPreview && (
-          <div className="mt-3 bg-white border-2 border-dashed border-primary-300 rounded-lg p-4">
+          <div className="mt-3 bg-card border-2 border-dashed border-primary-300 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-primary-700 uppercase">
                 Vista previa IA (no guardada)
@@ -406,8 +406,8 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
                 Descartar
               </Button>
             </div>
-            <h4 className="font-semibold text-gray-900 text-sm mb-1">{genPreview.title}</h4>
-            <pre className="text-[11px] bg-gray-50 p-2 rounded max-h-40 overflow-auto whitespace-pre-wrap mb-2">
+            <h4 className="font-semibold text-foreground text-sm mb-1">{genPreview.title}</h4>
+            <pre className="text-[11px] bg-muted p-2 rounded max-h-40 overflow-auto whitespace-pre-wrap mb-2">
               {genPreview.description.slice(0, 500)}
               {genPreview.description.length > 500 ? '...' : ''}
             </pre>

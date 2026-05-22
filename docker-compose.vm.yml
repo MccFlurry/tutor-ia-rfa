@@ -1,8 +1,13 @@
 # docker-compose.vm.yml — Overlay producción VM GCP e2-standard-4
-# Uso: docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d
+# Uso: docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d --build
 #
-# v4.0: stack completo en una VM (sin Cloud Run/Cloud SQL).
-# Incluye Ollama en contenedor (dev Windows usa nativo; prod Ubuntu usa contenedor).
+# v4.1 — Decisiones prod:
+# - Ollama corre NATIVO en la VM (systemctl ollama). NO contenedor, evita
+#   overhead y permite GPU pass-through si la VM se actualiza.
+#   El backend lo alcanza vía host.docker.internal:11434 (extra_hosts).
+# - Sin bind mounts del código: el backend se sirve desde la imagen built
+#   en el Dockerfile (inmutable, reproducible).
+# - Frontend se sirve desde Firebase Hosting (no en este compose).
 
 services:
   postgres:
@@ -21,34 +26,35 @@ services:
 
   backend:
     restart: unless-stopped
+    # Sin bind mounts en prod: el código viene de la imagen built.
+    volumes:
+      - /data/uploads:/app/uploads
+      - /var/log/tutor:/var/log/tutor
     environment:
       ENVIRONMENT: production
       DATABASE_URL: postgresql+asyncpg://tutor_user:${POSTGRES_PASSWORD}@postgres:5432/tutordb
-      OLLAMA_BASE_URL: http://ollama:11434
+      # Ollama nativo del host (no contenedor) — alcanzado vía extra_hosts.
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
       SECRET_KEY: ${SECRET_KEY}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       BACKEND_CORS_ORIGINS: '["https://${DOMAIN}","https://${FRONTEND_DOMAIN}"]'
       LOG_DIR: /var/log/tutor
-    volumes:
-      - ./backend/app:/app/app
-      - ./backend/scripts:/app/scripts
-      - ./backend/alembic:/app/alembic
-      - /data/uploads:/app/uploads
-      - /var/log/tutor:/var/log/tutor
-    ports: []  # expuesto via Caddy, no directo
+    extra_hosts:
+      # Linux Docker no resuelve host.docker.internal por defecto; el
+      # extra_hosts agrega la entrada hacia el gateway del bridge.
+      - "host.docker.internal:host-gateway"
+    ports: []  # expuesto vía Caddy, no directo
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     command: >
       sh -c "alembic upgrade head &&
+             python scripts/seed_db.py &&
+             python scripts/seed_assessment_bank.py &&
              uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"
-
-  ollama:
-    image: ollama/ollama:latest
-    container_name: tutor_ollama
-    restart: unless-stopped
-    volumes:
-      - ollama_data:/root/.ollama
-    # Ollama solo accesible desde red interna; sin --gpus porque e2-standard-4 no tiene GPU
-    # (si futura VM tiene GPU: añadir deploy.resources.reservations.devices)
 
   caddy:
     image: caddy:2-alpine
@@ -67,11 +73,10 @@ services:
       - caddy_config:/config
       - /var/log/caddy:/var/log/caddy
 
-  # frontend omitido: se despliega en Firebase Hosting (firebase deploy)
+  # Frontend → Firebase Hosting (deploy aparte vía `firebase deploy`)
   frontend:
     profiles: ["disabled"]
 
 volumes:
-  ollama_data:
   caddy_data:
   caddy_config:

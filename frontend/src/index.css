@@ -136,3 +136,17 @@
            focus:bg-primary-800 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg;
   }
 }
+
+@layer utilities {
+  .interactive-card {
+    @apply transition-all duration-150 motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-brand-md;
+  }
+
+  .interactive-button {
+    @apply transition-all duration-150 motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98];
+  }
+
+  .focus-ring-smooth {
+    @apply transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+}
