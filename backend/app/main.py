@@ -1,5 +1,6 @@
 import time
 import uuid
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +11,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app.config import settings
 from app.routers import auth, users, modules, topics, quiz, progress, achievements, chat, coding, assessment, admin, dashboard
+from app.services.scheduler_service import build_scheduler
 from app.utils.logger import logger
 
 # ------------------------------------------------------------------
@@ -20,10 +22,25 @@ limiter = Limiter(
     default_limits=[f"{settings.API_RATE_LIMIT_PER_MINUTE}/minute"],
 )
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Bootstrap background jobs (APScheduler) bound to the app lifecycle."""
+    scheduler = build_scheduler()
+    scheduler.start()
+    logger.info(f"[lifespan] APScheduler iniciado con {len(scheduler.get_jobs())} job(s)")
+    app.state.scheduler = scheduler
+    try:
+        yield
+    finally:
+        scheduler.shutdown(wait=False)
+        logger.info("[lifespan] APScheduler detenido")
+
+
 app = FastAPI(
     title="Tutor IA - IESTP RFA",
     description="Sistema de Tutoría Inteligente con IA Generativa para Aplicaciones Móviles",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.state.limiter = limiter
