@@ -291,12 +291,12 @@ Genera evaluación entrada vía LLM (fallback banco docente). Score ponderado: p
 - Detalle iteraciones baseline/v3 + justificación de subconjunto apto: `docs/CLAUDE-archive.md` + `docs/reporte-RAGAS.docx`
 - **Protocolo escalamiento:** métrica < umbral tras 3 iteraciones → consultar usuario
 
-### ISO/IEC 25010:2023 (Sprint 7)
-- Matriz trazabilidad 33 RF × casos prueba → `docs/matriz-trazabilidad-ISO25010.docx`
+### ISO/IEC 25010:2023 (Sprint 7) ✅ (21 may 2026)
+- Matriz trazabilidad 33 RF × casos prueba → `docs/matriz-trazabilidad-ISO25010.md` (.docx exportar pre-sustentación)
 - Subcaracterísticas: completitud + corrección + pertinencia funcional
-- Suite pytest integración `backend/tests/integration/test_iso25010.py` cobertura ≥80%
-- Umbrales: cobertura ≥80% RF, tasa éxito ≥90%
-- Reporte: `docs/reporte-ISO25010.docx`
+- Guardian automatizado `backend/tests/integration/test_iso25010.py` (5 tests): valida que cada RF tenga al menos un test real + archivos existen + numeración secuencial
+- **Resultados:** 33/33 RF implementados ✅ · 33/33 cubiertos por tests ✅ · 276/276 pass (100% tasa éxito) ✅ · cobertura código 86% ✅
+- Reporte ejecutivo: `docs/reporte-ISO25010.md` (.docx exportar pre-sustentación)
 
 ### SUS (Sprint 8)
 - Piloto 10-15 estudiantes IESTP RFA con sesiones guiadas
@@ -489,11 +489,12 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - Motor retroalimentación adaptativa (extensión `code_eval_service` + `llm_service`)
 - **Editor Monaco** en frontend (reemplaza textarea en CodingChallengePage)
 
-### ⏳ SPRINT 7 — Validación ISO/IEC 25010 (15-28 jun 2026)
-- Matriz trazabilidad RF → casos prueba (`docs/matriz-trazabilidad-ISO25010.docx`)
-- Suite pytest integración `backend/tests/integration/test_iso25010.py` cobertura ≥80%
-- Reporte validación funcional (`docs/reporte-ISO25010.docx`)
-- Umbrales: cobertura ≥80% RF, éxito ≥90%
+### ✅ SPRINT 7 — Validación ISO/IEC 25010 (cerrado anticipadamente 21 may 2026)
+- ✅ Matriz trazabilidad 33 RF → casos de prueba (`docs/matriz-trazabilidad-ISO25010.md`)
+- ✅ Guardian automatizado `backend/tests/integration/test_iso25010.py` (5 tests, 100% pass) — protege la matriz contra deriva
+- ✅ Reporte ejecutivo `docs/reporte-ISO25010.md` con resultados por subcaracterística + comportamiento ante fallos
+- ✅ Cobertura 100% RF (33/33), tasa éxito 100% (276/276), cobertura código 86% — supera umbrales ISO
+- ⏸ Exportar `.docx` antes de la sustentación (markdown → docx vía pandoc o copia manual)
 
 ### ⏳ SPRINT 8 — Pilotaje SUS + cierre (29 jun – 10 jul 2026)
 - Sesiones guiadas 10-15 estudiantes IESTP RFA
@@ -524,10 +525,10 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - [x] **RAGAS answer_relevance ≥0.70** (v3: 0.856)
 - [x] context_precision + context_recall reportados (0.290 / 0.619)
 - [x] Modelo qwen2.5:7b-instruct-q4_K_M seleccionado
-- [ ] **ISO/IEC 25010:2023 cobertura ≥80% RF**
-- [ ] **ISO/IEC 25010:2023 tasa éxito ≥90%**
-- [ ] **SUS ≥68 con 10-15 estudiantes piloto**
-- [ ] ≥80% de 33 RF priorizados implementados
+- [x] **ISO/IEC 25010:2023 cobertura ≥80% RF** (100% — 33/33, 21 may)
+- [x] **ISO/IEC 25010:2023 tasa éxito ≥90%** (100% — 276/276 pass)
+- [ ] **SUS ≥68 con 10-15 estudiantes piloto** (Sprint 8, bloqueado por piloto)
+- [x] ≥80% de 33 RF priorizados implementados (100%)
 
 **Contenido (S6):**
 - [x] ≥3 módulos con ≥15 lecciones (22 temas seed)
