@@ -495,13 +495,15 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - Informe Final + sustentación **10/07/2026**
 
 ### ⏳ FASE 8 (transversal en S4-S8) — Calidad y Piloto
-- slowapi global 100 req/min/IP
+- slowapi global 100 req/min/IP ✅
 - loguru JSON estructurado para prod
-- Unit tests: auth/rag/progress/llm/code_eval/entry_assessment/leveling
-- Integration tests: auth/chat/modules/quiz/coding/assessment
+- Unit tests: auth/rag/progress/llm/code_eval/entry_assessment/leveling/achievement/topic_completion/ingest/embed/chunking/security ✅ (21 may)
+- Integration tests: auth/chat/modules/quiz/coding/assessment/admin/users/progress/dashboard/topics/achievements/health ✅ (21 may)
+- Frontend tests: vitest+RTL stack + smoke `store/{auth,theme}`, `lib/{utils,quizPersistence,achievementIcon}`, `components/{Avatar,EmptyState,Skeleton,ThemeToggle,BrandLogo,Button,ModuleCard}` ✅ (21 may)
+- Backend coverage ≥80% ✅ (86% el 21 may, 266 unit+integration pass)
 - Lighthouse Performance ≥70, Accessibility ≥85
-- Responsivo 375/768/1440px
-- README instalación desde cero
+- Responsivo 375/768/1440px ✅
+- README instalación desde cero ✅
 
 ---
 
@@ -534,7 +536,9 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - [ ] Funcional en 375px
 
 **Calidad:**
-- [ ] Tests backend cobertura ≥60% (actual: 39 unit tests, 57% cobertura servicios críticos leveling/entry_assessment/code_eval)
+- [x] Tests backend cobertura ≥60% (actual: **86%**, 266 tests pass + 6 skipped — 21 may 2026)
+- [x] Tests backend cobertura ≥80% (Sprint 7 ISO objetivo · cumplido 21 may)
+- [x] Tests frontend stack configurado (Vitest + RTL + jsdom + @vitest/coverage-v8); 69 smoke tests baseline (21 may)
 - [x] README levanta desde cero
 - [ ] 12 docs .docx entregados (6/12 — RAGAS recién generado; pendientes arquitectura S3, ISO+SUS+final S7-8)
 
