@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from 'react'
+import { useEffect, useRef, useState, lazy, Suspense } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import {
@@ -63,6 +63,7 @@ export default function CodingChallengePage() {
   const isLgUp = useMediaQuery('(min-width: 1024px)')
   const editorHeight = isLgUp ? '480px' : '320px'
   const isDark = useThemeStore((s) => s.isDark)
+  const handleSubmitRef = useRef<() => void>(() => {})
 
   const { data: challenge, isLoading, isError } = useQuery({
     queryKey: ['coding-challenge', cid],
@@ -146,6 +147,10 @@ export default function CodingChallengePage() {
     }
     submitMutation.mutate()
   }
+
+  useEffect(() => {
+    handleSubmitRef.current = handleSubmit
+  })
 
   const handleRetry = () => {
     setResult(null)
@@ -372,6 +377,9 @@ export default function CodingChallengePage() {
           <div className="bg-[#1e1e1e] dark:bg-card rounded-xl overflow-hidden border border-border">
             <div className="flex items-center justify-between px-4 py-2 bg-[#252525] dark:bg-muted border-b border-border">
               <span className="text-xs text-muted-foreground font-mono">{challenge.language}</span>
+              <span className="hidden sm:inline text-[10px] text-muted-foreground/70 font-mono tabular-nums">
+                Ctrl+Enter para enviar
+              </span>
             </div>
             <Suspense fallback={<EditorFallback />}>
               <Editor
@@ -381,6 +389,12 @@ export default function CodingChallengePage() {
                 theme={isDark ? 'vs-dark' : 'light'}
                 height={editorHeight}
                 loading={<div className="p-4 text-sm text-muted-foreground">Cargando editor...</div>}
+                onMount={(editor, monaco) => {
+                  editor.addCommand(
+                    monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+                    () => handleSubmitRef.current(),
+                  )
+                }}
                 options={{
                   fontFamily: 'JetBrains Mono, monospace',
                   fontSize: 14,

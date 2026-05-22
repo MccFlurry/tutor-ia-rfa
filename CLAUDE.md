@@ -483,11 +483,11 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - ⏸ Carga inicial 15 lecciones — `seed_db.py` ya tiene 22 temas ✅ (cubre el requisito)
 - ⏸ **Ejecución real**: bloqueada hasta que usuario provea cuenta GCP/Firebase + dominio (ver `docs/deploy-guide.md` §0)
 
-### ⏳ SPRINT 6 — Contenido + Banco ejercicios (01-14 jun 2026)
-- Completar 15 lecciones (5 por módulo × 3 módulos priorizados)
-- 30 ejercicios (10 por módulo, 3 niveles dificultad)
-- Motor retroalimentación adaptativa (extensión `code_eval_service` + `llm_service`)
-- **Editor Monaco** en frontend (reemplaza textarea en CodingChallengePage)
+### ✅ SPRINT 6 — Contenido + Banco ejercicios (cerrado anticipadamente 22 may 2026)
+- ✅ 22 lecciones (>15 objetivo) con Markdown, code blocks, tablas — ver `backend/scripts/seed_db.py`. Profundización adicional 22-may en `Consumo de APIs REST y Manejo de JSON` (+sealed class, HttpURLConnection, errores) y `Depuración con Logcat` (+adb, Timber, profilers, anti-patrones).
+- ✅ 45 ejercicios (>30 objetivo) con feedback adaptativo — 30 originales + 15 extras vía `scripts/seed_more_challenges.py` (M4 +7, M5 +8: lifecycle/back stack, deeplinks, migraciones SQLite, paginación, interceptors auth, sealed ApiResult, logger rotación, mocking, parametrized tests, ProGuard, AndroidManifest, release notes, rollout).
+- ✅ Motor retroalimentación adaptativa: `code_eval_service.LEVEL_EVAL_GUIDANCE` + `llm_service.LEVEL_GUIDANCE` por nivel beginner/intermediate/advanced.
+- ✅ **Editor Monaco** lazy-loaded en `CodingChallengePage.tsx` — tema dinámico via `useThemeStore.isDark`, **shortcut Ctrl+Enter** para submit registrado vía `editor.addCommand`, indicador visible en header del editor.
 
 ### ✅ SPRINT 7 — Validación ISO/IEC 25010 (cerrado anticipadamente 21 may 2026)
 - ✅ Matriz trazabilidad 33 RF → casos de prueba (`docs/matriz-trazabilidad-ISO25010.md`)
@@ -531,9 +531,9 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - [x] ≥80% de 33 RF priorizados implementados (100%)
 
 **Contenido (S6):**
-- [x] ≥3 módulos con ≥15 lecciones (22 temas seed)
-- [x] ≥30 ejercicios con feedback adaptativo (30 challenges catálogo)
-- [x] Editor Monaco en CodingChallengePage
+- [x] ≥3 módulos con ≥15 lecciones (22 temas seed; APIs REST + Logcat profundizados 22-may)
+- [x] ≥30 ejercicios con feedback adaptativo (45 challenges catálogo: 30 originales + 15 vía `seed_more_challenges.py` con foco M4-M5)
+- [x] Editor Monaco en CodingChallengePage (lazy + theme dinámico + Ctrl+Enter submit)
 
 **Deploy (S5):**
 - [x] Scripts infra completos (`provision-vm.sh`, `deploy.sh`, `backup-postgres.sh`, Caddyfile, docker-compose.vm.yml v4.1)
@@ -553,7 +553,7 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - [x] Tests backend cobertura ≥80% (Sprint 7 ISO objetivo · cumplido 21 may)
 - [x] Tests frontend stack configurado (Vitest + RTL + jsdom + @vitest/coverage-v8); 69 smoke tests baseline (21 may)
 - [x] README levanta desde cero
-- [ ] 12 docs .docx entregados (6/12 — RAGAS recién generado; pendientes arquitectura S3, ISO+SUS+final S7-8)
+- [ ] 12 docs .docx entregados (7/12 — RAGAS v3+v4 generados; pendientes arquitectura S3, ISO+SUS+final S7-8). `reporte-RAGAS-v4.docx` exportado 22-may vía `pypandoc-binary` (no requiere pandoc system-wide).
 
 ---
 

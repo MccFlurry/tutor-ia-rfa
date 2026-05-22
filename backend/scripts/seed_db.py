@@ -1951,12 +1951,94 @@ println(jsonString)
 | `404` | Not Found — No existe |
 | `500` | Server Error — Error del servidor |
 
+## Llamada HTTP con HttpURLConnection (sin librerías externas)
+
+```kotlin
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+suspend fun fetchUsers(): String = withContext(Dispatchers.IO) {
+    val url = URL("https://jsonplaceholder.typicode.com/users")
+    val conn = url.openConnection() as HttpURLConnection
+    conn.requestMethod = "GET"
+    conn.setRequestProperty("Accept", "application/json")
+    try {
+        if (conn.responseCode == 200) {
+            conn.inputStream.bufferedReader().use { it.readText() }
+        } else {
+            throw RuntimeException("HTTP ${conn.responseCode}")
+        }
+    } finally {
+        conn.disconnect()
+    }
+}
+```
+
+> **Importante:** Toda llamada de red debe correr fuera del Main Thread. Usa `Dispatchers.IO` con coroutines o `Thread` aparte; si no, Android lanzará `NetworkOnMainThreadException`.
+
+## JSON anidado y listas
+
+```kotlin
+data class Direccion(val ciudad: String, val pais: String)
+data class Usuario(
+    val id: Int,
+    val nombre: String,
+    val email: String,
+    val direccion: Direccion,
+    val cursos: List<String>,
+)
+
+val json = ""\"
+{
+  "id": 1,
+  "nombre": "Ana",
+  "email": "ana@iestprfa.edu.pe",
+  "direccion": {"ciudad": "Chiclayo", "pais": "Perú"},
+  "cursos": ["Kotlin", "Android"]
+}
+""\".trimIndent()
+
+val u = Gson().fromJson(json, Usuario::class.java)
+println(u.direccion.ciudad)   // Chiclayo
+println(u.cursos.size)        // 2
+```
+
+## Manejo de errores comunes
+
+| Excepción | Causa típica | Acción |
+|-----------|--------------|--------|
+| `UnknownHostException` | Sin conexión o DNS roto | Reintentar / mostrar UI offline |
+| `SocketTimeoutException` | Servidor tarda demasiado | Aumentar timeout / reintentar |
+| `JsonSyntaxException` | Respuesta no es JSON | Loguear body crudo y devolver fallback |
+| `HttpException` (Retrofit) | Código 4xx/5xx | Mapear a `ApiResult.HttpError` |
+
+## Patrón cliente-resultado con sealed class
+
+```kotlin
+sealed class ApiResult<out T> {
+    data class Success<T>(val data: T) : ApiResult<T>()
+    data class Error(val code: Int, val message: String) : ApiResult<Nothing>()
+    object Loading : ApiResult<Nothing>()
+}
+
+suspend fun cargarUsuarios(): ApiResult<List<Usuario>> = try {
+    val json = fetchUsers()
+    val tipo = object : TypeToken<List<Usuario>>() {}.type
+    ApiResult.Success(Gson().fromJson(json, tipo))
+} catch (e: Exception) {
+    ApiResult.Error(-1, e.message ?: "Error desconocido")
+}
+```
+
 ## Resumen
 
-- Las APIs REST usan HTTP para comunicar cliente y servidor
-- JSON es el formato estándar para intercambiar datos
-- Siempre necesitas el permiso `INTERNET` en el Manifest
-- Gson convierte entre JSON y objetos Kotlin fácilmente
+- Las APIs REST usan HTTP (GET/POST/PUT/DELETE) para comunicar cliente y servidor.
+- JSON es el formato estándar para intercambiar datos; Gson o `kotlinx.serialization` lo convierten a clases Kotlin.
+- El permiso `INTERNET` es obligatorio en `AndroidManifest.xml`.
+- Toda llamada HTTP corre en `Dispatchers.IO`, nunca en el Main Thread.
+- Captura excepciones específicas (UnknownHost, Timeout, JsonSyntax) y modela errores con sealed classes para un manejo limpio.
 """,
         },
         {
@@ -2139,12 +2221,94 @@ class MainActivity : AppCompatActivity() {
 3. La ejecución se detendrá en ese punto
 4. Puedes inspeccionar variables y avanzar paso a paso
 
+## Logging condicional para producción
+
+Nunca dejes `Log.d` activos en builds de release: aumentan el tamaño del APK y filtran información sensible. Usa `BuildConfig.DEBUG` o un wrapper centralizado:
+
+```kotlin
+object AppLog {
+    fun d(tag: String, msg: String) {
+        if (BuildConfig.DEBUG) Log.d(tag, msg)
+    }
+
+    fun e(tag: String, msg: String, t: Throwable? = null) {
+        Log.e(tag, msg, t)  // los errores sí se mantienen en release
+    }
+}
+```
+
+Alternativa con `Timber` (librería estándar de Square):
+
+```kotlin
+// build.gradle: implementation("com.jakewharton.timber:timber:5.0.1")
+
+class App : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
+        // En release: planta un árbol que reporta a Crashlytics
+    }
+}
+
+// Uso:
+Timber.d("Pantalla cargada: %s", screenName)
+Timber.e(exception, "Falló sincronización")
+```
+
+## Comandos `adb logcat` desde terminal
+
+Cuando Android Studio no es opción (CI, emulador remoto), usa `adb`:
+
+```bash
+# Todos los logs del dispositivo en vivo
+adb logcat
+
+# Filtrar por tag y nivel mínimo
+adb logcat MainActivity:D *:S
+
+# Limpiar buffer antes de reproducir
+adb logcat -c && adb logcat
+
+# Guardar a archivo
+adb logcat -d > device-logs.txt
+
+# Filtrar por PID de tu app
+adb logcat --pid=$(adb shell pidof pe.edu.iestprfa.tutor)
+```
+
+| Sintaxis | Significado |
+|----------|-------------|
+| `Tag:D` | mostrar `Tag` con nivel ≥ Debug |
+| `*:S` | silenciar el resto (Silent) |
+| `-d` | dump del buffer y salir |
+| `-c` | limpiar buffer |
+| `--pid` | filtrar por proceso |
+
+## Inspector de Layout y Profilers
+
+Android Studio incluye herramientas que complementan Logcat:
+
+- **Layout Inspector**: árbol de Views renderizado en vivo. Útil cuando un ConstraintLayout no se ve como esperas.
+- **CPU Profiler**: detecta ANRs (Application Not Responding) y trazas de método.
+- **Memory Profiler**: detecta leaks (referencias a Activities destruidas).
+- **Network Profiler**: muestra cada request HTTP, latencia y body. Reemplaza a `Log.d("Net", body)` durante el desarrollo.
+
+## Anti-patrones comunes
+
+| Anti-patrón | Por qué duele |
+|-------------|---------------|
+| `Log.d("TAG", "$objetoEnorme")` en bucle | bloquea Main Thread y satura el buffer (4 KB por línea) |
+| Tag con espacios o `:` | `adb logcat` no puede filtrar correctamente |
+| `e.printStackTrace()` | escribe a `System.err` que Logcat tagea como `System.err`, sin tag útil |
+| Loguear contraseñas/tokens | viola GDPR y políticas de Play |
+
 ## Resumen
 
-- Logcat es tu mejor aliado para depurar
-- Usa `Log.d` para desarrollo y `Log.e` para errores
-- Filtra por tag para encontrar tus logs rápidamente
-- Los breakpoints permiten inspeccionar el estado de la app en tiempo real
+- Logcat es tu mejor aliado para depurar; combina niveles V/D/I/W/E para señalar severidad.
+- Usa `Log.d` para desarrollo y `Log.e` para errores; protégete con `BuildConfig.DEBUG` o Timber para no filtrar nada en release.
+- Filtra por tag, PID o nivel — desde Studio o con `adb logcat` en terminal.
+- Acompáñalo de Layout Inspector y los Profilers para depurar problemas que el log no cuenta.
+- Los breakpoints permiten inspeccionar el estado de la app en tiempo real, mejor que `println` regados.
 """,
         },
         {
