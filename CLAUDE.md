@@ -467,14 +467,21 @@ Detalle completo en `docs/CLAUDE-archive.md`. Resumen:
 Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `docs/superpowers/plans/2026-05-12-tier3-uiux-polish.md` · Branch: `feat/tier3-uiux-polish`. Build green (tsc + Vite). Lighthouse mobile pendiente correr manualmente — instrucciones en `docs/audit-mobile.md`.
 
 ### 🔄 SPRINT 5 — Despliegue productivo (18-31 may 2026) · CRISP-DM Deployment
-- Provisión VM e2-standard-4 GCP (`infra/scripts/provision-vm.sh`)
-- Despliegue Docker Compose prod (`docker-compose.vm.yml`)
-- **Caddy + Let's Encrypt** (`infra/caddy/Caddyfile`)
-- Migración frontend a Firebase Hosting
-- Redis cache sobre endpoints frecuentes
-- APScheduler: reindexación + limpieza sesiones
-- Backup diario postgres (`infra/scripts/backup-postgres.sh`)
-- Carga inicial 15 lecciones
+
+**Código deploy 100% listo (21 may 2026)** — pendiente ejecución manual cuando usuario tenga GCP+Firebase+dominio. Ver `docs/deploy-guide.md`.
+
+- ✅ Provisión VM e2-standard-4 GCP (`infra/scripts/provision-vm.sh`) — instala Docker, Ollama nativo, modelos, firewall UFW, cron backup
+- ✅ Docker Compose prod (`docker-compose.vm.yml`) — refactor v4.1: imagen built (sin bind mounts), Ollama nativo vía `host.docker.internal` (extra_hosts), `depends_on` healthchecks
+- ✅ **Caddy + Let's Encrypt** (`infra/caddy/Caddyfile`) — TLS auto + headers seguridad + log JSON rotado
+- ✅ Firebase Hosting config (`frontend/.firebaserc`, `frontend/firebase.json`, `frontend/.env.production.example`) — SPA rewrites + cache headers + security headers
+- ✅ APScheduler (`app/services/scheduler_service.py` + `app.main` lifespan): cleanup `AIQuizSession >7d` diario 03:15 UTC
+- ✅ Backup diario postgres (`infra/scripts/backup-postgres.sh`) + cron `0 3 * * *` agregado por provision-vm.sh
+- ✅ `.dockerignore` backend + frontend (excluye tests/notebooks/node_modules)
+- ✅ `docs/deploy-guide.md` — guía paso-a-paso prerequisitos GCP, DNS, Firebase, .env, rollback
+- ✅ `infra/vm_setup.sh` legacy eliminado (consolidado en `infra/scripts/provision-vm.sh`)
+- ⏸ Redis cache sobre endpoints frecuentes (dashboard/modules) — pendiente para post-deploy si latencia molesta
+- ⏸ Carga inicial 15 lecciones — `seed_db.py` ya tiene 22 temas ✅ (cubre el requisito)
+- ⏸ **Ejecución real**: bloqueada hasta que usuario provea cuenta GCP/Firebase + dominio (ver `docs/deploy-guide.md` §0)
 
 ### ⏳ SPRINT 6 — Contenido + Banco ejercicios (01-14 jun 2026)
 - Completar 15 lecciones (5 por módulo × 3 módulos priorizados)
@@ -528,12 +535,17 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - [x] Editor Monaco en CodingChallengePage
 
 **Deploy (S5):**
-- [ ] VM e2-standard-4 provisionada
-- [ ] Caddy + Let's Encrypt HTTPS
-- [ ] Firebase Hosting frontend
-- [ ] Backup diario postgres
+- [x] Scripts infra completos (`provision-vm.sh`, `deploy.sh`, `backup-postgres.sh`, Caddyfile, docker-compose.vm.yml v4.1)
+- [x] Firebase Hosting config + `.env.production.example`
+- [x] APScheduler cleanup `AIQuizSession >7d` wired en lifespan
+- [x] `.dockerignore` backend + frontend
+- [x] `docs/deploy-guide.md` paso-a-paso
+- [ ] VM e2-standard-4 provisionada (bloqueado: usuario sin GCP)
+- [ ] Caddy + Let's Encrypt HTTPS (depende de VM + DNS)
+- [ ] Firebase Hosting frontend deploy real (depende de proyecto Firebase)
+- [ ] Backup diario postgres en producción (script + cron listos, ejecutar al levantar VM)
 - [ ] Lighthouse Performance ≥70 en ModulesPage
-- [ ] Funcional en 375px
+- [ ] Funcional en 375px ✅ (Tier 3 mobile audit ejecutado)
 
 **Calidad:**
 - [x] Tests backend cobertura ≥60% (actual: **86%**, 266 tests pass + 6 skipped — 21 may 2026)
