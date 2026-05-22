@@ -368,7 +368,7 @@ Enumeración completa de 30 desafíos: `docs/CLAUDE-archive.md`.
 ## 🐳 DOCKER COMPOSE (dev)
 
 Servicios:
-- **postgres:** `pgvector/pgvector:pg16`, DB `tutordb`, user `tutor_user`, pass `tutor_pass_dev`, healthcheck pg_isready
+- **postgres:** `pgvector/pgvector:pg16`, DB `tutordb`, user `tutor_user`, pass `tutor_pass_dev`, healthcheck pg_isready. **Host bind 5433** (no 5432) para evitar colisión con Postgres nativo Windows; backend en container conecta vía `postgres:5432` interno.
 - **redis:** `redis:7-alpine`, `--maxmemory 256mb --maxmemory-policy allkeys-lru`
 - **ollama:** `ollama/ollama:latest`, vol `ollama_data:/root/.ollama`. **⚠ Dev Windows: Ollama nativo via `host.docker.internal:11434` para GPU. Contenedor comentado.**
 - **backend:** FastAPI, hot reload. `alembic upgrade head && python scripts/seed_db.py && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload`. Monta `./backend/alembic`.
@@ -389,7 +389,7 @@ ollama pull mxbai-embed-large            # ~670MB
 ## ⚙ VARIABLES (`.env.example`)
 
 ```
-DATABASE_URL=postgresql+asyncpg://tutor_user:tutor_pass_dev@localhost:5432/tutordb
+DATABASE_URL=postgresql+asyncpg://tutor_user:tutor_pass_dev@localhost:5433/tutordb
 REDIS_URL=redis://localhost:6379/0
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=qwen2.5:7b-instruct-q4_K_M
@@ -574,6 +574,8 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - **Cloud SQL → PostgreSQL 16 + pgvector auto-hospedado**
 
 **asyncpg + pgvector:** Vector literal **inline** en SQL. No parametrizar con `::vector` cast (incompatible). Ver `rag_service.py`.
+
+**Postgres puerto host 5433 (no 5432) en dev Windows:** colisión con servicio nativo `postgresql-x64-*` que escucha 5432 en 0.0.0.0. Sin remapeo, conexiones desde Windows al docker postgres caen en el postgres nativo → "password authentication failed" engañoso. Backend container conecta vía `postgres:5432` (red docker interna, sin afectar). Scripts host (alembic, run_ragas_eval, tests asyncpg directos) usan `localhost:5433`.
 
 **Ollama format="json":** Usar wrapper objeto `{"questions":[...]}`, no array desnudo. Parser robusto en `llm_service.py`.
 
