@@ -53,6 +53,18 @@ if [ ! -d "tutor-ia-rfa" ]; then
     echo "Clona manualmente: git clone <repo_url> tutor-ia-rfa"
 fi
 
+echo "==> 9. Programar backup diario PostgreSQL (cron a las 03:00)"
+BACKUP_SCRIPT="$HOME/tutor-ia-rfa/infra/scripts/backup-postgres.sh"
+CRON_LINE="0 3 * * * $BACKUP_SCRIPT >> /var/log/tutor/backup.log 2>&1"
+if ! (crontab -l 2>/dev/null | grep -Fq "$BACKUP_SCRIPT"); then
+    (crontab -l 2>/dev/null; echo "$CRON_LINE") | crontab -
+    echo "Cron agregado: $CRON_LINE"
+else
+    echo "Cron de backup ya existe, no se duplica."
+fi
+sudo mkdir -p /var/log/tutor
+sudo chown -R "$USER":"$USER" /var/log/tutor
+
 echo ""
 echo "=============================================="
 echo "✓ VM aprovisionada."
