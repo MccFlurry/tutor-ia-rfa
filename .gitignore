@@ -42,3 +42,12 @@ htmlcov/
 
 # Firebase
 .firebase/
+
+# Corpus (course material — too heavy for git; ~1.1 GB of PDF/DOCX/PPTX).
+# Track only the README at corpus root; ignore everything else (raw export,
+# weekly material, kotlin slide decks, binaries). Re-populate locally from
+# the Drive folder referenced in corpus/README.md.
+corpus/*
+!corpus/README.md
+!corpus/.gitignore
+

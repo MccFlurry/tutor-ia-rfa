@@ -77,7 +77,20 @@
       "mcp__plugin_claude-mem_mcp-search__get_observations",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(rm -rf semana-05/moviles)",
+      "Bash(find semana-* recursos-kotlin -type f)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec tutor_backend ls //app/corpus)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec tutor_backend ollama list)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec tutor_backend python scripts/ingest_corpus.py --reset)",
+      "Bash(tee /tmp/ingest_corpus.log)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec tutor_backend ps aux)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec tutor_backend ls //proc)",
+      "Bash(grep -E \"^[0-9]+$\")",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec tutor_postgres *)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec tutor_backend python -c ' *)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec tutor_backend *)",
+      "Bash(git check-ignore *)"
     ]
   }
 }
