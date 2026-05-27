@@ -157,6 +157,7 @@ async def _generate_with_llm(modules: list[Module]) -> list[AssessmentQuestion]:
         num_ctx=8192,
         num_predict=4096,
         format="json",
+        timeout=settings.OLLAMA_TIMEOUT,
     )
 
     logger.info(f"Generando {NUM_ASSESSMENT_QUESTIONS} preguntas de evaluación de entrada vía Ollama")
