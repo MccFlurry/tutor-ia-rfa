@@ -66,7 +66,9 @@ async def _safe_redis_setex(redis_client, key: str, ttl: int, value: str) -> Non
 # Task 3: get_students_overview
 # ---------------------------------------------------------------------------
 
-from sqlalchemy import select, func
+from uuid import UUID
+
+from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
@@ -75,9 +77,18 @@ from app.models.module import Module
 from app.models.topic import Topic
 from app.models.progress import UserTopicProgress
 from app.models.quiz import QuizAttempt
-from app.models.coding import CodingSubmission
+from app.models.coding import CodingSubmission, CodingChallenge
 from app.models.chat import ChatMessage
-from app.schemas.admin_reports import StudentRow
+from app.models.achievement import Achievement, UserAchievement
+from app.schemas.admin_reports import (
+    StudentRow,
+    StudentDetail,
+    ModuleProgress,
+    QuizAttemptRow,
+    CodingSubmissionRow,
+    AchievementRow,
+    LevelHistoryEntry,
+)
 
 
 async def get_students_overview(db: AsyncSession) -> list[StudentRow]:
@@ -211,3 +222,184 @@ async def get_students_overview(db: AsyncSession) -> list[StudentRow]:
             is_active=user.is_active,
         ))
     return out
+
+
+# ---------------------------------------------------------------------------
+# Task 4: get_student_detail
+# ---------------------------------------------------------------------------
+
+async def get_student_detail(db: AsyncSession, user_id: UUID) -> StudentDetail:
+    """Return everything we know about a student for the detail page.
+
+    Raises LookupError if the user does not exist or is not a student. The
+    router maps this to 404.
+    """
+    # 1) user + level
+    row = (
+        await db.execute(
+            select(User, UserLevel)
+            .outerjoin(UserLevel, UserLevel.user_id == User.id)
+            .where(User.id == user_id, User.role == "student")
+        )
+    ).first()
+    if row is None:
+        raise LookupError("student_not_found")
+    user, lvl = row
+
+    # 2) modules + per-module progress
+    module_q = (
+        select(
+            Module,
+            func.count(UserTopicProgress.topic_id).filter(
+                UserTopicProgress.is_completed.is_(True),
+                UserTopicProgress.user_id == user_id,
+            ).label("completed"),
+            func.count(Topic.id).label("topics_total"),
+            func.avg(QuizAttempt.score).filter(QuizAttempt.user_id == user_id).label("avg_quiz"),
+            func.avg(CodingSubmission.score).filter(CodingSubmission.user_id == user_id).label("avg_coding"),
+        )
+        .join(Topic, Topic.module_id == Module.id)
+        .outerjoin(UserTopicProgress, and_(
+            UserTopicProgress.topic_id == Topic.id,
+            UserTopicProgress.user_id == user_id,
+        ))
+        .outerjoin(QuizAttempt, and_(
+            QuizAttempt.topic_id == Topic.id,
+            QuizAttempt.user_id == user_id,
+        ))
+        .group_by(Module.id)
+        .order_by(Module.order_index)
+    )
+    module_rows = (await db.execute(module_q)).all()
+
+    modules: list[ModuleProgress] = []
+    for mod, completed, total, avg_q, avg_c in module_rows:
+        pct = round((completed / total) * 100.0, 2) if total else 0.0
+        modules.append(ModuleProgress(
+            module_id=mod.id,
+            module_title=mod.title,
+            topics_total=total or 0,
+            topics_completed=completed or 0,
+            progress_pct=pct,
+            avg_quiz_score=float(avg_q) if avg_q is not None else None,
+            avg_coding_score=float(avg_c) if avg_c is not None else None,
+        ))
+
+    # 3) recent quizzes (last 10)
+    quiz_q = (
+        select(QuizAttempt, Topic.title)
+        .join(Topic, Topic.id == QuizAttempt.topic_id)
+        .where(QuizAttempt.user_id == user_id)
+        .order_by(QuizAttempt.attempted_at.desc())
+        .limit(10)
+    )
+    quizzes = [
+        QuizAttemptRow(
+            attempt_id=q.id,
+            topic_id=q.topic_id,
+            topic_title=t_title,
+            score=q.score,
+            is_passed=q.is_passed,
+            attempted_at=q.attempted_at,
+        )
+        for q, t_title in (await db.execute(quiz_q)).all()
+    ]
+
+    # 4) recent coding (last 10)
+    coding_q = (
+        select(CodingSubmission, CodingChallenge.title)
+        .join(CodingChallenge, CodingChallenge.id == CodingSubmission.challenge_id)
+        .where(CodingSubmission.user_id == user_id)
+        .order_by(CodingSubmission.submitted_at.desc())
+        .limit(10)
+    )
+    coding = [
+        CodingSubmissionRow(
+            submission_id=s.id,
+            challenge_id=s.challenge_id,
+            challenge_title=c_title,
+            score=s.score,
+            submitted_at=s.submitted_at,
+        )
+        for s, c_title in (await db.execute(coding_q)).all()
+    ]
+
+    # 5) chat counts
+    chat_count, chat_last = (
+        await db.execute(
+            select(func.count(ChatMessage.id), func.max(ChatMessage.created_at))
+            .where(ChatMessage.user_id == user_id, ChatMessage.role == "user")
+        )
+    ).first() or (0, None)
+
+    # 6) achievements
+    ach_q = (
+        select(Achievement, UserAchievement.earned_at)
+        .join(UserAchievement, UserAchievement.achievement_id == Achievement.id)
+        .where(UserAchievement.user_id == user_id)
+        .order_by(UserAchievement.earned_at.desc())
+    )
+    achievements = [
+        AchievementRow(
+            achievement_id=a.id,
+            name=a.name,
+            badge_emoji=a.badge_emoji,
+            earned_at=earned,
+        )
+        for a, earned in (await db.execute(ach_q)).all()
+    ]
+
+    # 7) total time
+    total_time = (
+        await db.execute(
+            select(func.coalesce(func.sum(UserTopicProgress.time_spent_seconds), 0))
+            .where(UserTopicProgress.user_id == user_id)
+        )
+    ).scalar() or 0
+
+    # Last activity = max over quiz, coding, chat (progress timestamps are not in detail).
+    last_at = max(
+        (x for x in [
+            chat_last,
+            quizzes[0].attempted_at if quizzes else None,
+            coding[0].submitted_at if coding else None,
+        ] if x is not None),
+        default=None,
+    )
+
+    # Level history from JSONB
+    history: list[LevelHistoryEntry] = []
+    if lvl and lvl.history:
+        for entry in lvl.history:
+            try:
+                history.append(LevelHistoryEntry(**entry))
+            except Exception:
+                continue
+
+    overall_pct = (
+        round(sum(m.progress_pct * m.topics_total for m in modules)
+              / sum(m.topics_total for m in modules), 2)
+        if modules and sum(m.topics_total for m in modules) > 0
+        else 0.0
+    )
+
+    return StudentDetail(
+        user_id=user.id,
+        full_name=user.full_name,
+        email=user.email,
+        created_at=user.created_at,
+        is_active=user.is_active,
+        level=lvl.level if lvl else None,
+        entry_score=lvl.entry_score if lvl else None,
+        level_history=history,
+        overall_progress_pct=overall_pct,
+        modules=modules,
+        recent_quizzes=quizzes,
+        recent_coding=coding,
+        chat_messages_count=chat_count or 0,
+        chat_last_at=chat_last,
+        achievements_earned=achievements,
+        total_time_seconds=int(total_time),
+        last_activity_at=last_at,
+        last_location=None,
+    )
