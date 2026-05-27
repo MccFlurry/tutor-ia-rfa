@@ -109,7 +109,12 @@
       "PowerShell([Environment]::SetEnvironmentVariable\\('OLLAMA_KEEP_ALIVE','30m','User'\\); [Environment]::SetEnvironmentVariable\\('OLLAMA_HOST','0.0.0.0:11434','User'\\); Write-Output \"OLLAMA_KEEP_ALIVE=$\\([Environment]::GetEnvironmentVariable\\('OLLAMA_KEEP_ALIVE','User'\\)\\)\"; Write-Output \"OLLAMA_HOST=$\\([Environment]::GetEnvironmentVariable\\('OLLAMA_HOST','User'\\)\\)\")",
       "PowerShell(Get-Process *)",
       "PowerShell(Test-Path *)",
-      "PowerShell(docker exec tutor_backend *)"
+      "PowerShell(docker exec tutor_backend *)",
+      "Bash(cmd //c where docker)",
+      "Bash(cmd //c \"tasklist /FI \\\\\"IMAGENAME eq Docker Desktop.exe\\\\\"\")",
+      "Bash(cmd //c \"tasklist\")",
+      "Read(//c/Program Files/Docker/Docker/**)",
+      "Read(//c/Program Files/Docker/Docker//**)"
     ]
   }
 }

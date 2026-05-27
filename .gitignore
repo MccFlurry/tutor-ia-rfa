@@ -51,3 +51,4 @@ corpus/*
 !corpus/README.md
 !corpus/.gitignore
 
+.ollama.log
