@@ -122,7 +122,8 @@
       "Bash(pytest *)",
       "Bash(git pull *)",
       "Bash(git merge *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(findstr /C:\"html2pdf\")"
     ]
   }
 }
