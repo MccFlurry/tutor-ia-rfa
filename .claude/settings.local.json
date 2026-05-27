@@ -117,7 +117,12 @@
       "Read(//c/Program Files/Docker/Docker//**)",
       "Bash(xargs grep -l \"level\")",
       "Bash(xargs grep -l \"LevelBadge\\\\|ReassessmentModal\")",
-      "Bash(npx vitest *)"
+      "Bash(npx vitest *)",
+      "Bash(git checkout *)",
+      "Bash(pytest *)",
+      "Bash(git pull *)",
+      "Bash(git merge *)",
+      "Bash(git push *)"
     ]
   }
 }
