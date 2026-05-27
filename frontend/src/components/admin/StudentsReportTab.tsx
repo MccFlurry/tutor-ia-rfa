@@ -102,7 +102,7 @@ export default function StudentsReportTab() {
         <div className="ml-auto">
           <Button onClick={() => setCohortOpen(true)} variant="default" size="sm">
             <Users2 className="w-4 h-4 mr-1" />
-            Reporte cohorte IA
+            Reporte de grupo IA
           </Button>
         </div>
       </div>

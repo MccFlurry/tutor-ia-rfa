@@ -61,8 +61,8 @@
 |---|---|---|---|---|
 | **RF-NEW-RPT-01** Reporte individual de estudiante en panel admin | Completitud + Pertinencia | `GET /admin/students`, `GET /admin/students/{id}` | `test_router_admin_reports::test_students_list_returns_rows`, `::test_student_detail_404_when_missing`; `test_student_report_overview`, `test_student_report_detail` | ✅ |
 | **RF-NEW-RPT-02** Generación de reporte narrativo IA por estudiante | Pertinencia + Corrección | `POST /admin/students/{id}/ai-report` (Ollama JSON + Redis cache 1h) | `test_student_report_generate` (5 tests: cache hit/miss, retry, activity gate), `test_router_admin_reports::test_ai_report_success`, `::test_ai_report_503_when_llm_fails`, `::test_ai_report_422_insufficient_activity` | ✅ |
-| **RF-NEW-RPT-03** Reporte comparativo de cohorte (2-15 estudiantes) | Pertinencia | `POST /admin/students/cohort/ai-report` | `test_student_report_cohort` (3 tests: filtra inválidos, bounds, cache key estable), `test_router_admin_reports::test_cohort_report_success`, `::test_cohort_report_validates_bounds` | ✅ |
-| **RF-NEW-RPT-04** Exportación de reporte IA a PDF (vía print del navegador) | Operabilidad | `window.print()` + CSS `@media print` | `frontend/src/pages/__tests__/AdminStudentReportPage.test.tsx::test_print_button_invokes_window_print` | ⏳ (frontend Tasks 12-16) |
+| **RF-NEW-RPT-03** Reporte comparativo de grupo (2-15 estudiantes) | Pertinencia | `POST /admin/students/cohort/ai-report` | `test_student_report_cohort` (3 tests: filtra inválidos, bounds, cache key estable), `test_router_admin_reports::test_cohort_report_success`, `::test_cohort_report_validates_bounds` | ✅ |
+| **RF-NEW-RPT-04** Exportación de reporte IA a PDF elaborado (portada + encabezado/pie + paginación) | Operabilidad | `html2pdf.js` client-side con plantilla branded | `frontend/src/pages/__tests__/AdminStudentReportPage.test.tsx::test_print_button_invokes_window_print` | ⏳ (frontend Tasks 12-16) |
 
 ---
 

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import ReactMarkdown from 'react-markdown'
@@ -8,6 +9,7 @@ import { adminReportsApi } from '@/api/adminReports'
 import type { AIReport, RiskLevel } from '@/types/adminReports'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { generateReportPDF } from '@/lib/reportPdf'
 
 const RISK_STYLES: Record<RiskLevel, string> = {
   bajo: 'bg-success/10 text-success border-success/30',
@@ -29,6 +31,20 @@ export default function AdminStudentReportPage() {
     onError: (e: any) =>
       toast.error(e?.response?.data?.detail || 'No se pudo generar el reporte IA'),
   })
+
+  const [pdfBusy, setPdfBusy] = useState(false)
+
+  async function handleDownloadPdf() {
+    if (!detail) return
+    setPdfBusy(true)
+    try {
+      await generateReportPDF(detail, mutation.data ?? null)
+    } catch (e: any) {
+      toast.error('No se pudo generar el PDF: ' + (e?.message ?? 'error desconocido'))
+    } finally {
+      setPdfBusy(false)
+    }
+  }
 
   if (isLoading || !detail) {
     return (
@@ -62,11 +78,12 @@ export default function AdminStudentReportPage() {
         </div>
         <Button
           variant="ghost"
-          onClick={() => window.print()}
+          onClick={handleDownloadPdf}
+          disabled={pdfBusy}
           className="no-print"
         >
           <Printer className="w-4 h-4 mr-1" />
-          Imprimir / PDF
+          {pdfBusy ? 'Generando PDF…' : 'Descargar PDF'}
         </Button>
       </header>
 

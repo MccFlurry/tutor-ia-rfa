@@ -12,6 +12,11 @@ vi.mock('@/api/adminReports', () => ({
   },
 }))
 
+vi.mock('@/lib/reportPdf', () => ({
+  generateReportPDF: vi.fn().mockResolvedValue(undefined),
+}))
+import { generateReportPDF } from '@/lib/reportPdf'
+
 function wrap(initialPath: string) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return (
@@ -73,11 +78,9 @@ describe('AdminStudentReportPage', () => {
 
   it('test_print_button_invokes_window_print', async () => {
     ;(adminReportsApi.getDetail as any).mockResolvedValue({ data: detail })
-    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {})
     render(wrap('/admin/students/u1'))
     await screen.findByText('Ana')
-    fireEvent.click(screen.getByRole('button', { name: /Imprimir/i }))
-    expect(printSpy).toHaveBeenCalled()
-    printSpy.mockRestore()
+    fireEvent.click(screen.getByRole('button', { name: /Descargar PDF/i }))
+    await waitFor(() => expect(generateReportPDF).toHaveBeenCalled())
   })
 })

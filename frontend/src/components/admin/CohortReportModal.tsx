@@ -30,7 +30,7 @@ export default function CohortReportModal({ students, onClose }: Props) {
       const next = new Set(s)
       if (next.has(id)) next.delete(id)
       else if (next.size < 15) next.add(id)
-      else toast.error('Máximo 15 estudiantes para la cohorte')
+      else toast.error('Máximo 15 estudiantes para el grupo')
       return next
     })
   }
@@ -40,13 +40,13 @@ export default function CohortReportModal({ students, onClose }: Props) {
   return (
     <div
       role="dialog"
-      aria-label="Reporte cohorte IA"
+      aria-label="Reporte de grupo IA"
       className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"
     >
       <div className="bg-card border border-border rounded-xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="text-lg font-bold text-foreground">Reporte cohorte IA</h2>
+            <h2 className="text-lg font-bold text-foreground">Reporte de grupo IA</h2>
             <p className="text-sm text-muted-foreground">
               Selecciona entre 2 y 15 estudiantes.
             </p>

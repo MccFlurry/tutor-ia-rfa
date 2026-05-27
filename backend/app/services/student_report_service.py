@@ -580,7 +580,7 @@ from app.schemas.admin_reports import CohortAIReport
 
 COHORT_SYSTEM_PROMPT = """Eres un tutor pedagógico evaluador del curso de Aplicaciones Móviles \
 del IESTP RFA. Te entrego datos resumidos de varios estudiantes y debes producir un reporte \
-COMPARATIVO de la cohorte.
+COMPARATIVO del grupo.
 
 REGLAS ESTRICTAS:
 1. Responde ÚNICAMENTE con JSON con esta estructura exacta:
@@ -634,7 +634,7 @@ def _build_cohort_prompt(rows: list[StudentRow]) -> str:
             f"quiz {r.avg_quiz_score if r.avg_quiz_score is not None else 'n/a'}, "
             f"coding {r.avg_coding_score if r.avg_coding_score is not None else 'n/a'}"
         )
-    block = "DATOS DE LA COHORTE\n" + "\n".join(lines) + "\n\nGenera el reporte comparativo."
+    block = "DATOS DEL GRUPO\n" + "\n".join(lines) + "\n\nGenera el reporte comparativo."
     return block[:3500]
 
 
