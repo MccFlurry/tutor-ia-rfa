@@ -107,6 +107,27 @@ class TestParseErrors:
         with pytest.raises(QuizGenerationError):
             _parse_llm_response(json.dumps([]), num_questions=1)
 
+    def test_empty_option_raises(self):
+        bad = _valid_question(0)
+        bad["options"] = ["False", "", "", ""]
+        raw = json.dumps([bad])
+        with pytest.raises(QuizGenerationError, match="vacías"):
+            _parse_llm_response(raw, num_questions=1)
+
+    def test_whitespace_only_option_raises(self):
+        bad = _valid_question(0)
+        bad["options"] = ["correcta", "  ", "incorrecta", "otra"]
+        raw = json.dumps([bad])
+        with pytest.raises(QuizGenerationError, match="vacías"):
+            _parse_llm_response(raw, num_questions=1)
+
+    def test_duplicate_options_raise(self):
+        bad = _valid_question(0)
+        bad["options"] = ["sí", "no", "Sí", "tal vez"]
+        raw = json.dumps([bad])
+        with pytest.raises(QuizGenerationError, match="duplicadas"):
+            _parse_llm_response(raw, num_questions=1)
+
 
 class TestExplanationDefault:
     def test_blank_explanation_filled_with_default(self):
@@ -137,7 +158,7 @@ class TestGenerateQuizQuestions:
             out = await generate_quiz_questions("x" * 500, num_questions=1)
         assert len(out) == 1
         assert captured["format"] == "json"
-        assert captured["temperature"] == 0.7
+        assert captured["temperature"] == 0.4
 
     @pytest.mark.asyncio
     async def test_unknown_level_falls_back_to_intermediate(self):

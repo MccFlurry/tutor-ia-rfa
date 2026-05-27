@@ -138,12 +138,19 @@ def _parse_llm_response(raw: str, num_questions: int) -> list[GeneratedQuestion]
             raise QuizGenerationError(f"Pregunta {i} sin texto")
         if not isinstance(options, list) or len(options) != 4:
             raise QuizGenerationError(f"Pregunta {i} no tiene exactamente 4 opciones")
+
+        normalized_options = [str(o).strip() for o in options]
+        if any(not o for o in normalized_options):
+            raise QuizGenerationError(f"Pregunta {i} contiene opciones vacías")
+        if len({o.lower() for o in normalized_options}) != 4:
+            raise QuizGenerationError(f"Pregunta {i} contiene opciones duplicadas")
+
         if not isinstance(correct_idx, int) or correct_idx < 0 or correct_idx > 3:
             raise QuizGenerationError(f"Pregunta {i} tiene correct_option_index inválido: {correct_idx}")
 
         questions.append(GeneratedQuestion(
             question_text=q_text,
-            options=[str(o).strip() for o in options],
+            options=normalized_options,
             correct_option_index=correct_idx,
             explanation=explanation or "Sin explicación disponible.",
         ))
@@ -188,9 +195,9 @@ async def generate_quiz_questions(
         llm = ChatOllama(
             base_url=settings.OLLAMA_BASE_URL,
             model=settings.OLLAMA_MODEL,
-            temperature=0.7,
+            temperature=0.4,
             num_ctx=8192,
-            num_predict=2048,
+            num_predict=1500,
             format="json",
             timeout=settings.OLLAMA_TIMEOUT,
         )
