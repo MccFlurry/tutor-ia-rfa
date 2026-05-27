@@ -114,7 +114,10 @@
       "Bash(cmd //c \"tasklist /FI \\\\\"IMAGENAME eq Docker Desktop.exe\\\\\"\")",
       "Bash(cmd //c \"tasklist\")",
       "Read(//c/Program Files/Docker/Docker/**)",
-      "Read(//c/Program Files/Docker/Docker//**)"
+      "Read(//c/Program Files/Docker/Docker//**)",
+      "Bash(xargs grep -l \"level\")",
+      "Bash(xargs grep -l \"LevelBadge\\\\|ReassessmentModal\")",
+      "Bash(npx vitest *)"
     ]
   }
 }
