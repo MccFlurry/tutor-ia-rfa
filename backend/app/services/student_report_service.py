@@ -569,3 +569,113 @@ async def generate_ai_report(db: AsyncSession, redis_client, user_id: UUID) -> A
     parsed["generated_at"] = datetime.now(timezone.utc).isoformat()
     await _safe_redis_setex(redis_client, key, 3600, json.dumps(parsed))
     return AIReport(**parsed, cached=False)
+
+
+# ---------------------------------------------------------------------------
+# Task 7: generate_cohort_report
+# ---------------------------------------------------------------------------
+
+from app.schemas.admin_reports import CohortAIReport
+
+
+COHORT_SYSTEM_PROMPT = """Eres un tutor pedagógico evaluador del curso de Aplicaciones Móviles \
+del IESTP RFA. Te entrego datos resumidos de varios estudiantes y debes producir un reporte \
+COMPARATIVO de la cohorte.
+
+REGLAS ESTRICTAS:
+1. Responde ÚNICAMENTE con JSON con esta estructura exacta:
+{
+  "narrative": "Análisis comparativo del grupo (2-3 párrafos).",
+  "top_performers": ["nombres completos de los que destacan"],
+  "needs_support": ["nombres completos de los que requieren apoyo"],
+  "common_gaps": ["patrones comunes detectados"],
+  "recommendations": ["acciones grupales para el docente"]
+}
+2. Basa todo en los datos. No inventes nombres ni números.
+3. Español peruano, tono profesional."""
+
+
+_COHORT_REQUIRED = {"narrative", "top_performers", "needs_support", "common_gaps", "recommendations"}
+
+
+def _parse_cohort(raw: str) -> dict:
+    cleaned = raw.strip()
+    cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
+    cleaned = re.sub(r"\s*```$", "", cleaned)
+    try:
+        data = json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        raise LLMReportError(f"JSON inválido del LLM (cohort): {e}")
+    if not isinstance(data, dict):
+        raise LLMReportError("Respuesta cohort no es objeto")
+    missing = _COHORT_REQUIRED - set(data.keys())
+    if missing:
+        raise LLMReportError(f"Faltan campos cohort: {sorted(missing)}")
+    for k in ("top_performers", "needs_support", "common_gaps", "recommendations"):
+        if not isinstance(data[k], list):
+            raise LLMReportError(f"{k} debe ser lista")
+        data[k] = [str(x).strip() for x in data[k] if str(x).strip()]
+    data["narrative"] = str(data["narrative"]).strip()
+    return data
+
+
+def _cohort_cache_key(ids: list[UUID]) -> str:
+    sorted_ids = sorted(str(i) for i in ids)
+    raw = json.dumps(sorted_ids).encode("utf-8")
+    return "cohort_report:" + hashlib.sha256(raw).hexdigest()[:16]
+
+
+def _build_cohort_prompt(rows: list[StudentRow]) -> str:
+    lines = []
+    for r in rows:
+        lines.append(
+            f"- {r.full_name} (nivel {r.level or 'sin asignar'}): "
+            f"progreso {r.overall_progress_pct}%, "
+            f"quiz {r.avg_quiz_score if r.avg_quiz_score is not None else 'n/a'}, "
+            f"coding {r.avg_coding_score if r.avg_coding_score is not None else 'n/a'}"
+        )
+    block = "DATOS DE LA COHORTE\n" + "\n".join(lines) + "\n\nGenera el reporte comparativo."
+    return block[:3500]
+
+
+async def generate_cohort_report(
+    db: AsyncSession, redis_client, user_ids: list[UUID],
+) -> CohortAIReport:
+    if len(user_ids) < 2 or len(user_ids) > 15:
+        raise ValueError("Selecciona entre 2 y 15 estudiantes")
+
+    overview = await get_students_overview(db)
+    by_id = {r.user_id: r for r in overview}
+    rows = [by_id[uid] for uid in user_ids if uid in by_id]
+    if len(rows) < 2:
+        raise ValueError("Se necesitan al menos 2 estudiantes válidos en la lista")
+
+    key = _cohort_cache_key([r.user_id for r in rows])
+    cached_raw = await _safe_redis_get(redis_client, key)
+    if cached_raw:
+        try:
+            payload = json.loads(cached_raw)
+            return CohortAIReport(**payload, cached=True)
+        except Exception as e:
+            logger.warning(f"[student_report] cohort cache corrupto: {e}")
+
+    prompt = _build_cohort_prompt(rows)
+    try:
+        raw = await llm_service.generate_student_report_text(
+            COHORT_SYSTEM_PROMPT, prompt, temperature=0.3,
+        )
+        parsed = _parse_cohort(raw)
+    except (LLMReportError, json.JSONDecodeError):
+        try:
+            raw = await llm_service.generate_student_report_text(
+                COHORT_SYSTEM_PROMPT, prompt, temperature=0.1,
+            )
+            parsed = _parse_cohort(raw)
+        except (LLMReportError, json.JSONDecodeError) as e:
+            raise LLMReportError("LLM no produjo cohort JSON válido") from e
+    except Exception as e:
+        raise LLMReportError(f"Ollama indisponible: {e}") from e
+
+    parsed["generated_at"] = datetime.now(timezone.utc).isoformat()
+    await _safe_redis_setex(redis_client, key, 3600, json.dumps(parsed))
+    return CohortAIReport(**parsed, cached=False)
