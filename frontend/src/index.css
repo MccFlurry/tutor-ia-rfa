@@ -150,3 +150,19 @@
     @apply transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
   }
 }
+
+/* --- Admin student report: print stylesheet (Task 16) ----------------- */
+@media print {
+  .no-print { display: none !important; }
+  .printable-report {
+    max-width: 100% !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  body { background: #fff !important; color: #000 !important; }
+  /* Hide global app shell so the printout is just the report. */
+  aside, nav, .app-sidebar, header.app-header { display: none !important; }
+  /* Ensure progress bars print legibly. */
+  .bg-primary-500 { background: #1d4ed8 !important; }
+  a { color: #000 !important; text-decoration: none !important; }
+}

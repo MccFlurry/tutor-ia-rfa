@@ -55,6 +55,15 @@
 | **RF-32** Gestión de usuarios | Completitud | `GET/PUT /admin/users`, `GET /admin/user-levels`, `PUT /admin/user-levels/{id}` | `test_router_admin::test_admin_list_users`, `test_admin_update_user_404`, `test_admin_cannot_deactivate_self`, `test_admin_list_user_levels`, `test_admin_override_user_level_404`, `test_admin_override_user_level_succeeds` | ✅ |
 | **RF-33** Gestión contenido del curso | Completitud | `*/admin/{modules,topics,quiz-questions,coding-challenges,assessment-bank}` CRUD | `test_router_admin` (CRUD smoke por entidad: modules list/update-404, topics delete-404, quiz options validation, coding delete, bank CRUD completo, AI generator) | ✅ |
 
+### Extensión post-Sprint 7 — Reportes admin de estudiantes (rama `feat/admin-student-reports`)
+
+| RF extensión | Subcaracterística | Endpoint / Servicio | Tests | Estado |
+|---|---|---|---|---|
+| **RF-NEW-RPT-01** Reporte individual de estudiante en panel admin | Completitud + Pertinencia | `GET /admin/students`, `GET /admin/students/{id}` | `test_router_admin_reports::test_students_list_returns_rows`, `::test_student_detail_404_when_missing`; `test_student_report_overview`, `test_student_report_detail` | ✅ |
+| **RF-NEW-RPT-02** Generación de reporte narrativo IA por estudiante | Pertinencia + Corrección | `POST /admin/students/{id}/ai-report` (Ollama JSON + Redis cache 1h) | `test_student_report_generate` (5 tests: cache hit/miss, retry, activity gate), `test_router_admin_reports::test_ai_report_success`, `::test_ai_report_503_when_llm_fails`, `::test_ai_report_422_insufficient_activity` | ✅ |
+| **RF-NEW-RPT-03** Reporte comparativo de cohorte (2-15 estudiantes) | Pertinencia | `POST /admin/students/cohort/ai-report` | `test_student_report_cohort` (3 tests: filtra inválidos, bounds, cache key estable), `test_router_admin_reports::test_cohort_report_success`, `::test_cohort_report_validates_bounds` | ✅ |
+| **RF-NEW-RPT-04** Exportación de reporte IA a PDF (vía print del navegador) | Operabilidad | `window.print()` + CSS `@media print` | `frontend/src/pages/__tests__/AdminStudentReportPage.test.tsx::test_print_button_invokes_window_print` | ⏳ (frontend Tasks 12-16) |
+
 ---
 
 ## Resumen métricas — Sprint 7
