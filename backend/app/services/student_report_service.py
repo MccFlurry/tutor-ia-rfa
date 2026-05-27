@@ -6,6 +6,8 @@ Tasks 3-7.
 
 import hashlib
 import json
+import re
+from datetime import timezone
 
 from app.schemas.admin_reports import StudentDetail
 from app.utils.logger import logger
@@ -403,3 +405,118 @@ async def get_student_detail(db: AsyncSession, user_id: UUID) -> StudentDetail:
         last_activity_at=last_at,
         last_location=None,
     )
+
+
+# ---------------------------------------------------------------------------
+# Task 5: LLM prompt + JSON parser
+# ---------------------------------------------------------------------------
+
+REPORT_SYSTEM_PROMPT = """Eres un tutor pedagógico evaluador del curso de Aplicaciones Móviles \
+(Android/Kotlin) del IESTP República Federal de Alemania (RFA), Chiclayo. Tu rol es analizar \
+el desempeño de un estudiante y entregar un reporte breve y accionable.
+
+REGLAS ESTRICTAS:
+1. Responde ÚNICAMENTE con un objeto JSON válido (sin texto extra, sin markdown fences).
+2. Estructura EXACTA del objeto:
+{
+  "report": {
+    "summary": "Resumen narrativo de 3 a 4 párrafos en español peruano.",
+    "strengths": ["máximo 4 ítems"],
+    "weaknesses": ["máximo 4 ítems"],
+    "risk_level": "bajo" | "medio" | "alto",
+    "risk_reason": "Una oración explicando el riesgo.",
+    "interventions": ["máximo 5 acciones concretas para el docente"]
+  }
+}
+3. Basa toda inferencia en los datos provistos. No inventes eventos ni números.
+4. Si la evidencia es insuficiente para concluir, indícalo en risk_reason.
+5. risk_level "alto" requiere: progreso <30% Y promedio quiz <0.5, o más de 14 días sin actividad."""
+
+
+def _build_report_prompt(detail: StudentDetail) -> str:
+    """Compact serialization of the student detail (kept under 3 500 chars)."""
+    modules_lines = "\n".join(
+        f"  - {m.module_title}: {m.progress_pct}% completado, "
+        f"quiz={m.avg_quiz_score if m.avg_quiz_score is not None else 'n/a'}, "
+        f"coding={m.avg_coding_score if m.avg_coding_score is not None else 'n/a'}"
+        for m in detail.modules
+    )
+    last_quizzes = "\n".join(
+        f"  - {q.topic_title}: {q.score:.2f} ({'aprobado' if q.is_passed else 'no aprobado'})"
+        for q in detail.recent_quizzes[:5]
+    )
+    last_coding = "\n".join(
+        f"  - {c.challenge_title}: {c.score:.0f}/100"
+        for c in detail.recent_coding[:5]
+    )
+    last_activity = (
+        detail.last_activity_at.astimezone(timezone.utc).isoformat()
+        if detail.last_activity_at else "sin registros"
+    )
+
+    user_block = f"""DATOS DEL ESTUDIANTE
+- Nombre: {detail.full_name}
+- Nivel actual: {detail.level or 'sin asignar'}
+- Puntaje de entrada: {detail.entry_score if detail.entry_score is not None else 'n/a'}
+- Progreso global: {detail.overall_progress_pct}%
+- Tiempo total invertido: {detail.total_time_seconds // 60} minutos
+- Logros desbloqueados: {len(detail.achievements_earned)}
+- Mensajes de chat al tutor IA: {detail.chat_messages_count}
+- Última actividad: {last_activity}
+
+PROGRESO POR MÓDULO
+{modules_lines or '  (sin módulos)'}
+
+ÚLTIMOS QUIZZES
+{last_quizzes or '  (sin intentos)'}
+
+ÚLTIMOS DESAFÍOS DE CÓDIGO
+{last_coding or '  (sin entregas)'}
+
+INSTRUCCIONES
+Analiza estos datos y devuelve el reporte JSON solicitado."""
+
+    if len(user_block) > 3500:
+        user_block = user_block[:3500] + "\n[...truncado]"
+    return user_block
+
+
+_VALID_RISKS = {"bajo", "medio", "alto"}
+_REQUIRED_KEYS = {"summary", "strengths", "weaknesses", "risk_level", "risk_reason", "interventions"}
+
+
+def _parse_report(raw: str) -> dict:
+    """Strict parser for the LLM JSON object. Tolerates `{"report": {...}}`
+    wrapper and markdown code fences."""
+    cleaned = raw.strip()
+    cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
+    cleaned = re.sub(r"\s*```$", "", cleaned)
+    cleaned = cleaned.strip()
+
+    try:
+        data = json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        raise LLMReportError(f"JSON inválido del LLM: {e}")
+
+    if isinstance(data, dict) and "report" in data and isinstance(data["report"], dict):
+        data = data["report"]
+    if not isinstance(data, dict):
+        raise LLMReportError("La respuesta del LLM no es un objeto")
+
+    missing = _REQUIRED_KEYS - set(data.keys())
+    if missing:
+        raise LLMReportError(f"Faltan campos en el reporte LLM: {sorted(missing)}")
+
+    risk = str(data["risk_level"]).strip().lower()
+    if risk not in _VALID_RISKS:
+        raise LLMReportError(f"risk_level inválido: {data['risk_level']!r}")
+    data["risk_level"] = risk
+
+    for key in ("strengths", "weaknesses", "interventions"):
+        if not isinstance(data[key], list):
+            raise LLMReportError(f"{key} debe ser lista")
+        data[key] = [str(x).strip() for x in data[key] if str(x).strip()]
+
+    data["summary"] = str(data["summary"]).strip()
+    data["risk_reason"] = str(data["risk_reason"]).strip()
+    return data

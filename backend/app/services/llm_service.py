@@ -220,3 +220,28 @@ async def generate_quiz_questions(
     except Exception as e:
         logger.error(f"Error al comunicarse con Ollama: {e}")
         raise QuizGenerationError(f"No se pudo conectar con el servicio de IA: {e}")
+
+
+async def generate_student_report_text(
+    system_prompt: str, user_prompt: str, *, temperature: float = 0.3,
+) -> str:
+    """Single-shot ChatOllama call returning raw JSON text. Used by
+    student_report_service for individual and cohort narrative reports."""
+    try:
+        llm = ChatOllama(
+            base_url=settings.OLLAMA_BASE_URL,
+            model=settings.OLLAMA_MODEL,
+            temperature=temperature,
+            num_ctx=8192,
+            num_predict=1500,
+            format="json",
+            timeout=settings.OLLAMA_TIMEOUT,
+        )
+        response = await llm.ainvoke([
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=user_prompt),
+        ])
+        return response.content
+    except Exception as e:
+        logger.error(f"Error en LLM (student report): {e}")
+        raise
