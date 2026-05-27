@@ -7,10 +7,11 @@ Tasks 3-7.
 import hashlib
 import json
 import re
-from datetime import timezone
+from datetime import datetime, timezone
 
-from app.schemas.admin_reports import StudentDetail
+from app.schemas.admin_reports import StudentDetail, AIReport
 from app.utils.logger import logger
+from app.services import llm_service
 
 
 class InsufficientActivityError(Exception):
@@ -520,3 +521,51 @@ def _parse_report(raw: str) -> dict:
     data["summary"] = str(data["summary"]).strip()
     data["risk_reason"] = str(data["risk_reason"]).strip()
     return data
+
+
+# ---------------------------------------------------------------------------
+# Task 6: generate_ai_report (cache + retry + activity gate)
+# ---------------------------------------------------------------------------
+
+async def generate_ai_report(db: AsyncSession, redis_client, user_id: UUID) -> AIReport:
+    """Generate (or fetch cached) AI narrative report for a single student."""
+    detail = await get_student_detail(db, user_id)
+    if not _has_minimum_activity(detail):
+        raise InsufficientActivityError(
+            "Sin actividad suficiente. Esperar primer quiz."
+        )
+
+    key = f"student_report:{user_id}:{_detail_hash(detail)}"
+
+    cached_raw = await _safe_redis_get(redis_client, key)
+    if cached_raw:
+        try:
+            payload = json.loads(cached_raw)
+            return AIReport(**payload, cached=True)
+        except Exception as e:
+            logger.warning(f"[student_report] cache corrupto para {key}: {e}")
+
+    system_prompt = REPORT_SYSTEM_PROMPT
+    user_prompt = _build_report_prompt(detail)
+
+    try:
+        raw = await llm_service.generate_student_report_text(
+            system_prompt, user_prompt, temperature=0.3,
+        )
+        parsed = _parse_report(raw)
+    except (LLMReportError, json.JSONDecodeError):
+        try:
+            raw = await llm_service.generate_student_report_text(
+                system_prompt, user_prompt, temperature=0.1,
+            )
+            parsed = _parse_report(raw)
+        except (LLMReportError, json.JSONDecodeError) as e:
+            logger.error(f"LLM falló tras reintento para {user_id}: {e}")
+            raise LLMReportError("LLM no produjo JSON válido tras reintento") from e
+    except Exception as e:
+        logger.error(f"Error de Ollama generando reporte para {user_id}: {e}")
+        raise LLMReportError(f"Ollama indisponible: {e}") from e
+
+    parsed["generated_at"] = datetime.now(timezone.utc).isoformat()
+    await _safe_redis_setex(redis_client, key, 3600, json.dumps(parsed))
+    return AIReport(**parsed, cached=False)
