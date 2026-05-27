@@ -1,15 +1,17 @@
 import { useState } from 'react'
-import { Database, FileCode, Users, ClipboardList, TrendingUp } from 'lucide-react'
+import { Database, FileCode, Users, ClipboardList, TrendingUp, BarChart3 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import CorpusTab from '@/components/admin/CorpusTab'
 import ContentTab from '@/components/admin/ContentTab'
 import UsersTab from '@/components/admin/UsersTab'
 import BankTab from '@/components/admin/BankTab'
 import LevelsTab from '@/components/admin/LevelsTab'
+import StudentsReportTab from '@/components/admin/StudentsReportTab'
 
-type TabId = 'corpus' | 'content' | 'users' | 'bank' | 'levels'
+type TabId = 'reports' | 'corpus' | 'content' | 'users' | 'bank' | 'levels'
 
 const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { id: 'reports', label: 'Reportes', icon: BarChart3 },
   { id: 'corpus', label: 'Corpus RAG', icon: Database },
   { id: 'content', label: 'Contenido', icon: FileCode },
   { id: 'users', label: 'Usuarios', icon: Users },
@@ -18,7 +20,7 @@ const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: 
 ]
 
 export default function AdminPage() {
-  const [tab, setTab] = useState<TabId>('corpus')
+  const [tab, setTab] = useState<TabId>('reports')
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6">
@@ -54,6 +56,7 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {tab === 'reports' && <StudentsReportTab />}
       {tab === 'corpus' && <CorpusTab />}
       {tab === 'content' && <ContentTab />}
       {tab === 'users' && <UsersTab />}
