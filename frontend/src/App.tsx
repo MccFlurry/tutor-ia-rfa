@@ -27,6 +27,7 @@ import CodingChallengePage from '@/pages/CodingChallengePage'
 import EntryAssessmentPage from '@/pages/EntryAssessmentPage'
 import SettingsPage from '@/pages/SettingsPage'
 import AdminPage from '@/pages/AdminPage'
+import AdminStudentReportPage from '@/pages/AdminStudentReportPage'
 
 function AppRoutes() {
   const { loadFromStorage, isAuthenticated, user, setUser, logout } = useAuthStore()
@@ -117,6 +118,14 @@ function AppRoutes() {
           element={
             <AuthGuard requireAdmin>
               <AdminPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/admin/students/:userId"
+          element={
+            <AuthGuard requireAdmin>
+              <AdminStudentReportPage />
             </AuthGuard>
           }
         />
