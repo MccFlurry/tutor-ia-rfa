@@ -47,8 +47,8 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
       <aside
         aria-label="Navegación principal"
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-card border-r border-border flex flex-col
-                    transform transition-transform duration-200 lg:translate-x-0 lg:static lg:z-0
+        className={`fixed top-0 left-0 z-50 h-dvh w-64 bg-card border-r border-border flex flex-col
+                    transform transition-transform duration-200 lg:translate-x-0 lg:sticky lg:top-0 lg:z-0
                     ${open ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* Brand header with heritage accent */}
