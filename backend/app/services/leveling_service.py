@@ -11,6 +11,7 @@ from sqlalchemy import select, desc
 
 from app.models.user_level import UserLevel
 from app.models.quiz import QuizAttempt
+from app.models.coding import CodingSubmission
 from app.utils.logger import logger
 
 
@@ -160,6 +161,10 @@ async def check_reassessment(
     """
     Analyze last N quiz attempts to propose level change.
     Returns dict: {should_reassess, direction, current_level, proposed_level, reason}
+
+    Only quiz attempts taken AFTER the last reassessment (or entry assessment)
+    count toward the streak — prevents the same 3 attempts from re-triggering
+    a level change after one has already been applied.
     """
     # Current level
     lvl_result = await db.execute(select(UserLevel).where(UserLevel.user_id == user_id))
@@ -169,19 +174,61 @@ async def check_reassessment(
 
     current = lvl.level
 
-    # Last N quiz attempts (any topic)
-    attempts_result = await db.execute(
-        select(QuizAttempt)
+    # Boundary: only count learning events after the most recent level change
+    boundary = lvl.last_reassessed_at or lvl.assessed_at
+
+    quiz_q = (
+        select(QuizAttempt.score, QuizAttempt.attempted_at)
         .where(QuizAttempt.user_id == user_id)
         .order_by(desc(QuizAttempt.attempted_at))
         .limit(REASSESS_STREAK)
     )
-    attempts = list(attempts_result.scalars().all())
-    if len(attempts) < REASSESS_STREAK:
+    if boundary is not None:
+        quiz_q = (
+            select(QuizAttempt.score, QuizAttempt.attempted_at)
+            .where(
+                QuizAttempt.user_id == user_id,
+                QuizAttempt.attempted_at > boundary,
+            )
+            .order_by(desc(QuizAttempt.attempted_at))
+            .limit(REASSESS_STREAK)
+        )
+
+    coding_q = (
+        select(CodingSubmission.score, CodingSubmission.submitted_at)
+        .where(CodingSubmission.user_id == user_id)
+        .order_by(desc(CodingSubmission.submitted_at))
+        .limit(REASSESS_STREAK)
+    )
+    if boundary is not None:
+        coding_q = (
+            select(CodingSubmission.score, CodingSubmission.submitted_at)
+            .where(
+                CodingSubmission.user_id == user_id,
+                CodingSubmission.submitted_at > boundary,
+            )
+            .order_by(desc(CodingSubmission.submitted_at))
+            .limit(REASSESS_STREAK)
+        )
+
+    quiz_rows = (await db.execute(quiz_q)).all()
+    coding_rows = (await db.execute(coding_q)).all()
+
+    # Normalize to 0-1 and merge. QuizAttempt.score is already 0-1;
+    # CodingSubmission.score is 0-100.
+    events: list[tuple[float, object]] = []
+    for score, ts in quiz_rows:
+        events.append((float(score), ts))
+    for score, ts in coding_rows:
+        events.append((float(score) / 100.0, ts))
+
+    events.sort(key=lambda e: e[1], reverse=True)
+    recent = events[:REASSESS_STREAK]
+    if len(recent) < REASSESS_STREAK:
         return {"should_reassess": False, "current_level": current}
 
-    all_high = all(a.score >= REASSESS_UP_THRESHOLD for a in attempts)
-    all_low = all(a.score < REASSESS_DOWN_THRESHOLD for a in attempts)
+    all_high = all(s >= REASSESS_UP_THRESHOLD for s, _ in recent)
+    all_low = all(s < REASSESS_DOWN_THRESHOLD for s, _ in recent)
 
     if all_high and current != "advanced":
         proposed = "intermediate" if current == "beginner" else "advanced"
@@ -229,3 +276,28 @@ async def apply_reassessment(
     record = await upsert_user_level(db, user_id, new_level, lvl.entry_score, reason)
     logger.info(f"Usuario {user_id} re-asignado a nivel {new_level} ({reason})")
     return record
+
+
+async def auto_apply_reassessment(
+    db: AsyncSession,
+    user_id,
+) -> dict | None:
+    """
+    Check + apply reassessment in one shot. Designed to be called after every
+    quiz / coding submission so level progression happens without user action.
+
+    Returns a dict describing the change (consumed by routers to notify the
+    client) or None if no change was triggered.
+    """
+    proposal = await check_reassessment(db, user_id)
+    if not proposal.get("should_reassess"):
+        return None
+    record = await apply_reassessment(db, user_id, proposal)
+    if record is None:
+        return None
+    return {
+        "direction": proposal["direction"],
+        "previous_level": proposal["current_level"],
+        "new_level": proposal["proposed_level"],
+        "reason": proposal["reason"],
+    }

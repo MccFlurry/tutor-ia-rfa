@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from app.schemas.quiz import LevelChange
+
 
 class CodingChallengeResponse(BaseModel):
     id: int
@@ -36,6 +38,7 @@ class CodingEvaluationResponse(BaseModel):
     feedback: str
     strengths: list[str] | None
     improvements: list[str] | None
+    level_change: LevelChange | None = None
 
 
 class CodingSubmissionHistory(BaseModel):

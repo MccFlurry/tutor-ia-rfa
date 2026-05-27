@@ -29,11 +29,20 @@ class QuizFeedbackItem(BaseModel):
     explanation: str | None = None
 
 
+class LevelChange(BaseModel):
+    """Automatic level progression triggered by sustained quiz/coding performance."""
+    direction: str  # "up" | "down"
+    previous_level: str
+    new_level: str
+    reason: str
+
+
 class QuizSubmitResponse(BaseModel):
     score: float
     is_passed: bool
     feedback: list[QuizFeedbackItem]
     attempt_id: int
+    level_change: LevelChange | None = None
 
 
 class QuizAttemptResponse(BaseModel):

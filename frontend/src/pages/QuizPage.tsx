@@ -16,6 +16,7 @@ import {
   saveQuizState,
   clearQuizState,
 } from '@/lib/quizPersistence'
+import { handleLevelChange } from '@/lib/levelChange'
 import type { QuizGenerateResponse, QuizSubmitResponse } from '@/types/quiz'
 
 export default function QuizPage() {
@@ -101,12 +102,11 @@ export default function QuizPage() {
     onSuccess: (data) => {
       setResult(data)
       clearQuizState(tid)
-      // Drop cached quiz so re-entering the topic forces a fresh generation
-      // (the persisted server session is now is_submitted=True).
       queryClient.removeQueries({ queryKey: ['quiz', tid] })
       if (data.is_passed) {
         toast.success('¡Aprobaste la autoevaluación!')
       }
+      handleLevelChange(data.level_change, queryClient)
       queryClient.invalidateQueries({ queryKey: ['topic', tid] })
       queryClient.invalidateQueries({ queryKey: ['module'] })
       queryClient.invalidateQueries({ queryKey: ['modules'] })

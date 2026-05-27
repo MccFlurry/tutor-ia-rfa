@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, lazy, Suspense } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   ChevronRight,
   Play,
@@ -43,6 +43,7 @@ import { codingApi } from '@/api/coding'
 import { topicsApi } from '@/api/topics'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useThemeStore } from '@/store/themeStore'
+import { handleLevelChange } from '@/lib/levelChange'
 import type { CodingEvaluation } from '@/types/coding'
 
 const difficultyConfig = {
@@ -54,6 +55,7 @@ const difficultyConfig = {
 export default function CodingChallengePage() {
   const { challengeId } = useParams<{ challengeId: string }>()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const cid = Number(challengeId)
 
   const [code, setCode] = useState('')
@@ -108,6 +110,7 @@ export default function CodingChallengePage() {
       } else if (data.score >= 60) {
         toast.success('¡Buen intento! Revisa las sugerencias.')
       }
+      handleLevelChange(data.level_change, queryClient)
     },
     onError: (err: any) => {
       const detail = err?.response?.data?.detail

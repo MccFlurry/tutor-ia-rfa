@@ -1,4 +1,5 @@
 import type { StudentLevel } from './assessment'
+import type { LevelChange } from './quiz'
 
 export interface CodingChallenge {
   id: number
@@ -26,6 +27,7 @@ export interface CodingEvaluation {
   feedback: string
   strengths: string[] | null
   improvements: string[] | null
+  level_change: LevelChange | null
 }
 
 export interface CodingSubmissionHistory {

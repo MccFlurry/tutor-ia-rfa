@@ -130,7 +130,9 @@ async def test_submit_code_grades_and_caches(client, mock_db):
     with patch("app.routers.coding.get_user_level", new=AsyncMock(return_value="intermediate")), \
          patch("app.routers.coding.evaluate_code", new=AsyncMock(return_value=evaluation)), \
          patch("app.routers.coding.check_and_complete_topic",
-               new=AsyncMock(return_value=True)):
+               new=AsyncMock(return_value=True)), \
+         patch("app.routers.coding.auto_apply_reassessment",
+               new=AsyncMock(return_value=None)):
         r = await client.post(
             "/api/v1/coding/challenge/1/submit",
             json={"code": "fun main() { println(\"ok\") }"},
@@ -139,6 +141,41 @@ async def test_submit_code_grades_and_caches(client, mock_db):
     body = r.json()
     assert body["score"] == 82.5
     assert body["feedback"] == "Bien"
+    assert body["level_change"] is None
+
+
+@pytest.mark.asyncio
+async def test_submit_code_returns_level_change(client, mock_db):
+    """Coding submit propagates level_change payload when auto-apply fires."""
+    ch = _challenge()
+    mock_db.execute.return_value = result_scalar_one_or_none(ch)
+    evaluation = {
+        "score": 92.0,
+        "feedback": "Excelente",
+        "strengths": [],
+        "improvements": [],
+    }
+    change = {
+        "direction": "up",
+        "previous_level": "intermediate",
+        "new_level": "advanced",
+        "reason": "3 quizzes consecutivos ≥90%",
+    }
+
+    def _set_id(s):
+        s.id = 124
+    mock_db.add.side_effect = _set_id
+
+    with patch("app.routers.coding.get_user_level", new=AsyncMock(return_value="intermediate")), \
+         patch("app.routers.coding.evaluate_code", new=AsyncMock(return_value=evaluation)), \
+         patch("app.routers.coding.check_and_complete_topic", new=AsyncMock(return_value=True)), \
+         patch("app.routers.coding.auto_apply_reassessment", new=AsyncMock(return_value=change)):
+        r = await client.post(
+            "/api/v1/coding/challenge/1/submit",
+            json={"code": "fun main() {}"},
+        )
+    assert r.status_code == 200, r.text
+    assert r.json()["level_change"] == change
 
 
 @pytest.mark.asyncio

@@ -136,7 +136,7 @@ async def test_submit_quiz_grades_correctly(client, mock_db, fake_user):
     mock_db.add.side_effect = _attach_id
 
     with patch("app.routers.quiz.check_and_complete_topic", new=AsyncMock(return_value=True)), \
-         patch("app.routers.quiz.check_reassessment", new=AsyncMock(return_value={"should_reassess": False})):
+         patch("app.routers.quiz.auto_apply_reassessment", new=AsyncMock(return_value=None)):
         r = await client.post(
             f"/api/v1/quiz/topic/1/submit",
             json={"session_id": str(session.id), "answers": {"q0": 0}},
@@ -146,6 +146,36 @@ async def test_submit_quiz_grades_correctly(client, mock_db, fake_user):
     assert body["score"] == 100.0
     assert body["is_passed"] is True
     assert session.is_submitted is True
+    assert body["level_change"] is None
+
+
+@pytest.mark.asyncio
+async def test_submit_quiz_returns_level_change_when_auto_applied(client, mock_db, fake_user):
+    """When auto_apply_reassessment fires, the level_change payload reaches the client."""
+    session = _ai_session()
+    session.user_id = fake_user.id
+
+    mock_db.execute.side_effect = [result_scalar_one_or_none(session)]
+    def _attach_id(s):
+        if not hasattr(s, "id") or s.id is None:
+            s.id = 778
+    mock_db.add.side_effect = _attach_id
+
+    change = {
+        "direction": "up",
+        "previous_level": "beginner",
+        "new_level": "intermediate",
+        "reason": "3 quizzes consecutivos ≥90%",
+    }
+    with patch("app.routers.quiz.check_and_complete_topic", new=AsyncMock(return_value=True)), \
+         patch("app.routers.quiz.auto_apply_reassessment", new=AsyncMock(return_value=change)):
+        r = await client.post(
+            f"/api/v1/quiz/topic/1/submit",
+            json={"session_id": str(session.id), "answers": {"q0": 0}},
+        )
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["level_change"] == change
 
 
 @pytest.mark.asyncio

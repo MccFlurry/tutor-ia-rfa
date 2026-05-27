@@ -19,9 +19,10 @@ from app.schemas.coding import (
     TopicChallengesResponse,
     TopicChallengeForStudent,
 )
+from app.schemas.quiz import LevelChange
 from app.services.code_eval_service import evaluate_code
 from app.services.topic_completion_service import check_and_complete_topic, get_topic_completion_status
-from app.services.leveling_service import get_user_level
+from app.services.leveling_service import get_user_level, auto_apply_reassessment
 from app.services.coding_generator_service import (
     get_or_generate_for_student,
     regenerate_for_student,
@@ -186,6 +187,18 @@ async def submit_code(
     if evaluation["score"] >= 60:
         await check_and_complete_topic(current_user.id, challenge.topic_id, db)
 
+    level_change_payload: LevelChange | None = None
+    try:
+        change = await auto_apply_reassessment(db, current_user.id)
+        if change is not None:
+            logger.info(
+                f"Nivel auto-aplicado usuario {current_user.id}: "
+                f"{change['previous_level']} → {change['new_level']} ({change['reason']})"
+            )
+            level_change_payload = LevelChange(**change)
+    except Exception as e:
+        logger.warning(f"Error aplicando re-asignación automática: {e}")
+
     await db.commit()
 
     return CodingEvaluationResponse(
@@ -194,6 +207,7 @@ async def submit_code(
         feedback=evaluation["feedback"],
         strengths=evaluation["strengths"],
         improvements=evaluation["improvements"],
+        level_change=level_change_payload,
     )
 
 

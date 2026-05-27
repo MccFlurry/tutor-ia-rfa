@@ -18,10 +18,11 @@ from app.schemas.quiz import (
     QuizSubmitResponse,
     QuizFeedbackItem,
     QuizAttemptResponse,
+    LevelChange,
 )
 from app.services.llm_service import generate_quiz_questions, QuizGenerationError
 from app.services.topic_completion_service import check_and_complete_topic
-from app.services.leveling_service import get_user_level, check_reassessment
+from app.services.leveling_service import get_user_level, auto_apply_reassessment
 from app.utils.logger import logger
 
 router = APIRouter(prefix="/quiz", tags=["quiz"])
@@ -240,15 +241,17 @@ async def submit_quiz(
     if is_passed:
         await check_and_complete_topic(current_user.id, topic_id, db)
 
+    level_change_payload: LevelChange | None = None
     try:
-        proposal = await check_reassessment(db, current_user.id)
-        if proposal.get("should_reassess"):
+        change = await auto_apply_reassessment(db, current_user.id)
+        if change is not None:
             logger.info(
-                f"Propuesta re-asignación usuario {current_user.id}: "
-                f"{proposal['current_level']} → {proposal['proposed_level']} ({proposal['reason']})"
+                f"Nivel auto-aplicado usuario {current_user.id}: "
+                f"{change['previous_level']} → {change['new_level']} ({change['reason']})"
             )
+            level_change_payload = LevelChange(**change)
     except Exception as e:
-        logger.warning(f"Error evaluando re-asignación: {e}")
+        logger.warning(f"Error aplicando re-asignación automática: {e}")
 
     await db.commit()
 
@@ -257,6 +260,7 @@ async def submit_quiz(
         is_passed=is_passed,
         feedback=feedback,
         attempt_id=attempt.id,
+        level_change=level_change_payload,
     )
 
 

@@ -18,11 +18,19 @@ export interface QuizFeedbackItem {
   explanation: string | null
 }
 
+export interface LevelChange {
+  direction: 'up' | 'down'
+  previous_level: 'beginner' | 'intermediate' | 'advanced'
+  new_level: 'beginner' | 'intermediate' | 'advanced'
+  reason: string
+}
+
 export interface QuizSubmitResponse {
   score: number
   is_passed: boolean
   feedback: QuizFeedbackItem[]
   attempt_id: number
+  level_change: LevelChange | null
 }
 
 export interface QuizAttemptHistory {
