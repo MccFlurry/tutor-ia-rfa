@@ -123,7 +123,10 @@
       "Bash(git pull *)",
       "Bash(git merge *)",
       "Bash(git push *)",
-      "Bash(findstr /C:\"html2pdf\")"
+      "Bash(findstr /C:\"html2pdf\")",
+      "Bash(git branch *)",
+      "Bash(git ls-remote *)",
+      "Bash(echo \"remote real: $\\(git ls-remote origin refs/heads/main\\)\")"
     ]
   }
 }
