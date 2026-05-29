@@ -41,6 +41,12 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 500
     CHUNK_OVERLAP: int = 50
 
+    # Re-ranking (Iteración 1)
+    RAG_RERANK: str = "off"            # off | cross_encoder
+    RAG_FETCH_K: int = 30              # candidatos recuperados por coseno antes del rerank
+    RAG_FETCH_THRESHOLD: float = 0.50  # umbral laxo para el pool de candidatos (recall)
+    RERANK_MODEL: str = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
+
     # Quiz IA
     QUIZ_NUM_QUESTIONS: int = 5
     QUIZ_SESSION_TTL: int = 1800  # 30 minutos
