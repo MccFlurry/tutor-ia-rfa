@@ -103,3 +103,15 @@ async def test_verify_claims_labels():
     judge = FakeLLM(['{"verdicts": [{"claim": "c1", "supported": true}, {"claim": "c2", "supported": false}]}'])
     labels = await rm.verify_claims(judge, ["c1", "c2"], ["ctx"])
     assert labels == [True, False]
+
+
+def test_make_judge_uses_configured_model(monkeypatch):
+    monkeypatch.setattr(rm.settings, "RAGAS_JUDGE_MODEL", "llama3.1:8b")
+    judge = rm.make_judge()
+    assert judge.model == "llama3.1:8b"
+
+
+def test_make_judge_falls_back_to_generator(monkeypatch):
+    monkeypatch.setattr(rm.settings, "RAGAS_JUDGE_MODEL", "")
+    judge = rm.make_judge()
+    assert judge.model == rm.settings.OLLAMA_MODEL

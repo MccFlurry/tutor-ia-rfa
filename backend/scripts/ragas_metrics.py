@@ -13,16 +13,23 @@ from app.config import settings
 ANSWER_RELEVANCY_N = 2
 
 
-def make_judge() -> ChatOllama:
+def make_judge(model: str | None = None) -> ChatOllama:
     return ChatOllama(
         base_url=settings.OLLAMA_BASE_URL,
-        model=settings.OLLAMA_MODEL,
+        model=model or settings.RAGAS_JUDGE_MODEL or settings.OLLAMA_MODEL,
         temperature=0.0,
         num_ctx=4096,
         num_predict=512,
         timeout=settings.OLLAMA_TIMEOUT,
         format="json",
     )
+
+
+def make_judge_b() -> ChatOllama | None:
+    """2º juez para κ. None si RAGAS_JUDGE_MODEL_B no está configurado."""
+    if not settings.RAGAS_JUDGE_MODEL_B:
+        return None
+    return make_judge(model=settings.RAGAS_JUDGE_MODEL_B)
 
 
 def make_generator() -> ChatOllama:

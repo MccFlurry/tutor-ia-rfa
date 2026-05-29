@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     # Ollama
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "qwen2.5:7b-instruct-q4_K_M"
+    RAGAS_JUDGE_MODEL: str = ""       # juez independiente; vacío → usa OLLAMA_MODEL
+    RAGAS_JUDGE_MODEL_B: str = ""     # 2º juez para Cohen's κ; vacío → sin κ
     OLLAMA_EMBED_MODEL: str = "mxbai-embed-large"
     OLLAMA_TIMEOUT: int = 120
     EMBEDDING_DIMENSION: int = 1024
