@@ -51,3 +51,20 @@ async def test_context_precision_top_ranked_relevant():
     ])
     score = await rm.metric_context_precision(judge, "q", "gt", ["c1", "c2"])
     assert score == 1.0
+
+
+@pytest.mark.asyncio
+async def test_context_entities_recall_half_present():
+    judge = FakeLLM([
+        '{"entities": ["Retrofit", "Coroutine"]}',
+        '{"verdicts": [{"entity": "Retrofit", "present": true}, {"entity": "Coroutine", "present": false}]}',
+    ])
+    score = await rm.metric_context_entities_recall(judge, "ground truth", ["ctx"])
+    assert score == 0.5
+
+
+@pytest.mark.asyncio
+async def test_context_entities_recall_no_entities_returns_one():
+    judge = FakeLLM(['{"entities": []}'])
+    score = await rm.metric_context_entities_recall(judge, "ground truth", ["ctx"])
+    assert score == 1.0

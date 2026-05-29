@@ -194,3 +194,38 @@ async def metric_context_recall(judge, ground_truth: str, contexts: list[str]) -
         elif isinstance(v, bool) and v:
             attr += 1
     return round(attr / len(vs), 3)
+
+
+async def metric_context_entities_recall(judge, ground_truth: str, contexts: list[str]) -> float | None:
+    """Fracción de entidades del ground_truth presentes en el contexto recuperado."""
+    ctx = "\n\n".join(contexts)
+    extracted = await _ainvoke_json(
+        judge,
+        system=(
+            "Extrae las entidades clave del texto: términos técnicos, nombres de "
+            "clases/funciones/APIs, conceptos propios del dominio. Devuelve JSON: "
+            '{"entities": ["e1", "e2", ...]}. Máximo 10 entidades. Sin duplicados.'
+        ),
+        human=f"Texto:\n{ground_truth}",
+    )
+    if not extracted or "entities" not in extracted:
+        return None
+    entities = [str(e).strip() for e in extracted["entities"] if str(e).strip()]
+    if not entities:
+        return 1.0
+    verdict = await _ainvoke_json(
+        judge,
+        system=(
+            "Para cada ENTIDAD, responde si aparece (literalmente o por sinónimo "
+            'directo) en el CONTEXTO. Devuelve JSON: {"verdicts": '
+            '[{"entity": "...", "present": true|false}, ...]}.'
+        ),
+        human=f"CONTEXTO:\n{ctx}\n\nENTIDADES:\n" + "\n".join(f"- {e}" for e in entities),
+    )
+    if not verdict or "verdicts" not in verdict:
+        return None
+    vs = verdict["verdicts"]
+    if not vs:
+        return None
+    present = sum(1 for v in vs if isinstance(v, dict) and v.get("present") is True)
+    return round(present / len(vs), 3)
