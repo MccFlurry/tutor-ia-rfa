@@ -68,3 +68,21 @@ async def test_context_entities_recall_no_entities_returns_one():
     judge = FakeLLM(['{"entities": []}'])
     score = await rm.metric_context_entities_recall(judge, "ground truth", ["ctx"])
     assert score == 1.0
+
+
+@pytest.mark.asyncio
+async def test_answer_correctness_perfect():
+    # tp=2, fp=0, fn=0 → F1=1.0 ; embeddings idénticos → coseno=1.0 → 0.75+0.25=1.0
+    judge = FakeLLM(['{"tp": 2, "fp": 0, "fn": 0}'])
+    embedder = FakeEmbedder([[1.0, 0.0], [1.0, 0.0]])
+    score = await rm.metric_answer_correctness(judge, embedder, "answer", "ground truth")
+    assert score == 1.0
+
+
+@pytest.mark.asyncio
+async def test_answer_correctness_partial():
+    # tp=1, fp=1, fn=1 → F1 = 1/(1+0.5*2)=0.5 ; coseno=0 → 0.75*0.5 = 0.375
+    judge = FakeLLM(['{"tp": 1, "fp": 1, "fn": 1}'])
+    embedder = FakeEmbedder([[1.0, 0.0], [0.0, 1.0]])
+    score = await rm.metric_answer_correctness(judge, embedder, "answer", "ground truth")
+    assert score == 0.375

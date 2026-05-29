@@ -229,3 +229,33 @@ async def metric_context_entities_recall(judge, ground_truth: str, contexts: lis
         return None
     present = sum(1 for v in vs if isinstance(v, dict) and v.get("present") is True)
     return round(present / len(vs), 3)
+
+
+async def metric_answer_correctness(judge, embedder, answer: str, ground_truth: str) -> float | None:
+    """RAGAS-style: 0.75·F1_factual + 0.25·coseno(answer, ground_truth)."""
+    classified = await _ainvoke_json(
+        judge,
+        system=(
+            "Compara una RESPUESTA con la RESPUESTA CORRECTA. Cuenta las afirmaciones:\n"
+            "- TP: presentes en RESPUESTA y respaldadas por RESPUESTA CORRECTA\n"
+            "- FP: presentes en RESPUESTA pero NO en RESPUESTA CORRECTA\n"
+            "- FN: presentes en RESPUESTA CORRECTA pero ausentes en RESPUESTA\n"
+            'Devuelve JSON: {"tp": n, "fp": n, "fn": n} (enteros).'
+        ),
+        human=f"RESPUESTA:\n{answer}\n\nRESPUESTA CORRECTA:\n{ground_truth}",
+    )
+    if not classified:
+        return None
+    try:
+        tp = int(classified.get("tp", 0))
+        fp = int(classified.get("fp", 0))
+        fn = int(classified.get("fn", 0))
+    except (TypeError, ValueError, AttributeError):
+        return None
+    denom = tp + 0.5 * (fp + fn)
+    f1 = (tp / denom) if denom > 0 else 0.0
+    embs = await embedder.aembed_documents([answer, ground_truth])
+    a, g = np.array(embs[0]), np.array(embs[1])
+    na, ng = np.linalg.norm(a), np.linalg.norm(g)
+    sem = float(np.dot(a, g) / (na * ng)) if na and ng else 0.0
+    return round(0.75 * f1 + 0.25 * sem, 3)
