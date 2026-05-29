@@ -46,11 +46,17 @@ import logging
 
 from scripts.ragas_metrics import (
     make_judge,
+    make_judge_b,
     make_generator,
     metric_faithfulness,
     metric_answer_relevancy,
     metric_context_precision,
     metric_context_recall,
+    metric_context_entities_recall,
+    metric_answer_correctness,
+    extract_claims,
+    verify_claims,
+    cohen_kappa,
 )
 
 # Silenciar eco SQL + loguru verbose
@@ -103,6 +109,9 @@ async def main(max_q: int | None, label: str):
     out_json = OUT_DIR / f"{stamp}_{label}.summary.json"
 
     judge = make_judge()
+    judge_b = make_judge_b()
+    kappa_a: list[bool] = []
+    kappa_b: list[bool] = []
     gen = make_generator()
     embedder = OllamaEmbeddings(
         base_url=settings.OLLAMA_BASE_URL,
@@ -123,6 +132,7 @@ async def main(max_q: int | None, label: str):
         "id", "module", "type", "difficulty",
         "question", "answer", "n_contexts",
         "faithfulness", "answer_relevancy", "context_precision", "context_recall",
+        "context_entities_recall", "answer_correctness",
         "elapsed_s", "error",
     ]
     with open(out_csv, "w", newline="", encoding="utf-8") as f:
@@ -144,6 +154,8 @@ async def main(max_q: int | None, label: str):
                 "answer_relevancy": None,
                 "context_precision": None,
                 "context_recall": None,
+                "context_entities_recall": None,
+                "answer_correctness": None,
                 "elapsed_s": 0,
                 "error": "",
             }
@@ -160,8 +172,22 @@ async def main(max_q: int | None, label: str):
                     row["context_recall"] = await metric_context_recall(
                         judge, q["ground_truth"], contexts
                     )
+                    row["context_entities_recall"] = await metric_context_entities_recall(
+                        judge, q["ground_truth"], contexts
+                    )
+                    if judge_b is not None:
+                        claims = await extract_claims(judge, answer)
+                        if claims:
+                            la = await verify_claims(judge, claims, contexts)
+                            lb = await verify_claims(judge_b, claims, contexts)
+                            if la and lb and len(la) == len(lb):
+                                kappa_a.extend(la)
+                                kappa_b.extend(lb)
                 row["answer_relevancy"] = await metric_answer_relevancy(
                     gen, embedder, q["question"], answer
+                )
+                row["answer_correctness"] = await metric_answer_correctness(
+                    judge, embedder, answer, q["ground_truth"]
                 )
             except Exception as e:
                 row["error"] = str(e)[:200]
@@ -174,7 +200,8 @@ async def main(max_q: int | None, label: str):
 
             metrics_str = " ".join(
                 f"{k[0]}={row[k]:.2f}" if isinstance(row[k], float) else f"{k[0]}=--"
-                for k in ("faithfulness", "answer_relevancy", "context_precision", "context_recall")
+                for k in ("faithfulness", "answer_relevancy", "context_precision",
+                          "context_recall", "context_entities_recall", "answer_correctness")
             )
             print(f"Q{qid:02d} [{q['module']}/{q['type']:12s}/{q['difficulty']:6s}] "
                   f"{row['elapsed_s']:5.1f}s  {metrics_str}  ·  {q['question'][:50]}")
@@ -183,6 +210,22 @@ async def main(max_q: int | None, label: str):
     def avg(key):
         vals = [r[key] for r in results if isinstance(r[key], (int, float))]
         return round(sum(vals) / len(vals), 3) if vals else None
+
+    OFFICIAL = {
+        "faithfulness": 0.80,
+        "answer_relevancy": 0.75,
+        "context_precision": 0.70,
+        "context_recall": 0.75,
+        "context_entities_recall": 0.70,
+        "answer_correctness": 0.70,
+    }
+
+    def none_rate(key):
+        total = len(results)
+        nones = sum(1 for r in results if r[key] is None)
+        return round(nones / total, 3) if total else None
+
+    kappa = cohen_kappa(kappa_a, kappa_b) if kappa_a else None
 
     summary = {
         "label": label,
@@ -194,22 +237,15 @@ async def main(max_q: int | None, label: str):
             "threshold": settings.RAG_SIMILARITY_THRESHOLD,
             "top_k": settings.RAG_TOP_K,
             "llm": settings.OLLAMA_MODEL,
+            "judge": settings.RAGAS_JUDGE_MODEL or settings.OLLAMA_MODEL,
+            "judge_b": settings.RAGAS_JUDGE_MODEL_B or None,
             "embed": settings.OLLAMA_EMBED_MODEL,
         },
-        "global": {
-            "faithfulness": avg("faithfulness"),
-            "answer_relevancy": avg("answer_relevancy"),
-            "context_precision": avg("context_precision"),
-            "context_recall": avg("context_recall"),
-        },
-        "thresholds": {
-            "faithfulness_required": 0.75,
-            "answer_relevancy_required": 0.70,
-        },
-        "pass": {
-            "faithfulness": (avg("faithfulness") or 0) >= 0.75,
-            "answer_relevancy": (avg("answer_relevancy") or 0) >= 0.70,
-        },
+        "global": {k: avg(k) for k in OFFICIAL},
+        "none_rate": {k: none_rate(k) for k in OFFICIAL},
+        "thresholds": OFFICIAL,
+        "kappa_faithfulness_verdicts": kappa,
+        "pass": {k: (avg(k) or 0) >= OFFICIAL[k] for k in OFFICIAL},
     }
 
     # Breakdown por módulo / tipo / dificultad
@@ -227,6 +263,8 @@ async def main(max_q: int | None, label: str):
                 "answer_relevancy": bavg("answer_relevancy"),
                 "context_precision": bavg("context_precision"),
                 "context_recall": bavg("context_recall"),
+                "context_entities_recall": bavg("context_entities_recall"),
+                "answer_correctness": bavg("answer_correctness"),
             }
         summary[f"by_{dim}"] = breakdown
 
@@ -237,8 +275,11 @@ async def main(max_q: int | None, label: str):
     print("RESUMEN")
     print(f"{'='*70}")
     print(json.dumps(summary["global"], indent=2))
-    print(f"\nfaithfulness ≥ 0.75  ·  {'✓' if summary['pass']['faithfulness'] else '✗'}")
-    print(f"answer_relevancy ≥ 0.70  ·  {'✓' if summary['pass']['answer_relevancy'] else '✗'}")
+    for k in OFFICIAL:
+        ok = "✓" if summary["pass"][k] else "✗"
+        print(f"{k} ≥ {OFFICIAL[k]:.2f}  ·  {ok}  (valor={summary['global'][k]}, none_rate={summary['none_rate'][k]})")
+    if kappa is not None:
+        print(f"Cohen's κ (faithfulness verdicts, juez A vs B): {kappa}")
     print(f"\nCSV:     {out_csv}")
     print(f"Summary: {out_json}")
 
