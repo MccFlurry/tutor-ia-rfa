@@ -83,7 +83,7 @@ async def run_rag(question: str) -> tuple[str, list[str]]:
 
     async with async_session_maker() as db:
         query_vec = await embed_query(question)
-        chunks = await _semantic_search(query_vec, db)
+        chunks = await _semantic_search(query_vec, db, query_text=question)
         contexts = [c["content"] for c in chunks]
         result = await query_rag(
             question=question,
