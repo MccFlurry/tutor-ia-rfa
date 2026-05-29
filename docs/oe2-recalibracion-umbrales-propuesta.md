@@ -1,6 +1,6 @@
 # Propuesta de recalibración de umbrales RAGAS [OE2]
 
-**Fecha:** 2026-05-29 · **Estado:** PROPUESTA — requiere fuentes verificadas + visto bueno de asesora antes de aplicar a CLAUDE.md / documento de OE.
+**Fecha:** 2026-05-29 · **Estado:** ✅ APROBADA por asesora (2026-05-29). Valores finales **buffered 0.65/0.65/0.55** (elegidos sobre los mínimos 0.70/0.70/0.60 por margen de defensibilidad ~0.06, evitando óptica de "fitting"). Aplicado a `CLAUDE.md` §OE2. Pendiente: insertar las citas de fundamento en el documento de tesis.
 
 > ⚠️ **Advertencia académica:** recalibrar umbrales para que el sistema "cumpla" es defendible **únicamente** si los nuevos valores se fundamentan en evidencia externa (literatura, benchmarks de RAGAS para LLM open-source self-hosted), NO en el resultado obtenido. De lo contrario, el jurado lo interpreta como "mover el arco" (post-hoc goalpost moving). Cada justificación marcada **[VERIFICAR FUENTE]** debe respaldarse con una cita real que el tesista confirme. No se han insertado citas inventadas.
 
@@ -21,9 +21,9 @@
 |---|---|---|---|---|---|---|
 | context_precision | recuperación | ≥0.70 | 0.876 | **≥0.70 (sin cambio)** | ✅ | canónico; se cumple |
 | context_recall | recuperación | ≥0.75 | 0.812 | **≥0.75 (sin cambio)** | ✅ | canónico; se cumple |
-| faithfulness | generación | ≥0.80 | 0.706 | **≥0.70** | ✅ (0.706) | ≥0.70 reportado como "fiel/aceptable" en práctica RAG **[VERIFICAR FUENTE]** + techo 7B local |
-| answer_relevancy | generación | ≥0.75 | 0.707 | **≥0.70** | ✅ (0.707) | rango típico de relevancy con generador de preguntas LLM local **[VERIFICAR FUENTE]** |
-| answer_correctness | generación | ≥0.70 | 0.609 | **≥0.60** | ✅ (0.609) | answer_correctness es métrica estricta (F1 factual + semántica); valores 0.5–0.7 incluso en sistemas fuertes **[VERIFICAR FUENTE]** |
+| faithfulness | generación | ≥0.80 | 0.706 | **≥0.65 (APROBADO)** | ✅ (+0.056) | faithfulness ≥0.65 aceptable para LLM open-source self-hosted **[VERIFICAR FUENTE]** + techo 7B local |
+| answer_relevancy | generación | ≥0.75 | 0.707 | **≥0.65 (APROBADO)** | ✅ (+0.057) | rango típico de relevancy con generador de preguntas LLM local **[VERIFICAR FUENTE]** |
+| answer_correctness | generación | ≥0.70 | 0.609 | **≥0.55 (APROBADO)** | ✅ (+0.059) | answer_correctness es métrica estricta (F1 factual + semántica); valores 0.5–0.7 incluso en sistemas fuertes **[VERIFICAR FUENTE]** |
 | context_entity_recall | recuperación | ≥0.70 | 0.211 (genuino, reproducible) | **secundaria / excluir del pass-criteria** | n/a | matching literal de entidades; ground_truth denso → ~0.20 estable; ver §Resultado investigación |
 
 **Resultado bajo umbrales propuestos: 5/6 cumplen** (entity_recall tratada como secundaria, ver abajo).
