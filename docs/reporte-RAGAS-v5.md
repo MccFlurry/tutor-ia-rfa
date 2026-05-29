@@ -14,72 +14,73 @@
 | Retrieval | coseno, threshold 0.65, top_k 7 |
 | Golden set | 50 preguntas (M1-M5), v1.2 |
 
-Cambio metodológico clave vs v3/v4: el juez ahora es **distinto del generador** (elimina sesgo de auto-preferencia). Esto reconfigura los números — son la **medición honesta**.
+Dos cambios metodológicos vs v3/v4: (1) el juez ahora es **distinto del generador** (elimina sesgo de auto-preferencia); (2) instrumento endurecido tras review (parse JSON robusto, denominador de entities = nº de entidades extraídas, `answer_correctness` con conteo 0/0/0 → `None`, métricas de respuesta sólo cuando hay contexto). Los números de abajo son la corrida **endurecida** (`v5_hardened`), la autoritativa.
 
-## Resultado global (50 preguntas)
+## Resultado global (50 preguntas) — corrida endurecida
 
 | Métrica | Umbral oficial | v5 | Estado | none_rate |
 |---|---|---|---|---|
-| faithfulness | ≥0.80 | 0.678 | ❌ | 0.00 |
-| answer_relevancy | ≥0.75 | 0.858 | ✅ | 0.00 |
+| faithfulness | ≥0.80 | 0.699 | ❌ | 0.00 |
+| answer_relevancy | ≥0.75 | 0.875 | ✅ | 0.00 |
 | context_precision | ≥0.70 | 0.532 | ❌ | 0.00 |
 | context_recall | ≥0.75 | 0.559 | ❌ | 0.00 |
-| context_entities_recall | ≥0.70 | 0.690 | ❌ (a 0.01) | 0.00 |
-| answer_correctness | ≥0.70 | 0.720 | ✅ | 0.04 |
+| context_entities_recall | ≥0.70 | 0.703 | ✅ | 0.00 |
+| answer_correctness | ≥0.70 | 0.762 | ✅ | 0.08 |
 
-**Cumplen 2/6.** none_rate ≈0 (solo answer_correctness 0.04 → 2/50 sin valor por JSON inválido del juez; tolerable).
+**Cumplen 3/6.** El none_rate 0.08 de `answer_correctness` (4/50) es honesto: el fix convierte clasificaciones 0/0/0 del juez en no-medición en vez de un falso score bajo.
 
-## Comparación con mediciones previas (efecto del juez independiente)
+## Efecto del endurecimiento del instrumento (v5_baseline → v5_hardened)
 
-| Métrica | v3 (juez=qwen2.5) | v4 (juez=qwen2.5) | **v5 (juez=llama3.1:8b)** | Lectura |
-|---|---|---|---|---|
-| faithfulness | 0.768 | 0.774 | **0.678** | El auto-juez **inflaba** fidelidad; honesto es menor |
-| context_precision | 0.290 | 0.263 | **0.532** | El auto-juez era **demasiado estricto**; medición real ~2× |
-| context_recall | 0.619 | 0.650 | **0.559** | Comparable |
-| answer_relevancy | 0.856 | 0.866 | **0.858** | Estable (no depende del juez) |
+| Métrica | v5_baseline (buggy) | v5_hardened | Causa del Δ |
+|---|---|---|---|
+| faithfulness | 0.678 | 0.699 | recuperación de parse JSON (menos claims perdidos) |
+| context_entities_recall | 0.690 | **0.703** | denominador = nº entidades; **cruza umbral** |
+| answer_correctness | 0.720 | 0.762 | parse robusto + 0/0/0→None (quita falsos bajos) |
+| answer_relevancy | 0.858 | 0.875 | parse robusto |
+| context_precision / recall | 0.532 / 0.559 | 0.532 / 0.559 | sin cambio (lógica no tocada) |
 
-Conclusión metodológica: cambiar el juez **sube precision** (0.26→0.53) y **baja faithfulness** (0.77→0.68). Ambos efectos son esperables al quitar el sesgo generador=juez, y dejan un punto de partida defendible.
+## Efecto del juez independiente (v4 juez=qwen2.5 → v5 juez=llama3.1:8b)
 
-## Breakdown por tipo
+| Métrica | v4 (auto-juez) | v5 (juez indep.) | Lectura |
+|---|---|---|---|
+| faithfulness | 0.774 | 0.699 | el auto-juez **inflaba** fidelidad |
+| context_precision | 0.263 | 0.532 | el auto-juez era **demasiado estricto** (~2×) |
+| context_recall | 0.650 | 0.559 | comparable/algo menor |
+| answer_relevancy | 0.866 | 0.875 | estable |
+
+## Breakdown por tipo (endurecido)
 
 | Tipo | n | faithfulness | ctx_precision | ctx_recall | entities_recall | answer_correctness |
 |---|---|---|---|---|---|---|
-| conceptual | 25 | 0.673 | 0.538 | 0.576 | 0.641 | 0.759 |
-| application | 11 | 0.733 | 0.539 | 0.586 | 0.671 | 0.694 |
-| code | 14 | 0.643 | 0.516 | 0.507 | 0.793 | 0.671 |
+| conceptual | 25 | 0.679 | 0.538 | 0.576 | 0.637 | 0.784 |
+| application | 11 | 0.776 | 0.539 | 0.586 | 0.676 | 0.712 |
+| code | 14 | 0.673 | 0.516 | 0.507 | 0.841 | 0.760 |
 
-> Faithfulness sobre subconjunto apto (conceptual+application, 36 q) = (0.673·25 + 0.733·11)/36 = **0.691** — sigue < 0.80 con el juez honesto. El gap de faithfulness es real, no solo arrastrado por `code`.
+> Faithfulness sobre subconjunto apto (conceptual+application, 36 q) = (0.679·25 + 0.776·11)/36 = **0.709** — sigue < 0.80 con juez honesto. Gap real.
 
-## Breakdown por dificultad
-
-| Dificultad | n | faithfulness | ctx_precision | ctx_recall | entities_recall | answer_correctness |
-|---|---|---|---|---|---|---|
-| easy | 17 | 0.735 | 0.535 | 0.625 | 0.787 | 0.653 |
-| medium | 27 | 0.668 | 0.532 | 0.519 | 0.667 | 0.746 |
-| hard | 6 | 0.560 | 0.523 | 0.552 | 0.520 | 0.814 |
-
-## Breakdown por módulo
+## Breakdown por módulo (endurecido)
 
 | Módulo | n | faithfulness | ctx_precision | ctx_recall | entities_recall | answer_correctness |
 |---|---|---|---|---|---|---|
-| M1 | 6 | 0.767 | 0.553 | 0.534 | 0.672 | 0.651 |
-| M2 | 13 | 0.656 | 0.532 | 0.537 | 0.742 | 0.785 |
-| M3 | 11 | 0.615 | 0.575 | 0.638 | 0.587 | 0.645 |
-| M4 | 10 | 0.621 | 0.498 | 0.488 | 0.681 | 0.765 |
-| M5 | 10 | 0.779 | 0.507 | 0.587 | 0.755 | 0.730 |
+| M1 | 6 | 0.784 | 0.553 | 0.534 | 0.672 | 0.644 |
+| M2 | 13 | 0.652 | 0.532 | 0.537 | 0.735 | 0.762 |
+| M3 | 11 | 0.682 | 0.575 | 0.638 | 0.592 | 0.789 |
+| M4 | 10 | 0.683 | 0.498 | 0.488 | 0.768 | 0.819 |
+| M5 | 10 | 0.742 | 0.507 | 0.587 | 0.735 | 0.752 |
 
 ## Métricas < umbral → input al Decision Gate (Iteración 1)
 
-1. **context_precision 0.532** (faltan 0.168): uniforme ~0.50-0.57 en todos los cortes → sistémico de `top_k=7` demasiado ancho. **Palanca: retrieve-then-rerank + bajar top_k final.**
+1. **context_precision 0.532** (faltan 0.168): uniforme ~0.50-0.57 en todos los cortes → sistémico de `top_k=7` demasiado ancho. M4 (0.498) el más bajo. **Palanca principal: retrieve-then-rerank + bajar top_k final a 4-5.**
 2. **context_recall 0.559** (faltan 0.191): M4 (0.488) y `code` (0.507) más débiles. **Palanca: fetch ancho antes del rerank; chunking semántico (iter 2) si no basta.**
-3. **context_entities_recall 0.690** (falta 0.010): debería cruzar con mejor recall; M3 (0.587) y `hard` (0.52) lo bajan.
-4. **faithfulness 0.678** (faltan 0.122): **el más difícil.** Aun en subconjunto apto = 0.691. `code` (0.643) y `hard` (0.56) arrastran. Palancas: contexto más limpio (rerank), prompt de grounding más estricto, temperatura. **Riesgo: puede no cerrar a 0.80 → vigilar protocolo de 3 iteraciones.**
+3. **faithfulness 0.699** (faltan 0.101): aun en subconjunto apto = 0.709. `code` (0.673) y M2 (0.652) arrastran. Palancas: contexto más limpio (rerank → menos claims sin respaldo), prompt de grounding más estricto. **Riesgo: el más incierto de cerrar a 0.80 → vigilar protocolo de 3 iteraciones.**
+
+**Ya cumplen (3):** answer_relevancy 0.875, context_entities_recall 0.703, answer_correctness 0.762.
 
 ## Artefactos
 
-- `backend/scripts/ragas_runs/20260529_0506_v5_baseline.csv` (per-row, 50 q)
-- `backend/scripts/ragas_runs/20260529_0506_v5_baseline.summary.json` (agregados + breakdowns)
+- `backend/scripts/ragas_runs/20260529_0539_v5_hardened.{csv,summary.json}` (autoritativo, 50 q)
+- `backend/scripts/ragas_runs/20260529_0506_v5_baseline.{csv,summary.json}` (pre-endurecimiento, referencia del Δ)
 
 ## Nota de ejecución
 
-El juez se inyectó vía `docker compose exec -e RAGAS_JUDGE_MODEL=llama3.1:8b` (sin editar `.env` ni reiniciar el contenedor; `pydantic-settings` lo lee del entorno del proceso). κ omitido por diseño (juez único).
+Juez inyectado vía `docker compose exec -e RAGAS_JUDGE_MODEL=llama3.1:8b` (sin editar `.env` ni reiniciar; `pydantic-settings` lee el entorno del proceso). κ omitido por diseño (juez único).
