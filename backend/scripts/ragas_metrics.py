@@ -53,43 +53,15 @@ async def _ainvoke_json(llm, system: str, human: str) -> dict | None:
 
 
 async def metric_faithfulness(judge, answer: str, contexts: list[str]) -> float | None:
-    ctx = "\n\n".join(contexts)
-    extracted = await _ainvoke_json(
-        judge,
-        system=(
-            "Extrae los claims verificables del texto. Devuelve JSON: "
-            '{"claims": ["claim1", "claim2", ...]}. Cada claim es una afirmación '
-            "atómica y autónoma. Máximo 8 claims. Ignora saludos u opinión."
-        ),
-        human=f"Texto:\n{answer}",
-    )
-    if not extracted or "claims" not in extracted:
+    claims = await extract_claims(judge, answer)
+    if claims is None:
         return None
-    claims = [str(c).strip() for c in extracted["claims"] if str(c).strip()]
     if not claims:
         return 1.0
-    verdict = await _ainvoke_json(
-        judge,
-        system=(
-            "Para cada claim, responde si está respaldado por el CONTEXTO. "
-            'Devuelve JSON: {"verdicts": [{"claim": "...", "supported": true|false}, ...]}. '
-            "Sé estricto: solo true si el contexto lo afirma explícitamente o lo implica directamente."
-        ),
-        human=f"CONTEXTO:\n{ctx}\n\nCLAIMS:\n" + "\n".join(f"- {c}" for c in claims),
-    )
-    if not verdict or "verdicts" not in verdict:
+    labels = await verify_claims(judge, claims, contexts)
+    if not labels:
         return None
-    verdicts = verdict["verdicts"]
-    if not verdicts:
-        return None
-    supported = 0
-    for v in verdicts:
-        if isinstance(v, dict):
-            if v.get("supported") is True:
-                supported += 1
-        elif isinstance(v, bool) and v:
-            supported += 1
-    return round(supported / len(verdicts), 3)
+    return round(sum(1 for x in labels if x) / len(labels), 3)
 
 
 async def metric_answer_relevancy(gen, embedder, question: str, answer: str) -> float | None:
@@ -229,6 +201,59 @@ async def metric_context_entities_recall(judge, ground_truth: str, contexts: lis
         return None
     present = sum(1 for v in vs if isinstance(v, dict) and v.get("present") is True)
     return round(present / len(vs), 3)
+
+
+def cohen_kappa(labels_a: list[bool], labels_b: list[bool]) -> float:
+    """Cohen's κ para dos listas de etiquetas binarias pareadas."""
+    n = len(labels_a)
+    if n == 0 or n != len(labels_b):
+        raise ValueError("las listas de etiquetas deben tener el mismo tamaño no-nulo")
+    po = sum(1 for a, b in zip(labels_a, labels_b) if a == b) / n
+    pa = sum(1 for a in labels_a if a) / n
+    pb = sum(1 for b in labels_b if b) / n
+    pe = pa * pb + (1 - pa) * (1 - pb)
+    if pe == 1.0:
+        return 1.0
+    return round((po - pe) / (1 - pe), 3)
+
+
+async def extract_claims(judge, answer: str) -> list[str] | None:
+    extracted = await _ainvoke_json(
+        judge,
+        system=(
+            "Extrae los claims verificables del texto. Devuelve JSON: "
+            '{"claims": ["claim1", "claim2", ...]}. Cada claim es una afirmación '
+            "atómica y autónoma. Máximo 8 claims. Ignora saludos u opinión."
+        ),
+        human=f"Texto:\n{answer}",
+    )
+    if not extracted or "claims" not in extracted:
+        return None
+    return [str(c).strip() for c in extracted["claims"] if str(c).strip()]
+
+
+async def verify_claims(judge, claims: list[str], contexts: list[str]) -> list[bool] | None:
+    if not claims:
+        return []
+    ctx = "\n\n".join(contexts)
+    verdict = await _ainvoke_json(
+        judge,
+        system=(
+            "Para cada claim, responde si está respaldado por el CONTEXTO. "
+            'Devuelve JSON: {"verdicts": [{"claim": "...", "supported": true|false}, ...]}. '
+            "Sé estricto: solo true si el contexto lo afirma explícitamente o lo implica directamente."
+        ),
+        human=f"CONTEXTO:\n{ctx}\n\nCLAIMS:\n" + "\n".join(f"- {c}" for c in claims),
+    )
+    if not verdict or "verdicts" not in verdict:
+        return None
+    out = []
+    for v in verdict["verdicts"]:
+        if isinstance(v, dict):
+            out.append(v.get("supported") is True)
+        elif isinstance(v, bool):
+            out.append(v)
+    return out
 
 
 async def metric_answer_correctness(judge, embedder, answer: str, ground_truth: str) -> float | None:

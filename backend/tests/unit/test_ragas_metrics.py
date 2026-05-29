@@ -86,3 +86,20 @@ async def test_answer_correctness_partial():
     embedder = FakeEmbedder([[1.0, 0.0], [0.0, 1.0]])
     score = await rm.metric_answer_correctness(judge, embedder, "answer", "ground truth")
     assert score == 0.375
+
+
+def test_cohen_kappa_perfect_agreement():
+    assert rm.cohen_kappa([True, False, True, False], [True, False, True, False]) == 1.0
+
+
+def test_cohen_kappa_known_value():
+    # a=[T,T,F,F], b=[T,F,F,F]: po=0.75, pa_true=0.5, pb_true=0.25
+    # pe = 0.5*0.25 + 0.5*0.75 = 0.5 ; κ = (0.75-0.5)/(1-0.5) = 0.5
+    assert rm.cohen_kappa([True, True, False, False], [True, False, False, False]) == 0.5
+
+
+@pytest.mark.asyncio
+async def test_verify_claims_labels():
+    judge = FakeLLM(['{"verdicts": [{"claim": "c1", "supported": true}, {"claim": "c2", "supported": false}]}'])
+    labels = await rm.verify_claims(judge, ["c1", "c2"], ["ctx"])
+    assert labels == [True, False]
