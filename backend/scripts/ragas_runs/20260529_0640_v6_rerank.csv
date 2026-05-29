@@ -1,0 +1,317 @@
+id,module,type,difficulty,question,answer,n_contexts,faithfulness,answer_relevancy,context_precision,context_recall,context_entities_recall,answer_correctness,elapsed_s,error
+1,M1,conceptual,easy,¿Cuáles son los requisitos mínimos de hardware para instalar Android Studio?,"Según el material del curso, los requisitos mínimos de hardware para instalar Android Studio son:
+
+- 8 GB de RAM mínimo (aunque se recomienda 16 GB)
+- 10 GB de espacio en disco mínimo
+
+Estos requisitos se mencionan consistentemente en varios fragmentos del contexto proporcionado.",7,0.667,0.832,0.5,0.6,0.8,0.604,40.2,
+2,M1,conceptual,easy,¿Qué carpeta del proyecto Android contiene los recursos XML de layouts?,"Según el contexto proporcionado, los archivos de layout XML se encuentran dentro de la carpeta `res/` del proyecto Android. Específicamente, los archivos de diseño de las pantallas o layouts se guardan en la subcarpeta `res/layout/`. Estos archivos tienen extensiones `.xml` y son fundamentales para definir cómo se verán las interfaces de usuario en tu aplicación.",7,1.0,0.918,0.518,0.75,0.3,0.826,25.6,
+3,M1,conceptual,medium,¿Qué es una Activity en Android y cuál es su rol principal?,"Una activity en Android representa una interacción única con el usuario, como una pantalla o una ventana donde se muestra contenido y con la que el usuario puede interactuar. Según el material del curso, el rol principal de una activity incluye:
+
+1. **Definición de Interfaz de Usuario**: La activity utiliza principalmente XML para definir su interfaz de usuario a través del método `setContentView(R.layout.activity_main)`. Esto carga un archivo XML que contiene la estructura y diseño de la pantal",7,0.625,0.77,0.375,0.75,0.875,0.869,33.0,
+4,M1,application,medium,¿En qué método del ciclo de vida debo liberar recursos pesados como conexiones de red antes de que la Activity se destruya?,"Para liberar recursos pesados como conexiones de red antes de que la actividad se destruya, debes hacerlo en el método `onDestroy()`. Este método es llamado justo antes de que la actividad sea destruida permanentemente y es adecuado para liberar toda la memoria y cerrar conexiones.
+
+En el contexto del curso, se menciona que `onDestroy()` se utiliza ""para liberar toda la memoria, cerrar conexiones, guardar datos"". Es importante realizar estas acciones en `onDestroy()` para asegurar que los recurs",7,0.75,0.809,0.692,0.75,1.0,0.788,27.3,
+5,M1,application,easy,¿Cómo creo un nuevo emulador Android (AVD) desde Android Studio?,"Para crear un nuevo emulador Android (AVD) en Android Studio, sigue estos pasos basados en el material del curso:
+
+1. Abre AVD Manager (Android Virtual Device Manager). Este panel se encuentra en la barra lateral izquierda de Android Studio.
+
+2. Haz clic en ""Create Virtual Device"" para iniciar el proceso de creación de un nuevo dispositivo virtual.
+
+3. Selecciona un sistema operativo para tu emulador, que puede ser una versión específica de Android o incluso iOS si lo necesitas.
+
+4. Configura la",7,0.75,0.828,0.735,0.8,0.75,0.706,33.0,
+6,M1,conceptual,medium,¿Qué es el archivo build.gradle.kts (Module) y qué contiene?,"El archivo `build.gradle.kts` (nivel módulo) es un archivo de configuración utilizado en proyectos de Kotlin para gestionar dependencias, tareas y propiedades del proyecto. Según el contexto proporcionado, este archivo se utiliza para agregar dependencias necesarias como las bibliotecas de Material Design y Core KTX.
+
+En el `build.gradle.kts` (nivel módulo), puedes encontrar declaraciones que incluyen:
+
+```kotlin
+implementation 'com.google.android.material:material:1.11.0'
+implementation 'androi",7,0.625,0.916,0.583,0.8,0.556,0.604,33.3,
+7,M2,conceptual,easy,¿Cuál es la diferencia entre `val` y `var` en Kotlin?,"En Kotlin, `val` se utiliza para declarar variables inmutables, lo que significa que una vez que se les asigna un valor, no pueden ser reasignadas. Por ejemplo:
+
+```kotlin
+val nombre = ""María""    // Inmutable (no se puede cambiar)
+```
+
+`var`, por otro lado, se utiliza para declarar variables mutables, las cuales pueden ser reasignadas con nuevos valores durante la ejecución del programa. Un ejemplo de esto sería:
+
+```kotlin
+var edad = 20           // Mutable (se puede cambiar)
+
+edad = 21        ",7,0.714,0.906,0.791,0.4,0.714,0.811,39.8,
+8,M2,code,easy,Escribe un programa Kotlin que declare una variable `nombre` inmutable con tu nombre y la imprima.,"Según el material del curso, puedes declarar una variable inmutable en Kotlin utilizando la palabra clave `val`. Aquí te proporciono un ejemplo de cómo podrías escribir este programa:
+
+```kotlin
+fun main() {
+    val nombre = ""Juan Pérez""  // Declaramos una variable inmutable con tu nombre
+    println(""Nombre: $nombre"")  // Imprimimos el valor de la variable
+}
+```
+
+En este código, `val nombre` es declarada como una variable inmutable. Esto significa que su valor no puede ser cambiado después de l",7,1.0,0.881,0.639,0.75,1.0,0.206,22.4,
+9,M2,conceptual,medium,¿Cómo se usa el `when` en Kotlin y qué ventaja tiene sobre `switch` de Java?,"En Kotlin, la estructura `when` es una forma poderosa y flexible para realizar comprobaciones condicionales. Se puede usar tanto como un equivalente a `switch` de Java, pero ofrece funcionalidades adicionales que lo hacen más versátil.
+
+La sintaxis básica del `when` en Kotlin se parece al `switch` de Java:
+
+```kotlin
+val dia = 3
+
+when (dia) {
+    1 -> println(""Lunes"")
+    2 -> println(""Martes"")
+    3 -> println(""Miércoles"")
+    else -> println(""Otro día"")
+}
+```
+
+En este ejemplo, `when` evalúa la",7,0.625,0.884,0.719,0.667,0.333,,37.8,the input length exceeds the context length (status code: 400)
+10,M2,code,medium,"Escribe una función `clasificarEdad(edad: Int): String` que retorne ""Niño"" si <12, ""Adolescente"" si 12-17, ""Adulto"" si >=18.","El material del curso no cubre la implementación de funciones complejas como la solicitada en tu pregunta. Sin embargo, puedo explicar cómo podrías implementar esta función utilizando el conocimiento que se ha cubierto hasta ahora.
+
+Para clasificar la edad según los rangos proporcionados, puedes utilizar un condicional múltiple (if-else if) o una serie de condiciones anidadas. Aquí te muestro cómo podrías hacerlo con un condicional múltiple:
+
+```kotlin
+fun clasificarEdad(edad: Int): String {
+   ",7,0.625,0.664,0.393,0.56,0.667,0.581,40.7,
+11,M2,conceptual,medium,¿Qué diferencia hay entre `for (i in 1..10)` y `for (i in 1 until 10)` en Kotlin?,"El material del curso no cubre la diferencia específica entre `for (i in 1..10)` y `for (i in 1 until 10)`. Sin embargo, puedo explicar que ambas formas de bucle `for` se utilizan comúnmente en Kotlin para iterar sobre rangos de valores.
+
+En general:
+- `for (i in 1..10)` incluye el valor final del rango, es decir, `i` tomará los valores desde 1 hasta 10 inclusive.
+- `for (i in 1 until 10)` excluye el valor final del rango, por lo que `i` tomará los valores desde 1 hasta 9.
+
+Para una explicación ",7,0.75,0.909,0.664,0.6,0.5,0.601,35.0,
+12,M2,conceptual,medium,¿Qué es una función lambda en Kotlin y cómo se declara?,"Una función lambda en Kotlin es una forma concisa de definir funciones anónimas, es decir, funciones sin nombre que pueden ser utilizadas como variables. Estas funciones son especialmente útiles cuando se requiere pasar un bloque de código a otra función o almacenarlo para su uso posterior.
+
+En Kotlin, se declara una función lambda utilizando el símbolo `{}` y especificando los parámetros entre paréntesis seguidos por un flecha `->` que indica la expresión que se ejecutará. Por ejemplo:
+
+```kotl",7,0.8,0.974,0.841,0.75,0.8,0.803,33.9,
+13,M2,code,medium,"Usando `filter` y `map`, transforma la lista `[1,2,3,4,5]` para obtener los cuadrados de los números pares.","Para transformar la lista `[1, 2, 3, 4, 5]` para obtener los cuadrados de los números pares utilizando `filter` y `map`, puedes seguir estos pasos:
+
+1. Filtrar primero los elementos pares.
+2. Luego aplicar `map` para calcular el cuadrado de esos elementos.
+
+Aquí tienes un ejemplo basado en el contexto proporcionado:
+
+```kotlin
+val numeros = listOf(1, 2, 3, 4, 5)
+val cuadradosPares = numeros.filter { it % 2 == 0 }.map { it * it }
+println(cuadradosPares)  // [4, 16]
+```
+
+En este código:
+- `filter ",7,0.6,0.806,0.675,0.667,0.714,0.959,27.3,
+14,M2,code,easy,¿Cómo se declara una clase con constructor primario en Kotlin?,"Según el material del curso proporcionado, para declarar una clase con un constructor primario en Kotlin, debes seguir estos pasos:
+
+```kotlin
+class Nombre(val propiedad1: Tipo1, var propiedad2: Tipo2) {
+  // Cuerpo de la clase
+}
+```
+
+En este ejemplo, `Nombre` es el nombre de la clase. Las propiedades del constructor se declaran con `val` para que sean inmutables o con `var` para que puedan ser modificadas después de su inicialización.
+
+Es importante notar que el material del curso no menciona e",7,0.5,0.923,0.616,0.5,1.0,0.811,27.4,
+15,M2,conceptual,medium,¿Por qué las clases en Kotlin son `final` por defecto y cómo las hago heredables?,"En Kotlin, las clases son cerradas (final) por defecto para promover la seguridad y la estabilidad del código. Esto significa que no pueden ser heredadas sin especificar explícitamente que una clase es heredable mediante el uso de la palabra clave `open`.
+
+Para hacer una clase heredable en Kotlin, se debe usar la palabra clave `open` antes de la declaración de la clase. Por ejemplo:
+
+```kotlin
+open class Animal(val nombre: String) {
+    open fun hacerSonido(): String = ""...""
+
+    fun presentarse",7,0.5,0.93,0.758,0.4,0.875,0.82,28.4,
+16,M2,conceptual,medium,¿Qué beneficios da una `data class` en Kotlin y cuándo usarla?,"Una data class en Kotlin ofrece varios beneficios que la hacen útil para ciertas situaciones específicas:
+
+1. **Almacenamiento de Datos**: Su principal objetivo es representar modelos o entidades, principalmente atributos sin lógica compleja.
+
+2. **Automatización de Métodos Útiles**: Automáticamente genera métodos como `equals()`, `hashCode()`, `toString()` y `copy()`. Esto reduce la necesidad de escribir código repetitivo para estas operaciones comunes.
+
+3. **Modelado de Datos Estructurados**: ",7,0.75,0.937,0.771,0.625,0.8,0.876,28.5,
+17,M2,code,hard,Diseña una interfaz `Vehiculo` con método `arrancar()` y crea dos clases `Auto` y `Moto` que la implementen.,"El material del curso no cubre el diseño de interfaces en Kotlin, ya que los fragmentos proporcionados se centran principalmente en la herencia y polimorfismo a través de clases base y derivadas. Sin embargo, puedo explicar cómo podrías diseñar una interfaz `Vehiculo` con un método `arrancar()` y crear las clases `Auto` y `Moto` que la implementen basándome en conceptos similares a los que se han cubierto.
+
+Primero, definiríamos la interfaz `Vehiculo`:
+
+```kotlin
+interface Vehiculo {
+    fun arr",7,0.833,0.841,0.594,0.263,1.0,,38.7,the input length exceeds the context length (status code: 400)
+18,M2,application,hard,¿Qué es el polimorfismo y cómo lo aplicarías en una app Android?,"El polimorfismo es un principio fundamental de la programación orientada a objetos que permite que una misma operación se comporte de diferentes maneras según el tipo de objeto que la invoque. En Kotlin, se logra principalmente mediante la herencia y el uso de métodos sobrescritos (override).
+
+En el contexto de una aplicación Android, puedes aplicar el polimorfismo para reutilizar código evitando duplicaciones, permitir que una función trabaje con objetos de diferentes clases de manera genérica,",7,0.625,0.855,0.63,0.667,0.5,0.805,35.6,
+19,M2,conceptual,medium,¿Qué es el operador `?.` (safe call) en Kotlin?,"El operador `?.` en Kotlin se conoce como llamada segura y se utiliza para evitar errores de nullability al acceder a propiedades o métodos de una variable que puede ser nula. Según el material del curso, se menciona que este operador permite realizar operaciones sobre variables y valores sin arrojar excepciones si la variable es `null`.
+
+En resumen, el uso del operador `?.` es fundamental para manejar variables nullable de manera segura en Kotlin, evitando errores de tiempo de ejecución relacio",7,0.75,0.844,0.5,0.667,0.5,0.796,27.8,
+20,M3,conceptual,medium,¿Cuáles son los layouts más comunes en Android y sus usos?,"En Android, los layouts más comunes son `LinearLayout`, `RelativeLayout` y `ConstraintLayout`. Cada uno tiene su propósito y se utiliza según las necesidades específicas del diseño de la interfaz.
+
+1. **LinearLayout**: Este layout dispone los elementos en una línea horizontal o vertical. Es útil cuando se desea organizar los elementos de manera lineal, ya sea en una fila o en una columna. Se define a través de atributos como `android:orientation`, que permite especificar si los elementos deben e",7,0.625,0.854,0.63,0.667,0.6,0.728,32.2,
+21,M3,application,medium,¿Por qué se recomienda ConstraintLayout sobre LinearLayout anidados?,"Se recomienda `ConstraintLayout` sobre layouts anidados de `LinearLayout` porque permite crear interfaces complejas con menor jerarquía de vistas, lo cual resulta en un mejor rendimiento y mantenibilidad. Según el material del curso, `ConstraintLayout` es más flexible y eficiente para diseños modernos, evitando la necesidad de anidar muchos layouts, que puede hacer que los proyectos se vuelvan complejos y difíciles de mantener.
+
+Además, `ConstraintLayout` utiliza restricciones flexibles en ambos",7,0.8,0.924,0.81,0.75,0.667,0.881,27.1,
+22,M3,code,easy,"Escribe el XML para un Button con id `btnEnviar`, texto ""Enviar"" y ancho que ocupe todo el padre.","Basándome en los fragmentos del contexto proporcionados, se puede escribir el código XML para un `Button` con las características solicitadas de la siguiente manera:
+
+```xml
+<Button
+    android:id=""@+id/btnEnviar""
+    android:layout_width=""match_parent""
+    android:layout_height=""wrap_content""
+    android:text=""Enviar"" />
+```
+
+Este fragmento de código define un `Button` que ocupa todo el ancho disponible del contenedor padre (`match_parent`) y tiene un texto predeterminado ""Enviar"".",7,0.333,0.859,0.467,0.556,0.6,0.959,24.5,
+23,M3,conceptual,medium,¿Qué es View Binding y por qué es superior a findViewById?,"El material del curso no cubre el detalle sobre por qué View Binding es superior a `findViewById`. Sin embargo, puedo explicar brevemente la diferencia entre ambos métodos.
+
+View Binding es una característica introducida en Android que genera un archivo de binding para cada layout XML. Este archivo proporciona referencias directas a los elementos del layout, lo que simplifica el código y mejora la seguridad al evitar errores comunes como `NullPointerException`.
+
+En contraste, `findViewById` requ",7,0.75,0.87,0.5,0.75,0.4,0.723,25.6,
+24,M3,code,easy,¿Cómo asigno un OnClickListener a un botón `btnEnviar` en Kotlin?,"Para asignar un `OnClickListener` a un botón `btnEnviar` en Kotlin, puedes seguir el ejemplo proporcionado en los fragmentos del contexto. Aquí te muestro cómo hacerlo:
+
+```kotlin
+btnEnviar.setOnClickListener {
+    // Turno
+    val turnoId = rgTurno.checkedRadioButtonId
+    if (turnoId == -1) {
+        Toast.makeText(this, ""Seleccione un turno"", Toast.LENGTH_SHORT).show()
+        return@setOnClickListener
+    }
+    val turno = findViewById<RadioButton>(turnoId).text
+    // Aquí puedes agregar el",7,1.0,0.921,0.393,0.875,0.75,0.203,31.6,
+25,M3,conceptual,medium,¿Qué es Jetpack Compose y qué lo diferencia del sistema de Views tradicional?,"Jetpack Compose es un kit de herramientas moderno para Android que facilita el desarrollo de interfaces de usuario (IU) nativas. Según el material del curso, simplifica y acelera el proceso de desarrollo de la IU en Android utilizando menos código y ofreciendo herramientas potentes con API intuitivas de Kotlin.
+
+En comparación con el sistema de Views tradicional, Jetpack Compose presenta varias diferencias clave:
+
+1. Enfoque declarativo: Jetpack Compose utiliza un enfoque declarativo para defini",7,0.667,0.9,0.443,0.6,0.714,0.898,34.3,
+26,M3,code,easy,"Escribe un composable `@Composable fun Saludo(nombre: String)` que muestre ""Hola, {nombre}"" en un Text.","El material del curso no cubre la creación de composables (`@Composable`) específicos para la biblioteca Jetpack Compose, que es parte de la plataforma de desarrollo Android. Sin embargo, puedo proporcionarte una explicación general basada en lo que se ha cubierto.
+
+Para mostrar un saludo personalizado utilizando `@Composable`, podrías crear una función composable que tome el nombre como parámetro y muestre el texto correspondiente. Aquí tienes un ejemplo simplificado:
+
+```kotlin
+import androidx",7,0.75,0.769,0.578,0.25,1.0,0.554,30.0,
+27,M3,conceptual,medium,¿Cuál es el componente recomendado para navegar entre pantallas en apps Android modernas?,"En la actualidad, el **Intent** es el componente principal utilizado para navegar entre actividades (pantallas) en aplicaciones Android. Según el material del curso, se menciona que un Intent permite la comunicación entre componentes de Android y se usa principalmente para navegar entre Activities y pasar datos.
+
+El ejemplo proporcionado muestra cómo se puede usar un Intent explícito para dirigir la navegación a otra pantalla:
+
+```kotlin
+val intent = Intent(this, DetalleActivity::class.java)
+sta",7,0.75,0.789,0.5,0.5,0.8,0.534,35.3,
+28,M3,conceptual,hard,¿Cuáles son los componentes principales de un RecyclerView y su responsabilidad?,"Según el material del curso, los componentes principales de un `RecyclerView` y sus respectivas responsabilidades son:
+
+1. **Adapter**: Este es responsable de proporcionar datos a la vista (`ViewHolder`) y se encarga de la personalización y rendimiento al manejar listas grandes de elementos eficientemente.
+
+2. **ViewHolder**: Es una clase que representa cada elemento en la lista y se utiliza para mejorar el desempeño del `RecyclerView` al reutilizar vistas existentes, lo que reduce la carga de r",7,0.6,0.88,0.735,0.6,0.6,0.639,29.2,
+29,M3,application,easy,¿Por qué debo usar strings.xml en lugar de hardcodear textos en el layout?,"En Android, es recomendable utilizar `strings.xml` para almacenar texto que se muestra en la aplicación en lugar de hardcodearlo directamente en el archivo XML del diseño (layout). Esto se debe a varias razones:
+
+1. **Localización**: `strings.xml` permite manejar múltiples idiomas fácilmente. Puedes crear archivos `strings.xml` para diferentes lenguajes y Android los seleccionará automáticamente según la configuración regional del dispositivo.
+
+2. **Mantenibilidad**: Al almacenar el texto en un ",7,0.625,0.891,0.375,0.714,0.5,0.869,35.1,
+30,M3,application,hard,¿Cómo aplico Material Design 3 a mi aplicación Android y qué beneficios trae?,"El material design 3 (MD3) es una actualización del sistema de diseño creado por Google, que se enfoca en mejorar la claridad y la consistencia visual. Aunque el contexto proporcionado se refiere principalmente al material design original, es importante mencionar que MD3 incorpora mejoras significativas que pueden ser aplicadas a tu aplicación Android.
+
+Según los fragmentos del curso, para aplicar Material Design 3 en una aplicación Android con Kotlin, debes asegurarte de agregar las dependencia",7,0.75,0.858,0.5,0.667,0.5,0.742,38.0,
+31,M4,conceptual,easy,¿Por qué es importante implementar validación de entrada de datos en una aplicación móvil?,"Implementar la validación de entrada de datos en una aplicación móvil es crucial para garantizar que los datos ingresados sean correctos y consistentes, lo cual previene errores y mejora la experiencia del usuario. Según el contexto del curso, la validación de datos se describe como ""el proceso de verificar que los datos ingresados sean correctos"", lo que impide que información incorrecta o inadecuada sea procesada, lo cual puede llevar a resultados erróneos o incluso fallos en la aplicación.
+
+A",7,0.625,0.847,0.467,0.667,0.5,0.766,32.6,
+32,M4,code,medium,¿Cómo se muestra un mensaje de error en un EditText cuando la validación falla en Kotlin?,"En Kotlin, para mostrar un mensaje de error en un `EditText` cuando la validación falla, puedes utilizar el componente `TextInputLayout`. Este componente proporciona una forma fácil y estilizada de mostrar mensajes de error asociados a un `EditText`.
+
+Primero, asegúrate de que tu layout XML incluya un `TextInputLayout` alrededor del `EditText`, como se muestra en el siguiente ejemplo:
+
+```xml
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android=""http://schemas.android.com/apk/res/android""",7,0.857,0.918,0.5,0.4,0.75,,32.2,the input length exceeds the context length (status code: 400)
+33,M4,conceptual,easy,¿Qué componente de Android se utiliza para mostrar una lista desplegable de opciones?,"Según el contexto proporcionado, el componente de Android que se utiliza para mostrar una lista desplegable de opciones es `Spinner`. Este componente permite al usuario seleccionar un elemento de una lista predefinida en una interfaz gráfica.
+
+El material del curso no cubre detalles específicos sobre la implementación o configuración de un Spinner, por lo que te recomendaría consultar las documentaciones oficiales de Android para obtener más información sobre cómo incluir y gestionar un Spinner ",7,0.667,0.843,0.448,0.5,5.0,0.817,29.1,
+34,M4,code,medium,¿Cómo se asigna un Adapter a un RecyclerView en Kotlin?,"En Kotlin para asignar un `Adapter` a un `RecyclerView`, primero se obtiene una referencia al `RecyclerView` mediante el método `findViewById`. Luego, se establece el `LayoutManager` y finalmente se asocia el `Adapter` con el `RecyclerView`.
+
+El código proporcionado en el contexto del curso muestra cómo se realiza este proceso. Por ejemplo:
+
+```kotlin
+val recyclerView = findViewById<RecyclerView>(R.id.rvContactos)
+recyclerView.layoutManager = LinearLayoutManager(this)
+recyclerView.adapter = Cont",7,0.714,0.946,0.622,0.714,0.5,0.807,27.5,
+35,M4,code,medium,¿Cómo se configura la URL base en Retrofit para consumir una API REST?,"Según el material del curso, la configuración de la URL base en Retrofit se realiza al crear una instancia de Retrofit con la URL correspondiente a la PokéAPI. Específicamente, el fragmento 3 y 4 indican que esta URL es ""https://pokeapi.co/api/v2/"". Este paso es crucial para permitir que Retrofit se conecte correctamente con la API.
+
+```kotlin
+val retrofit = Retrofit.Builder()
+    .baseUrl(""https://pokeapi.co/api/v2/"")
+    .build()
+```
+
+Esta configuración establece la URL base desde donde Retrof",7,0.75,0.846,0.639,0.75,0.714,0.732,25.1,
+36,M4,code,medium,¿Cómo se define un endpoint GET en una interfaz Retrofit?,"Según el material del curso, para definir un endpoint GET en una interfaz Retrofit, se utiliza la siguiente estructura:
+
+```kotlin
+interface PokeApiService {
+    @GET(""pokemon"")
+    suspend fun getPokemonList(@Query(""limit"") limit: Int): Response<List<Pokemon>>
+
+    @GET(""pokemon/{name}"")
+    suspend fun getPokemonDetail(@Path(""name"") name: String): Response<PokemonDetail>
+}
+```
+
+En este ejemplo, `PokeApiService` es la interfaz que describe los endpoints a consumir. El método `getPokemonList` se",7,0.833,0.772,0.443,,0.5,0.824,38.0,
+37,M4,application,medium,¿Qué librería se utiliza en el proyecto Poke API para consumir el servicio REST?,"En el proyecto Poke API, se utiliza la librería Retrofit para consumir el servicio REST proporcionado por la PokéAPI. Esta librería facilita la comunicación con APIs RESTful en Kotlin y se configura creando una instancia de Retrofit con la URL base de la PokéAPI (https://pokeapi.co/api/v2/).",7,1.0,0.835,0.375,0.4,0.625,0.602,26.6,
+38,M4,conceptual,easy,¿Qué permiso se debe declarar en AndroidManifest.xml para que la aplicación realice peticiones HTTP?,"Según el material del curso, para permitir que una aplicación realice peticiones HTTP, es necesario declarar el permiso `android.permission.INTERNET`. Este permiso permite a tu aplicación conectarse a Internet y realizar solicitudes HTTP.
+
+Ejemplo de cómo se declara este permiso en el archivo AndroidManifest.xml:
+
+```xml
+<uses-permission android:name=""android.permission.INTERNET"" />
+```
+
+Es importante no olvidar incluir esta línea para que la aplicación tenga los permisos necesarios para realiza",7,0.667,0.94,0.686,0.667,1.0,0.819,21.9,
+39,M4,conceptual,medium,¿Qué ventajas ofrece TextInputLayout sobre un EditText puro?,"Según el material del curso, el uso de `TextInputLayout` junto con `TextInputEditText` mejora la experiencia del usuario al proporcionar etiquetas flotantes y validación más elegante en comparación con un `EditText` puro. Específicamente, el `TextInputLayout` permite que las etiquetas se desplacen hacia arriba cuando el usuario comienza a escribir en el campo de entrada, lo cual es una característica visualmente atractiva y funcionalmente útil para guiar al usuario sobre qué información debe ing",7,0.75,0.857,0.71,0.75,0.4,0.721,25.3,
+40,M4,conceptual,hard,¿Qué rol cumple Gson cuando Retrofit recibe una respuesta JSON desde una API?,"Gson juega un papel crucial en el proceso de consumo de respuestas JSON proporcionadas por una API utilizando Retrofit. Según el material del curso, Gson se utiliza para convertir automáticamente entre objetos Kotlin y JSON. Esto significa que cuando Retrofit recibe una respuesta JSON de una API, Gson se encarga de deserializar esa respuesta JSON en objetos Kotlin, facilitando su manejo y uso dentro del código de la aplicación.
+
+En resumen, Gson actúa como un puente entre el formato JSON de las ",7,0.8,0.92,0.476,0.333,0.6,0.823,25.4,
+41,M5,application,easy,¿Qué opción del menú de Android Studio se utiliza para generar un APK firmado?,"Según el material del curso, la opción del menú de Android Studio utilizada para generar un APK firmado es ""Generate Signed Bundle / APK"". Este proceso implica seleccionar el keystore y alias creados, ingresar las contraseñas correspondientes, elegir el tipo de build generalmente como ""release"", y finalizar el procedimiento.
+
+Para más detalles sobre este paso, puedes acceder a través del menú `Build` en Android Studio. Allí encontrarás la opción `Generate Signed Bundle / APK`, que te llevará al ",7,0.667,0.899,0.583,0.714,0.857,0.895,28.6,
+42,M5,conceptual,medium,¿Qué es un keystore y para qué se utiliza en la publicación de una aplicación Android?,"Un keystore es un archivo digital que contiene las claves privadas necesarias para firmar el código de tu aplicación Android. Este proceso de firma es crucial para garantizar la autenticidad y seguridad de tu aplicación, especialmente cuando se publica en Google Play.
+
+Según el material del curso, el keystore se utiliza durante el proceso de generación de la APK para producir una firma digital que valida que la aplicación provenga de un desarrollador confiable. Este paso es fundamental para cump",7,1.0,0.9,0.639,0.667,0.6,0.737,32.6,
+43,M5,application,medium,¿Cuáles son los pasos para firmar un APK por primera vez en Android Studio?,"Para firmar un APK por primera vez en Android Studio, siguiendo el material del curso proporcionado, se deben seguir estos pasos:
+
+1. **Preparación del Proyecto**: Asegúrate de que tu proyecto esté completo y sin errores de compilación.
+
+2. **Generación del Keystore**:
+   - Accede a ""Generate Signed Bundle / APK"" en la ventana principal de Android Studio.
+   - Selecciona ""Create new keystore"".
+   - Sigue los pasos para crear un nuevo keystore, incluyendo el ingreso de información como nombre, ub",7,0.75,0.882,0.443,0.625,0.75,0.597,35.3,
+44,M5,conceptual,easy,¿Qué es el alias dentro de un keystore en Android?,"El alias dentro de un keystore en Android representa un nombre único que se asocia con una clave privada específica almacenada en ese keystore. Este alias es crucial durante el proceso de firma del APK, ya que permite identificar y seleccionar la clave privada correcta para firmar la aplicación.
+
+Según los fragmentos proporcionados, al generar o configurar un keystore en Android Studio, se solicita completar campos como el alias, junto con la contraseña del keystore y la contraseña de la clave. ",7,1.0,0.922,0.573,0.5,1.0,0.828,28.3,
+45,M5,conceptual,medium,¿Cuál es la diferencia entre las variantes de compilación debug y release en Android?,"En Android, las variantes de compilación ""debug"" y ""release"" tienen diferencias significativas que afectan tanto el proceso de desarrollo como la ejecución del código.
+
+Según el material del curso, al seleccionar la variante ""debug"", se optimiza el código para facilitar la depuración. Esto significa que se incluyen información adicional en el código, como mensajes de depuración y referencias a las líneas de código, lo cual es útil durante el desarrollo pero no recomendable para una aplicación fi",7,0.625,0.923,0.532,0.444,0.5,0.792,32.4,
+46,M5,application,medium,¿Qué tecnologías se integran en el proyecto final del curso al consumir la PokeAPI?,"En el proyecto final del curso para consumir la PokéAPI, se integran las siguientes tecnologías:
+
+1. **Retrofit**: Se utiliza como librería para facilitar la comunicación con la API RESTful de la PokéAPI.
+
+2. **Kotlin**: Es el lenguaje de programación utilizado en el proyecto Android.
+
+3. **RecyclerView**: Se emplea para mostrar una lista de Pokémon, permitiendo un manejo eficiente de elementos en la interfaz de usuario.
+
+Estas tecnologías trabajan en conjunto para consumir los datos proporciona",7,0.875,0.77,0.467,0.667,0.7,0.724,36.6,
+47,M5,code,easy,¿En qué archivo y con qué propiedades se configura el versionCode y versionName de una app Android?,"El `versionCode` y `versionName` se configuran en el archivo `build.gradle`, que es parte del entorno de desarrollo de Android Studio. Según el fragmento proporcionado, estos valores se definen dentro del bloque `defaultConfig` dentro del archivo `build.gradle`.
+
+```kotlin
+android {
+    compileSdk = 34          // SDK máximo para compilar
+
+    defaultConfig {
+        minSdk = 24          // Mínimo soportado (Android 7.0)
+        targetSdk = 34       // SDK objetivo optimizado
+        versionCode",7,0.8,0.869,1.0,0.667,0.8,0.975,26.4,
+48,M5,conceptual,easy,¿Qué define la propiedad minSdkVersion en build.gradle de un proyecto Android?,"La propiedad `minSdkVersion` en el archivo `build.gradle` define la versión mínima del sistema operativo Android que tu aplicación soporta y puede ejecutarse. Según el contexto proporcionado, se especifica que `minSdk = 24`, lo cual cubre aproximadamente el **95%** de dispositivos Android activos en Latinoamérica.
+
+Esta configuración es crucial porque asegura que la aplicación sea compatible con un amplio rango de dispositivos y sistemas operativos. Al establecer este valor, se indica al compila",7,0.75,0.854,0.723,0.667,0.667,0.595,27.4,
+49,M5,application,medium,¿En qué carpeta del proyecto se genera por defecto el APK firmado tras una compilación release exitosa?,"Según el material del curso, al finalizar la generación del APK en modo ""release"", aparecerá una notificación indicando la ruta donde se guardó el archivo. Sin embargo, no se especifica exactamente en qué carpeta del proyecto esto ocurre por defecto.
+
+Para obtener esta información con precisión, te recomendaría revisar las configuraciones de tu proyecto en Android Studio o consultar directamente con el material del curso si es posible. En general, el APK firmado suele guardarse en una subcarpeta",7,0.667,0.902,0.5,0.25,0.75,0.82,22.6,
+50,M5,code,hard,¿Cómo se realiza una llamada a un endpoint Retrofit de forma asíncrona usando coroutines de Kotlin?,"Según el material del curso, Retrofit simplifica el consumo de APIs REST en Android y permite realizar llamadas asíncronas utilizando coroutines (`suspend fun`) de Kotlin. Sin embargo, el contexto no proporciona detalles específicos sobre cómo se implementaría esto.
+
+Para ilustrar de manera general, una llamada a un endpoint de forma asíncrona usando coroutines podría verse así:
+
+```kotlin
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import kotlinx.coroutines.*
+",7,0.429,0.893,0.679,0.5,0.625,0.815,32.1,
