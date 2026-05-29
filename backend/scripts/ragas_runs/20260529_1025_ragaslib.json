@@ -1,0 +1,14 @@
+{
+  "timestamp": "20260529_1025",
+  "judge": "llama3.1:8b",
+  "rerank": "cross_encoder",
+  "n": 50,
+  "means": {
+    "faithfulness": 0.7055070762179693,
+    "answer_relevancy": 0.7067704969627501,
+    "context_precision": 0.8761904761729524,
+    "context_recall": 0.8123333333333334,
+    "context_entity_recall": 0.21101190399807374,
+    "answer_correctness": 0.6094100545251503
+  }
+}

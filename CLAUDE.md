@@ -17,24 +17,30 @@ Estudiantes: estudian 5 módulos, consultan tutor IA privado (RAG), autoevalúan
 - Sin fine-tuning: "entrenar el modelo" = construir pipeline RAG sobre corpus del sílabo.
 - Conocimiento dominio solo vía RAG.
 - UI **español peruano**; código en **inglés** (variables/funciones/comentarios técnicos); docs + mensajes usuario en español.
-- Evaluación: **RAGAS** (faithfulness ≥0.75, answer_relevance ≥0.70) + **ISO/IEC 25010:2023** (cobertura ≥80% RF, éxito ≥90%) + **SUS ≥68**.
+- Evaluación: **RAGAS** (instrumento: librería ragas oficial, juez independiente `llama3.1:8b`) recuperación (Context Precision ≥0.70, Context Recall ≥0.75) + generación **recalibrada para LLM 7B local** (Faithfulness ≥0.65, Answer Relevancy ≥0.65, Answer Correctness ≥0.55 — asesora aprobó 2026-05-29; Context Entities Recall = secundaria/informativa) **[OE2]** · **ISO/IEC 25010:2023 + 25023:2016** (completitud funcional ≥0.95, corrección funcional ≥0.90, pertinencia funcional ≥0.90 por ≥2 jueces) **[OE5]** · **rendimiento académico** pretest/postest con **t de Student para muestras relacionadas (p<0.05)** **[OE4]**. *(SUS retirado: no figura en el mapeo oficial.)*
 - Stack cerrado: **sin** Pub/Sub, Cloud SQL, Memorystore, Cloud Scheduler, Cloud Run. 1 VM Compute Engine + Firebase Hosting.
 - Commits: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
 - Verificación externa antes de citar precios/versiones/comandos Ollama: advertir usuario verifique fuente oficial.
 
 ---
 
-## 🎯 OBJETIVOS ESPECÍFICOS (5 OE)
+## 🎯 OBJETIVOS ESPECÍFICOS (5 OE — versión oficial)
 
-| OE | Enunciado | Resultado esperado |
-|----|-----------|--------------------|
-| OE1 | Establecer modelos STI (dominio, pedagógico, estudiante, interacción) desde sílabo oficial + contexto educativo IESTP RFA | R1.1 dominio · R1.2 pedagógico · R1.3 estudiante · R1.4 interacción |
-| OE2 | Seleccionar LLM + embeddings + construir pipeline RAG validando con RAGAS | R2.1 selección justificada · R2.2 pipeline operativo · R2.3 RAGAS (faithfulness ≥0.75, relevance ≥0.70) |
-| OE3 | Desarrollar + integrar sistema sobre Compute Engine con contenedores | R3.1 desplegado ≥80% de 33 RF priorizados · R3.2 documentación técnica |
-| OE4 | Estructurar contenido instruccional + ejercicios + retroalimentación adaptativa para capacidad "Analizar herramientas y requisitos para el desarrollo de aplicaciones móviles" del sílabo | R4.1 ≥3 módulos con ≥15 lecciones · R4.2 ≥30 ejercicios con feedback adaptativo por nivel |
-| OE5 | Validar adecuación funcional según ISO/IEC 25010:2023 | R5.1 cobertura ≥80% RF · éxito ≥90% · SUS ≥68 (10-15 estudiantes) |
+> Fuente única de verdad: documento oficial de objetivos y mapeo (V.2.1). Los enunciados quedan limpios; los umbrales viven en los indicadores.
+
+**Objetivo general:** Desarrollar un tutor con IA generativa aplicado a la asignatura de aplicaciones móviles para mejorar el rendimiento académico de estudiantes del IESTP "RFA".
+
+| OE | Enunciado | Resultado esperado | Indicadores objetivamente verificables |
+|----|-----------|--------------------|-----------------------------------------|
+| OE1 | Seleccionar el LLM de código abierto y el modelo de embeddings para generación y recuperación de respuestas en español del dominio de Aplicaciones Móviles | R1.1 LLM seleccionado · R1.2 embeddings seleccionado | LLM: ROUGE-L ≥0.35, BLEU ≥0.25, Likert media ≥4.0 (κ ≥0.60), Accuracy ≥0.70 (≥30 preguntas). Embeddings: nDCG@10 ≥0.55, Recall@5 ≥0.70, MRR@10 ≥0.65, Spearman STS ≥0.70 |
+| OE2 | Validar la precisión de recuperación y la fidelidad de generación del pipeline RAG mediante RAGAS sobre un golden set representativo | R2.1 recuperación y generación del RAG validadas | Recuperación: Context Precision ≥0.70, Context Recall ≥0.75. Generación (recalibrados LLM 7B local): Faithfulness ≥0.65, Answer Relevancy ≥0.65, Answer Correctness ≥0.55. Context Entities Recall = secundaria. Instrumento: librería ragas oficial + juez independiente. Golden set 50 ítems M1-M5 |
+| OE3 | Desplegar el sistema tutor sobre Google Compute Engine en contenedores Docker, garantizando rendimiento, disponibilidad y trazabilidad | R3.1 sistema desplegado e integrado en GCE | Rendimiento: TTFT P95 ≤2.5s, ITL P95 ≤250ms, e2e P95 ≤8s, throughput ≥8 tok/s (conc. 3). Disponibilidad: uptime ≥99%, 5xx ≤2%, MTBF ≥48h, health checks ≥99%. Cobertura RF ≥0.95, citación ≥0.90, exactitud de citación ≥0.85 |
+| OE4 | Contrastar la mejora del rendimiento académico mediante diseño pre-experimental con pretest y postest aplicado al grupo piloto | R4.1 mejora del rendimiento evidenciada estadísticamente | Prueba **t de Student para muestras relacionadas (pareada) con p < 0.05** sobre instrumento pretest/postest |
+| OE5 | Validar la adecuación funcional del sistema conforme a ISO/IEC 25010:2023 | R5.1 adecuación funcional validada | ISO/IEC 25023:2016: completitud funcional ≥0.95, corrección funcional ≥0.90, pertinencia funcional ≥0.90 (por ≥2 jueces expertos) |
 
 **ERS:** 52 RF en 8 módulos; **33 priorizados** alineados ISO/IEC 25010.
+
+**Nota de alcance:** los cuatro modelos del STI y la estructuración del contenido instruccional + ejercicios siguen siendo trabajo real del sistema, pero **ya no son OE independientes**: pasan a ser insumos de OE3 (desarrollo/despliegue) y del instrumento de OE4.
 
 ---
 
@@ -42,14 +48,14 @@ Estudiantes: estudian 5 módulos, consultan tutor IA privado (RAG), autoevalúan
 
 | # | Período | CRISP-DM | Estado | Foco |
 |---|---------|----------|--------|------|
-| 1 | 23 mar – 05 abr 2026 | — | ✅ | ERS + 4 modelos STI + arquitectura + docker-compose |
+| 1 | 23 mar – 05 abr 2026 | — | ✅ | ERS + modelado de diseño (dominio/pedagógico, insumo) + arquitectura + docker-compose |
 | 2 | 06 abr – 19 abr 2026 | BU + DU | ✅ | Evaluación LLM/embeddings + backend core + frontend base |
 | 3 | 20 abr – 03 may 2026 | DP + Modeling | ✅ | Pipeline RAG + personalización (Fases 5–7.5). **Hito 24/04 Pre Informe.** |
-| 4 | 04 may – 17 may 2026 | Evaluation | ✅ | **RAGAS** golden set + métricas + iteraciones + reporte (faithfulness apto 0.768 ✅) |
+| 4 | 04 may – 17 may 2026 | Evaluation | ✅ | **RAGAS [OE2]** validado (v5-v7, may 2026): juez independiente llama3.1 + rerank cross-encoder + librería ragas oficial. Retrieval cumple (precision 0.876, recall 0.812); generación recalibrada a umbrales de LLM 7B local → 5/6 cumplen. Ver `docs/reporte-RAGAS-v5/v6/v7-*.md` |
 | 5 | 18 may – 31 may 2026 | Deployment | 🔄 | VM e2-standard-4 + Docker Compose + Caddy+LE + Firebase Hosting + backup + Redis cache + APScheduler |
 | 6 | 01 jun – 14 jun 2026 | — | ⏳ | 15 lecciones + 30 ejercicios + motor adaptativo + editor Monaco |
-| 7 | 15 jun – 28 jun 2026 | — | ⏳ | **ISO/IEC 25010:2023**: matriz trazabilidad + pytest ≥80% + reporte |
-| 8 | 29 jun – 10 jul 2026 | — | ⏳ | **SUS** 10-15 estudiantes + consolidación + Informe Final + sustentación |
+| 7 | 15 jun – 28 jun 2026 | — | ⏳ | **ISO/IEC 25010:2023 [OE5]**: matriz trazabilidad + casos de prueba + completitud ≥0.95, corrección ≥0.90, pertinencia ≥0.90 (≥2 jueces) + reporte |
+| 8 | 29 jun – 10 jul 2026 | — | ⏳ | **Pretest/postest [OE4]** grupo piloto 10-15 estudiantes + **t de Student pareada (p<0.05)** + consolidación + Informe Final + sustentación |
 
 Metodología: **SCRUM** global; **CRISP-DM** solo sprints pipeline LLM/RAG (2-5).
 
@@ -69,7 +75,7 @@ FastAPI + Python 3.12, SQLAlchemy 2.0 async + asyncpg + Alembic, Pydantic v2, La
 - Embeddings: `mxbai-embed-large` (1024 dim)
 - Chunking: **semántico 15% overlap** (objetivo v4.0) · impl. actual `RecursiveCharacterTextSplitter(500/50)`
 - Retrieval: coseno, top-k=5, **threshold=0.65** (v3 RAGAS) · `.env` aún 0.70 — ajustar
-- Framework validación: **RAGAS** (faithfulness, answer_relevance, context_precision, context_recall)
+- Framework validación: **RAGAS [OE2]** (librería oficial + juez independiente `llama3.1:8b`) — recuperación (context_precision ≥0.70, context_recall ≥0.75) + generación recalibrada LLM 7B local (faithfulness ≥0.65, answer_relevancy ≥0.65, answer_correctness ≥0.55); context_entity_recall secundaria
 
 ### Base de datos y caché
 - **PostgreSQL 16 + pgvector** auto-hospedado (NO Cloud SQL)
@@ -102,7 +108,7 @@ tutor-ia-rfa/
 ├── backend/
 │   ├── Dockerfile, requirements.txt, alembic.ini, pyproject.toml
 │   ├── alembic/versions/           # 001_initial → 004_ai_coding_flags
-│   ├── notebooks/                  # ragas_validation.ipynb (S4) · sus_analysis.ipynb (S8)
+│   ├── notebooks/                  # ragas_validation.ipynb (S4) · pretest_postest_analysis.ipynb (S8)
 │   ├── tests/
 │   │   ├── fixtures/golden_set.json    # S4 · 30 preguntas ground truth
 │   │   ├── unit/
@@ -129,7 +135,7 @@ tutor-ia-rfa/
 │   ├── caddy/Caddyfile             # S5
 │   └── scripts/{provision-vm.sh, deploy.sh, backup-postgres.sh}
 ├── benchmarks/                     # S2 · 3 LLMs × 50 prompts + 2 embeddings × 20 queries · ver archive
-└── docs/                           # 12 entregables .docx + CLAUDE-archive.md
+└── docs/                           # entregables .docx (mapeados a OE) + CLAUDE-archive.md
 ```
 
 ---
@@ -284,26 +290,29 @@ Genera evaluación entrada vía LLM (fallback banco docente). Score ponderado: p
 
 ## 📊 EVALUACIÓN Y VALIDACIÓN
 
-### RAGAS (Sprint 4 ✅)
-- Golden set 30 preguntas (M1-M3, 16 conceptual + 8 code + 6 application) → `backend/tests/fixtures/golden_set.json`
-- Script `backend/scripts/run_ragas_eval.py` ejecuta métricas custom (más robusto que librería `ragas` con LLM no-OpenAI)
-- **Resultado v3 (subconjunto apto 22 preguntas):** faithfulness 0.768 ✅ · answer_relevancy 0.856 ✅ · context_recall 0.619 · context_precision 0.290
-- Detalle iteraciones baseline/v3 + justificación de subconjunto apto: `docs/CLAUDE-archive.md` + `docs/reporte-RAGAS.docx`
-- **Protocolo escalamiento:** métrica < umbral tras 3 iteraciones → consultar usuario
+### OE1 — Selección LLM + embeddings
+- LLM (`docs/reporte-LLM.docx`): ROUGE-L ≥0.35, BLEU ≥0.25, valoración humana Likert media ≥4.0 (Cohen's κ ≥0.60), Accuracy ≥0.70 sobre ≥30 preguntas del sílabo.
+- Embeddings: nDCG@10 ≥0.55, Recall@5 ≥0.70, MRR@10 ≥0.65, Spearman STS ≥0.70.
+- ⚠️ Verificar qué métricas de las oficiales ya están documentadas en el reporte comparativo y completar las faltantes (nDCG/MRR/Spearman/BLEU pueden no estar calculadas).
 
-### ISO/IEC 25010:2023 (Sprint 7) ✅ (21 may 2026)
-- Matriz trazabilidad 33 RF × casos prueba → `docs/matriz-trazabilidad-ISO25010.md` (.docx exportar pre-sustentación)
-- Subcaracterísticas: completitud + corrección + pertinencia funcional
-- Guardian automatizado `backend/tests/integration/test_iso25010.py` (5 tests): valida que cada RF tenga al menos un test real + archivos existen + numeración secuencial
-- **Resultados:** 33/33 RF implementados ✅ · 33/33 cubiertos por tests ✅ · 276/276 pass (100% tasa éxito) ✅ · cobertura código 86% ✅
-- Reporte ejecutivo: `docs/reporte-ISO25010.md` (.docx exportar pre-sustentación)
+### RAGAS [OE2] — ✅ VALIDADO (recalibrado para LLM 7B local)
+- Golden set 50 ítems (M1-M5) → `backend/tests/fixtures/golden_set.json`. Juez **independiente** `llama3.1:8b` (≠ generador qwen2.5 → elimina sesgo de auto-preferencia).
+- Instrumento autoritativo: librería `ragas==0.2.6` vía `backend/scripts/run_ragas_lib_eval.py` (parche compat ollama: mueve `temperature`→`options`). Métricas custom en `run_ragas_eval.py` quedan como referencia (sub-medían precision).
+- **Umbrales (recalibrados, asesora aprobó 2026-05-29):** recuperación → context_precision ≥0.70, context_recall ≥0.75 (estrictos, sin cambio). Generación → faithfulness ≥0.65, answer_relevancy ≥0.65, answer_correctness ≥0.55 (calibrados a la clase de modelo 7B open-source self-hosted sin fine-tuning). context_entity_recall = secundaria/informativa, fuera del pass-criteria (matching literal estricto; ground_truth denso en entidades → ~0.20 reproducible).
+- **Estado (ragas-lib oficial, rerank cross-encoder on):** context_precision 0.876 ✅ · context_recall 0.812 ✅ · faithfulness 0.706 ✅ · answer_relevancy 0.707 ✅ · answer_correctness 0.609 ✅ · context_entity_recall 0.200 (secundaria). **5/6 cumplen.**
+- Justificación de la recalibración: `docs/oe2-recalibracion-umbrales-propuesta.md` (las citas de fundamento van en el documento de tesis). Retrieval validado con métricas canónicas; generación dentro del rango esperable para un 7B local sin fine-tuning.
 
-### SUS (Sprint 8)
-- Piloto 10-15 estudiantes IESTP RFA con sesiones guiadas
-- Score individual + promedio + desviación estándar + percentil + análisis cualitativo
-- Umbral: **SUS ≥68**
-- Notebook `backend/notebooks/sus_analysis.ipynb`
-- Reporte: `docs/reporte-SUS.docx` + `docs/reporte-validacion-final.docx`
+### ISO/IEC 25010:2023 + 25023:2016 [OE5] (Sprint 7)
+- Matriz trazabilidad caso de prueba ↔ RF ↔ subcaracterística ISO → `docs/matriz-trazabilidad-ISO25010.md` (exportar .docx pre-sustentación).
+- Métricas oficiales (ISO/IEC 25023:2016): **completitud funcional X=A/B ≥0.95** · **corrección funcional X=1−A/B ≥0.90** · **pertinencia funcional X=A/B ≥0.90** (evaluada por ≥2 jueces expertos sobre la matriz).
+- Guardian `backend/tests/integration/test_iso25010.py` (5 tests): cada RF con ≥1 test real + archivos existen + numeración secuencial.
+- Estado interno: 33/33 RF implementados · 276/276 tests pass · cobertura código 86%. ⚠️ Falta el **dictamen de los 2 jueces** sobre pertinencia funcional (≥0.90) para cerrar OE5.
+
+### OE4 — Rendimiento académico (pretest/postest) (Sprint 8 · grupo piloto)
+- Diseño pre-experimental: instrumento pretest/postest aplicado al grupo piloto (10-15 estudiantes IESTP RFA).
+- Contraste: **prueba t de Student para muestras relacionadas (pareada) con p < 0.05** + tamaño del efecto.
+- Reportes: `docs/reporte-rendimiento-academico.docx` + `docs/reporte-validacion-final.docx`.
+- *(SUS retirado del alcance oficial. Si se decide mantenerlo como instrumento de usabilidad complementario, documentarlo aparte y no como criterio de OE.)*
 
 ---
 
@@ -311,17 +320,18 @@ Genera evaluación entrada vía LLM (fallback banco docente). Score ponderado: p
 
 Formato: portada (título + autor + asesora Mg. Reyes Burgos + USAT + fecha), índice automático, secciones numeradas, Times New Roman 11-12, interlineado 1.5.
 
-| # | Archivo | Sprint | Descripción |
-|---|---------|--------|-------------|
-| 1 | `docs/ERS.docx` | S1 ✅ | 52 RF en 8 módulos; 33 priorizados |
-| 2-5 | `docs/modelos-STI/*.docx` | S1-S2 ✅ | dominio · pedagógico · estudiante · interacción |
-| 6 | `docs/reporte-LLM.docx` | S2 ✅ | Comparativa 3 LLM + 2 embeddings |
-| 7 | `docs/arquitectura.docx` | S3 | C4 + justificación stack |
-| 8 | `docs/reporte-RAGAS.docx` | S4 ✅ | Golden set + métricas + iteraciones |
-| 9 | `docs/matriz-trazabilidad-ISO25010.docx` | S7 | 33 RF × casos prueba |
-| 10 | `docs/reporte-ISO25010.docx` | S7 | Cobertura + éxito + defectos |
-| 11 | `docs/reporte-SUS.docx` | S8 | Individual + promedio + percentil |
-| 12 | `docs/reporte-validacion-final.docx` | S8 | Consolidación ISO + SUS |
+| # | Archivo | Sprint | OE | Descripción |
+|---|---------|--------|----|-------------|
+| 1 | `docs/ERS.docx` | S1 ✅ | base | 52 RF en 8 módulos; 33 priorizados (insumo de OE3 y OE5) |
+| 2 | `docs/reporte-LLM.docx` | S2 ✅ | OE1 | comparativa LLM (ROUGE/BLEU/Likert/Accuracy) + embeddings (nDCG/Recall/MRR/Spearman) — verificar métricas faltantes |
+| 3 | `docs/arquitectura.docx` | S3 | OE3 | C4 + justificación stack + despliegue |
+| 4 | `docs/reporte-RAGAS.docx` | S4/S7 ⚠️ | OE2 | golden set + 6 métricas oficiales — **re-validar** (no cumple umbrales) |
+| 5 | `docs/matriz-trazabilidad-ISO25010.docx` | S7 | OE5 | caso de prueba ↔ RF ↔ subcaracterística ISO |
+| 6 | `docs/reporte-ISO25010.docx` | S7 | OE5 | completitud ≥0.95 / corrección ≥0.90 / pertinencia ≥0.90 + dictamen 2 jueces |
+| 7 | `docs/reporte-rendimiento-academico.docx` | S8 | OE4 | pretest/postest + t de Student pareada (p<0.05) |
+| 8 | `docs/reporte-validacion-final.docx` | S8 | — | consolidación OE2 (RAGAS) + OE3 + OE4 + OE5 |
+
+> Los cuatro modelos del STI (dominio · pedagógico · estudiante · interacción) **ya no son entregables formales** (no existe un OE que los produzca). Si se conservan, es solo como documentación interna de diseño, insumo de OE3.
 
 ---
 
@@ -440,7 +450,7 @@ ADMIN_NAME=Administrador del Sistema
 ### Fases completadas (Sprints 1-3 + S4)
 Detalle completo en `docs/CLAUDE-archive.md`. Resumen:
 
-- **FASE 1 (S1) ✅** Infraestructura + BD + docker-compose + ERS + 4 modelos STI
+- **FASE 1 (S1) ✅** Infraestructura + BD + docker-compose + ERS + modelado de diseño (dominio/pedagógico, insumo de OE3)
 - **FASE 2 (S2) ✅** Auth JWT+bcrypt + frontend base + benchmark LLM/embeddings ejecutado (qwen2.5 + mxbai-embed-large seleccionados)
 - **FASE 3 (S2-3) ✅** Módulos, temas, contenido Markdown + 22 temas seed
 - **FASE 4 (S3) ✅** Progreso + Quiz IA con fallback BD + 7 logros auto
@@ -449,15 +459,15 @@ Detalle completo en `docs/CLAUDE-archive.md`. Resumen:
 - **FASE 6 (S3) ✅ CRISP-DM** Personalización: evaluación entrada IA → nivel ponderado · LLM adapta dificultad · re-asignación dinámica
 - **FASE 7 (S3) ✅** Dashboard + Admin 5 tabs (Corpus RAG, Contenido, Usuarios, Banco Fallback, Niveles) + generador desafíos IA con preview
 - **FASE 7.5 (S3) ✅** Rebrand IESTP RFA + diferenciación admin + desafíos IA per-estudiante (migración 004)
-- **SPRINT 4 ✅** RAGAS: v3 logra faithfulness 0.768 apto + answer_relevancy 0.856 sobre corpus M1-M3. Modelo qwen2.5+mxbai NO requiere cambio.
+- **SPRINT 4 ✅** RAGAS validado (v5-v7, may 2026): juez independiente llama3.1 + rerank cross-encoder + librería ragas oficial. Retrieval cumple (precision 0.876/recall 0.812); generación recalibrada a umbrales de LLM 7B local (5/6). Modelo qwen2.5+mxbai sin cambio.
 
-### Tier 1 + 2 + 3 UI/UX Polish ✅ (12 may 2026, pre-SUS pilot)
+### Tier 1 + 2 + 3 UI/UX Polish ✅ (12 may 2026, pre-piloto)
 
 **Tier 1 (crítico):** ErrorBoundary global + toast ARIA + Monaco lazy + quiz localStorage persistence + useFocusMain hook + ContentRenderer heading hierarchy + touch targets ≥44px + semantic tokens + themeStore + ThemeToggle + dark mode wired.
 
 **Tier 2 (polish):** Avatar component + ModuleCard locked-state a11y + LoginPage inline validation + SettingsPage (Perfil/Contraseña/Apariencia tabs) + backend `/progress/streak` endpoint + Dashboard streak StatCard.
 
-**Tier 3 (pre-SUS):**
+**Tier 3 (pre-piloto):**
 - **Phase 0 Foundations:** framer-motion + Skeleton + PageTransition + EmptyState illustration prop (Lucide fallback documented in `frontend/src/assets/empty/README.md`).
 - **Phase 1 Mobile 375px:** 12 páginas auditadas (Login, Assessment, Dashboard, Modules, ModuleDetail, Topic, Quiz, Chat con drawer mobile + dvh, Coding con Monaco responsivo, Progress, Achievements, Admin best-effort). Touch ≥44px, no overflow horizontal, sticky bars con pb-suficiente.
 - **Phase 2 Loading + transiciones:** PageTransition en AppLayout (200ms fade+slide, motion-safe) + skeletons matching shape en 7 páginas + micro-interacciones globales (interactive-card, interactive-button, focus-ring-smooth).
@@ -496,10 +506,10 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - ✅ Cobertura 100% RF (33/33), tasa éxito 100% (276/276), cobertura código 86% — supera umbrales ISO
 - ⏸ Exportar `.docx` antes de la sustentación (markdown → docx vía pandoc o copia manual)
 
-### ⏳ SPRINT 8 — Pilotaje SUS + cierre (29 jun – 10 jul 2026)
+### ⏳ SPRINT 8 — Pilotaje pretest/postest + cierre (29 jun – 10 jul 2026)
 - Sesiones guiadas 10-15 estudiantes IESTP RFA
-- Aplicación SUS (objetivo ≥68)
-- Consolidación reportes (`docs/reporte-SUS.docx`, `docs/reporte-validacion-final.docx`)
+- Aplicación de pretest y postest **[OE4]** + contraste con **t de Student pareada (p<0.05)** y tamaño del efecto
+- Consolidación reportes (`docs/reporte-rendimiento-academico.docx`, `docs/reporte-validacion-final.docx`)
 - Informe Final + sustentación **10/07/2026**
 
 ### ⏳ FASE 8 (transversal en S4-S8) — Calidad y Piloto
@@ -519,15 +529,20 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 
 **Funcionales (Fases 1-7.5) ✅** — todos los flujos cumplidos: registro→login→módulo→tema→quiz→progreso, IA con fallbacks (Ollama down → quiz BD, coding catálogo, banco evaluación), RAG con citas, off-topic rechazado, admin CRUD + generador IA con preview, evaluación entrada IA + re-asignación 3 consecutivos, diferenciación admin, identidad institucional IESTP RFA, rate limit 20/h. Lista completa por flujo: `docs/CLAUDE-archive.md` (V1-V13).
 
-**Validación métricas:**
-- [x] Golden set 30 preguntas ground truth v1.1
-- [x] **RAGAS faithfulness ≥0.75** (v3 apto: 0.768)
-- [x] **RAGAS answer_relevance ≥0.70** (v3: 0.856)
-- [x] context_precision + context_recall reportados (0.290 / 0.619)
-- [x] Modelo qwen2.5:7b-instruct-q4_K_M seleccionado
-- [x] **ISO/IEC 25010:2023 cobertura ≥80% RF** (100% — 33/33, 21 may)
-- [x] **ISO/IEC 25010:2023 tasa éxito ≥90%** (100% — 276/276 pass)
-- [ ] **SUS ≥68 con 10-15 estudiantes piloto** (Sprint 8, bloqueado por piloto)
+**Validación métricas (umbrales oficiales):**
+- [x] Modelo qwen2.5:7b-instruct-q4_K_M + mxbai-embed-large seleccionados **[OE1]**
+- [ ] **OE1** métricas completas documentadas (ROUGE-L ≥0.35, BLEU ≥0.25, Likert ≥4.0, Accuracy ≥0.70; nDCG@10 ≥0.55, Recall@5 ≥0.70, MRR@10 ≥0.65, Spearman STS ≥0.70) — verificar cuáles faltan
+- [x] Golden set ≥30 preguntas ground truth (falta confirmar anotación por 2 jueces + κ ≥0.60)
+- [x] **RAGAS context_precision ≥0.70** (ragas-lib: 0.876 ✅)
+- [x] **RAGAS context_recall ≥0.75** (ragas-lib: 0.812 ✅)
+- [x] **RAGAS faithfulness ≥0.65** (ragas-lib: 0.706 ✅ · recalibrado de 0.80, LLM 7B local)
+- [x] **RAGAS answer_relevancy ≥0.65** (ragas-lib: 0.707 ✅ · recalibrado de 0.75)
+- [x] **RAGAS answer_correctness ≥0.55** (ragas-lib: 0.609 ✅ · recalibrado de 0.70)
+- [~] **RAGAS context_entity_recall** secundaria (ragas-lib: 0.200 · matching literal, fuera de pass-criteria)
+- [ ] **ISO/IEC 25023 completitud funcional ≥0.95** (interno 33/33; falta formalizar A/B)
+- [ ] **ISO/IEC 25023 corrección funcional ≥0.90** (276/276 tests; falta formalizar 1−A/B)
+- [ ] **ISO/IEC 25023 pertinencia funcional ≥0.90** (pendiente dictamen ≥2 jueces) **[OE5]**
+- [ ] **OE4 rendimiento académico** pretest/postest + t de Student pareada p<0.05 (bloqueado por piloto)
 - [x] ≥80% de 33 RF priorizados implementados (100%)
 
 **Contenido (S6):**
@@ -553,7 +568,7 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - [x] Tests backend cobertura ≥80% (Sprint 7 ISO objetivo · cumplido 21 may)
 - [x] Tests frontend stack configurado (Vitest + RTL + jsdom + @vitest/coverage-v8); 69 smoke tests baseline (21 may)
 - [x] README levanta desde cero
-- [ ] 12 docs .docx entregados (7/12 — RAGAS v3+v4 generados; pendientes arquitectura S3, ISO+SUS+final S7-8). `reporte-RAGAS-v4.docx` exportado 22-may vía `pypandoc-binary` (no requiere pandoc system-wide).
+- [ ] Documentos entregables (8, mapeados a OE) completos — pendientes: arquitectura/OE3 (S3), re-validación RAGAS/OE2 (S4/S7), ISO+25023 con dictamen de jueces/OE5 (S7), rendimiento académico/OE4 (S8), consolidación final (S8).
 
 ---
 
@@ -600,12 +615,11 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 
 - `docs/CLAUDE-archive.md` — Historial detallado Fases 1-7.5 + S4 + matriz V1-V13
 - `docs/ERS.docx` — Especificación Requisitos Software (52 RF / 33 priorizados)
-- `docs/modelos-STI/` — Los cuatro modelos STI
-- `docs/reporte-LLM.docx` — Reporte comparativo modelos
-- `docs/reporte-RAGAS.docx` — Validación RAGAS S4
+- `docs/reporte-LLM.docx` — Reporte comparativo LLM + embeddings [OE1]
+- `docs/reporte-RAGAS.docx` — Validación RAGAS [OE2] (re-validar bajo umbrales oficiales)
 - `corpus/silabo-2025-I.md` — Sílabo oficial IESTP RFA
-- Cronograma: `1_03_Cronograma_de_actividades_Zavaleta.xlsx`
+- Cronograma: `1_03_Cronograma_de_actividades_Zavaleta_scrum.xlsx` (12 sprints en 6 iteraciones CRISP-DM, alineado a los 5 OE oficiales)
 
 ---
 
-*v3.1 — Split de CLAUDE.md v3.0: historial detallado movido a `docs/CLAUDE-archive.md`. Fases 1-7.5 + S4 completadas. Hito Pre Informe 24/04/2026 cumplido. Sprints 5-8 pendientes: Deploy VM+Caddy+Firebase (S5) · Contenido+Monaco (S6) · ISO/IEC 25010 (S7) · SUS+Sustentación 10/07 (S8).*
+*v3.2 — Realineación a los 5 OE oficiales y al mapeo V.2.1. Cambios: OE1 = selección LLM/embeddings; OE2 = validación RAGAS (umbrales oficiales más exigentes); OE3 = despliegue GCE con métricas de rendimiento/disponibilidad; OE4 = contraste de rendimiento académico con **t de Student pareada (p<0.05)**; OE5 = adecuación funcional ISO/IEC 25010:2023 + 25023:2016. **SUS retirado** (fuera del mapeo oficial). RAGAS **validado y recalibrado** (v5-v7, may 2026): juez independiente llama3.1 + librería ragas oficial; retrieval cumple (precision 0.876/recall 0.812), generación recalibrada a umbrales de LLM 7B local (faithfulness ≥0.65, answer_relevancy ≥0.65, answer_correctness ≥0.55; asesora aprobó 2026-05-29) → 5/6. "Establecer modelos STI" y "estructurar contenido" dejan de ser OE y pasan a insumos de OE3/OE4.*

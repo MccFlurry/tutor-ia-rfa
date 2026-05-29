@@ -1,0 +1,146 @@
+import pytest
+from scripts import ragas_metrics as rm
+
+
+class FakeLLM:
+    """Devuelve respuestas .content predefinidas, en orden, por cada ainvoke."""
+    def __init__(self, responses):
+        self._responses = list(responses)
+        self.calls = 0
+
+    async def ainvoke(self, messages):
+        resp = self._responses[self.calls]
+        self.calls += 1
+        class _M:
+            content = resp
+        return _M()
+
+
+class FakeEmbedder:
+    def __init__(self, vectors):
+        self._vectors = vectors
+
+    async def aembed_documents(self, texts):
+        return self._vectors[: len(texts)]
+
+
+@pytest.mark.asyncio
+async def test_faithfulness_half_supported():
+    judge = FakeLLM([
+        '{"claims": ["c1", "c2"]}',
+        '{"verdicts": [{"claim": "c1", "supported": true}, {"claim": "c2", "supported": false}]}',
+    ])
+    score = await rm.metric_faithfulness(judge, "answer", ["ctx"])
+    assert score == 0.5
+
+
+@pytest.mark.asyncio
+async def test_context_recall_all_attributable():
+    judge = FakeLLM([
+        '{"sentences": ["s1", "s2"]}',
+        '{"verdicts": [{"sentence": "s1", "attributable": true}, {"sentence": "s2", "attributable": true}]}',
+    ])
+    score = await rm.metric_context_recall(judge, "ground truth", ["ctx"])
+    assert score == 1.0
+
+
+@pytest.mark.asyncio
+async def test_context_precision_top_ranked_relevant():
+    judge = FakeLLM([
+        '{"verdicts": [{"useful": true}, {"useful": false}]}',
+    ])
+    score = await rm.metric_context_precision(judge, "q", "gt", ["c1", "c2"])
+    assert score == 1.0
+
+
+@pytest.mark.asyncio
+async def test_context_entities_recall_half_present():
+    judge = FakeLLM([
+        '{"entities": ["Retrofit", "Coroutine"]}',
+        '{"verdicts": [{"entity": "Retrofit", "present": true}, {"entity": "Coroutine", "present": false}]}',
+    ])
+    score = await rm.metric_context_entities_recall(judge, "ground truth", ["ctx"])
+    assert score == 0.5
+
+
+@pytest.mark.asyncio
+async def test_context_entities_recall_no_entities_returns_one():
+    judge = FakeLLM(['{"entities": []}'])
+    score = await rm.metric_context_entities_recall(judge, "ground truth", ["ctx"])
+    assert score == 1.0
+
+
+@pytest.mark.asyncio
+async def test_answer_correctness_perfect():
+    # tp=2, fp=0, fn=0 → F1=1.0 ; embeddings idénticos → coseno=1.0 → 0.75+0.25=1.0
+    judge = FakeLLM(['{"tp": 2, "fp": 0, "fn": 0}'])
+    embedder = FakeEmbedder([[1.0, 0.0], [1.0, 0.0]])
+    score = await rm.metric_answer_correctness(judge, embedder, "answer", "ground truth")
+    assert score == 1.0
+
+
+@pytest.mark.asyncio
+async def test_answer_correctness_partial():
+    # tp=1, fp=1, fn=1 → F1 = 1/(1+0.5*2)=0.5 ; coseno=0 → 0.75*0.5 = 0.375
+    judge = FakeLLM(['{"tp": 1, "fp": 1, "fn": 1}'])
+    embedder = FakeEmbedder([[1.0, 0.0], [0.0, 1.0]])
+    score = await rm.metric_answer_correctness(judge, embedder, "answer", "ground truth")
+    assert score == 0.375
+
+
+def test_cohen_kappa_perfect_agreement():
+    assert rm.cohen_kappa([True, False, True, False], [True, False, True, False]) == 1.0
+
+
+def test_cohen_kappa_known_value():
+    # a=[T,T,F,F], b=[T,F,F,F]: po=0.75, pa_true=0.5, pb_true=0.25
+    # pe = 0.5*0.25 + 0.5*0.75 = 0.5 ; κ = (0.75-0.5)/(1-0.5) = 0.5
+    assert rm.cohen_kappa([True, True, False, False], [True, False, False, False]) == 0.5
+
+
+@pytest.mark.asyncio
+async def test_verify_claims_labels():
+    judge = FakeLLM(['{"verdicts": [{"claim": "c1", "supported": true}, {"claim": "c2", "supported": false}]}'])
+    labels = await rm.verify_claims(judge, ["c1", "c2"], ["ctx"])
+    assert labels == [True, False]
+
+
+def test_make_judge_uses_configured_model(monkeypatch):
+    monkeypatch.setattr(rm.settings, "RAGAS_JUDGE_MODEL", "llama3.1:8b")
+    judge = rm.make_judge()
+    assert judge.model == "llama3.1:8b"
+
+
+def test_make_judge_falls_back_to_generator(monkeypatch):
+    monkeypatch.setattr(rm.settings, "RAGAS_JUDGE_MODEL", "")
+    judge = rm.make_judge()
+    assert judge.model == rm.settings.OLLAMA_MODEL
+
+
+@pytest.mark.asyncio
+async def test_ainvoke_json_handles_fenced_and_prefixed():
+    judge = FakeLLM([
+        'Claro, aquí tienes:\n```json\n{"entities": ["A"]}\n```',
+        '{"verdicts": [{"entity": "A", "present": true}]}',
+    ])
+    score = await rm.metric_context_entities_recall(judge, "gt", ["ctx"])
+    assert score == 1.0
+
+
+@pytest.mark.asyncio
+async def test_entities_recall_denominator_is_entity_count():
+    # 2 entidades extraídas, el juez sólo devuelve 1 verdict (truncado) → 1/2 = 0.5
+    judge = FakeLLM([
+        '{"entities": ["A", "B"]}',
+        '{"verdicts": [{"entity": "A", "present": true}]}',
+    ])
+    score = await rm.metric_context_entities_recall(judge, "gt", ["ctx"])
+    assert score == 0.5
+
+
+@pytest.mark.asyncio
+async def test_answer_correctness_all_zero_counts_returns_none():
+    judge = FakeLLM(['{"tp": 0, "fp": 0, "fn": 0}'])
+    embedder = FakeEmbedder([[1.0, 0.0], [1.0, 0.0]])
+    score = await rm.metric_answer_correctness(judge, embedder, "answer", "gt")
+    assert score is None

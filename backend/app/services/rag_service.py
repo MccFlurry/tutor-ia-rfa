@@ -71,7 +71,7 @@ async def query_rag(
     query_vector = await embed_query(question)
 
     # 3. Semantic search in pgvector
-    chunks = await _semantic_search(query_vector, db)
+    chunks = await _semantic_search(query_vector, db, query_text=question)
 
     if not chunks:
         return {"content": NO_CONTEXT_RESPONSE, "sources": []}
@@ -127,10 +127,18 @@ async def _semantic_search(
     db: AsyncSession,
     top_k: int | None = None,
     threshold: float | None = None,
+    query_text: str | None = None,
 ) -> list[dict]:
-    """Cosine similarity search in pgvector."""
+    """Cosine similarity search en pgvector, con re-ranking opcional (config-gated)."""
     top_k = top_k or settings.RAG_TOP_K
-    threshold = threshold or settings.RAG_SIMILARITY_THRESHOLD
+    rerank_on = settings.RAG_RERANK == "cross_encoder" and query_text is not None
+
+    if rerank_on:
+        fetch_k = settings.RAG_FETCH_K
+        fetch_threshold = settings.RAG_FETCH_THRESHOLD
+    else:
+        fetch_k = top_k
+        fetch_threshold = threshold or settings.RAG_SIMILARITY_THRESHOLD
 
     vec_literal = "[" + ",".join(str(v) for v in query_vector) + "]"
 
@@ -146,12 +154,12 @@ async def _semantic_search(
     """)
 
     result = await db.execute(sql, {
-        "threshold": threshold,
-        "top_k": top_k,
+        "threshold": fetch_threshold,
+        "top_k": fetch_k,
     })
     rows = result.fetchall()
 
-    return [
+    candidates = [
         {
             "content": row.content,
             "metadata": row.meta or {},
@@ -159,6 +167,12 @@ async def _semantic_search(
         }
         for row in rows
     ]
+
+    if rerank_on and candidates:
+        from app.services.rerank_service import rerank
+        return rerank(query_text, candidates, top_k)
+
+    return candidates
 
 
 def _build_context(chunks: list[dict]) -> str:

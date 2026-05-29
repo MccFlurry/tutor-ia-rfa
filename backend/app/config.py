@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     # Ollama
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "qwen2.5:7b-instruct-q4_K_M"
+    RAGAS_JUDGE_MODEL: str = ""       # juez independiente; vacío → usa OLLAMA_MODEL
+    RAGAS_JUDGE_MODEL_B: str = ""     # 2º juez para Cohen's κ; vacío → sin κ
     OLLAMA_EMBED_MODEL: str = "mxbai-embed-large"
     OLLAMA_TIMEOUT: int = 120
     EMBEDDING_DIMENSION: int = 1024
@@ -38,6 +40,12 @@ class Settings(BaseSettings):
     RAG_CONTEXT_WINDOW: int = 5
     CHUNK_SIZE: int = 500
     CHUNK_OVERLAP: int = 50
+
+    # Re-ranking (Iteración 1)
+    RAG_RERANK: str = "off"            # off | cross_encoder
+    RAG_FETCH_K: int = 30              # candidatos recuperados por coseno antes del rerank
+    RAG_FETCH_THRESHOLD: float = 0.50  # umbral laxo para el pool de candidatos (recall)
+    RERANK_MODEL: str = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
 
     # Quiz IA
     QUIZ_NUM_QUESTIONS: int = 5

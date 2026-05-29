@@ -1,14 +1,16 @@
 """
 run_ragas_eval.py — Evaluación RAGAS-style del pipeline RAG.
 
-Implementa las 4 métricas estándar RAGAS con Ollama local (más robusto
+Implementa las 6 métricas estándar RAGAS con Ollama local (más robusto
 que la librería `ragas` con LLMs no-OpenAI):
 
-- faithfulness       — proporción de claims del answer soportadas por el contexto
-- answer_relevancy   — similitud semántica entre pregunta original y pregunta
-                       inferida por el LLM a partir del answer
-- context_precision  — proporción de chunks recuperados marcados relevantes
-- context_recall     — proporción de sentencias de ground_truth cubiertas por el contexto
+- faithfulness              — proporción de claims del answer soportadas por el contexto
+- answer_relevancy          — similitud semántica entre pregunta original y pregunta
+                              inferida por el LLM a partir del answer
+- context_precision         — proporción de chunks recuperados marcados relevantes
+- context_recall            — proporción de sentencias de ground_truth cubiertas por el contexto
+- context_entities_recall   — fracción de entidades del ground_truth presentes en el contexto
+- answer_correctness        — F1 factual ponderado + similitud semántica con ground_truth
 
 Ejecutar:
     docker compose exec backend python scripts/run_ragas_eval.py [--max N] [--iter LABEL]
@@ -25,15 +27,13 @@ import asyncio
 import csv
 import hashlib
 import json
-import re
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
 
 import numpy as np
-from langchain_ollama import ChatOllama, OllamaEmbeddings
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_ollama import OllamaEmbeddings
 
 # Paths
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,6 +46,21 @@ from app.services.embed_service import embed_query
 import redis.asyncio as aioredis
 import logging
 
+from scripts.ragas_metrics import (
+    make_judge,
+    make_judge_b,
+    make_generator,
+    metric_faithfulness,
+    metric_answer_relevancy,
+    metric_context_precision,
+    metric_context_recall,
+    metric_context_entities_recall,
+    metric_answer_correctness,
+    extract_claims,
+    verify_claims,
+    cohen_kappa,
+)
+
 # Silenciar eco SQL + loguru verbose
 logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 engine.echo = False
@@ -54,224 +69,6 @@ engine.echo = False
 GOLDEN_PATH = BASE_DIR / "tests" / "fixtures" / "golden_set.json"
 OUT_DIR = BASE_DIR / "scripts" / "ragas_runs"
 OUT_DIR.mkdir(exist_ok=True)
-
-ANSWER_RELEVANCY_N = 2  # número de preguntas sintéticas generadas por answer
-
-
-# ----------------------------------------------------------------------------
-# Judge LLM (temperature=0 para determinismo)
-# ----------------------------------------------------------------------------
-def make_judge() -> ChatOllama:
-    return ChatOllama(
-        base_url=settings.OLLAMA_BASE_URL,
-        model=settings.OLLAMA_MODEL,
-        temperature=0.0,
-        num_ctx=4096,
-        num_predict=512,
-        timeout=settings.OLLAMA_TIMEOUT,
-        format="json",
-    )
-
-
-def make_generator() -> ChatOllama:
-    # temperature > 0 para que genere preguntas ligeramente distintas en answer_relevancy
-    return ChatOllama(
-        base_url=settings.OLLAMA_BASE_URL,
-        model=settings.OLLAMA_MODEL,
-        temperature=0.7,
-        num_ctx=4096,
-        num_predict=256,
-        timeout=settings.OLLAMA_TIMEOUT,
-        format="json",
-    )
-
-
-async def _ainvoke_json(llm: ChatOllama, system: str, human: str) -> dict | None:
-    try:
-        resp = await llm.ainvoke([
-            SystemMessage(content=system),
-            HumanMessage(content=human),
-        ])
-        raw = resp.content.strip()
-        raw = re.sub(r"^```(?:json)?\s*", "", raw)
-        raw = re.sub(r"\s*```$", "", raw)
-        return json.loads(raw)
-    except Exception as e:
-        print(f"  [warn] LLM JSON error: {e}")
-        return None
-
-
-# ----------------------------------------------------------------------------
-# Métricas
-# ----------------------------------------------------------------------------
-async def metric_faithfulness(judge, answer: str, contexts: list[str]) -> float | None:
-    """
-    1. Extraer claims del answer.
-    2. Juzgar cada claim contra contextos concatenados.
-    """
-    ctx = "\n\n".join(contexts)
-
-    extracted = await _ainvoke_json(
-        judge,
-        system=(
-            "Extrae los claims verificables del texto. Devuelve JSON: "
-            '{"claims": ["claim1", "claim2", ...]}. Cada claim es una afirmación '
-            "atómica y autónoma. Máximo 8 claims. Ignora saludos u opinión."
-        ),
-        human=f"Texto:\n{answer}",
-    )
-    if not extracted or "claims" not in extracted:
-        return None
-    claims = [str(c).strip() for c in extracted["claims"] if str(c).strip()]
-    if not claims:
-        return 1.0  # sin claims → no hay nada que pueda ser falso
-
-    verdict = await _ainvoke_json(
-        judge,
-        system=(
-            "Para cada claim, responde si está respaldado por el CONTEXTO. "
-            'Devuelve JSON: {"verdicts": [{"claim": "...", "supported": true|false}, ...]}. '
-            "Sé estricto: solo true si el contexto lo afirma explícitamente o lo implica directamente."
-        ),
-        human=f"CONTEXTO:\n{ctx}\n\nCLAIMS:\n" + "\n".join(f"- {c}" for c in claims),
-    )
-    if not verdict or "verdicts" not in verdict:
-        return None
-
-    verdicts = verdict["verdicts"]
-    if not verdicts:
-        return None
-    supported = 0
-    for v in verdicts:
-        if isinstance(v, dict):
-            if v.get("supported") is True:
-                supported += 1
-        elif isinstance(v, bool) and v:
-            supported += 1
-    return round(supported / len(verdicts), 3)
-
-
-async def metric_answer_relevancy(gen, embedder, question: str, answer: str) -> float | None:
-    """
-    1. LLM genera N preguntas sintéticas a partir del answer.
-    2. Embed original question + preguntas sintéticas.
-    3. Promedio de similitudes coseno.
-    """
-    synth = await _ainvoke_json(
-        gen,
-        system=(
-            f"Dada una respuesta, genera exactamente {ANSWER_RELEVANCY_N} preguntas "
-            "diferentes que esa respuesta contestaría. Devuelve JSON: "
-            '{"questions": ["q1", "q2"]}. Las preguntas deben ser en español y específicas.'
-        ),
-        human=f"Respuesta:\n{answer}",
-    )
-    if not synth or "questions" not in synth:
-        return None
-    qs = [str(q).strip() for q in synth["questions"] if str(q).strip()]
-    if not qs:
-        return None
-
-    # Embed
-    embs_q = await embedder.aembed_documents([question] + qs)
-    orig = np.array(embs_q[0])
-    others = np.array(embs_q[1:])
-
-    def cosine(a, b):
-        na, nb = np.linalg.norm(a), np.linalg.norm(b)
-        if na == 0 or nb == 0:
-            return 0.0
-        return float(np.dot(a, b) / (na * nb))
-
-    sims = [cosine(orig, e) for e in others]
-    return round(float(np.mean(sims)), 3)
-
-
-async def metric_context_precision(judge, question: str, ground_truth: str, contexts: list[str]) -> float | None:
-    """
-    Para cada chunk, LLM decide si es útil para responder. Precisión posicional ponderada
-    (chunks más relevantes arriba tienen mayor peso).
-    """
-    if not contexts:
-        return 0.0
-
-    payload = "\n\n".join(f"[Chunk {i+1}]\n{c}" for i, c in enumerate(contexts))
-    verdict = await _ainvoke_json(
-        judge,
-        system=(
-            "Dada una PREGUNTA y una RESPUESTA CORRECTA, decide para cada CHUNK "
-            "si es útil para responder. Devuelve JSON: "
-            '{"verdicts": [{"useful": true|false}, ...]} en el MISMO ORDEN de los chunks.'
-        ),
-        human=f"PREGUNTA: {question}\nRESPUESTA CORRECTA: {ground_truth}\n\nCHUNKS:\n{payload}",
-    )
-    if not verdict or "verdicts" not in verdict:
-        return None
-    vs = verdict["verdicts"]
-    useful = []
-    for v in vs:
-        if isinstance(v, dict):
-            useful.append(bool(v.get("useful")))
-        elif isinstance(v, bool):
-            useful.append(v)
-    if not useful:
-        return None
-
-    # AP@k style: Σ (P@k × rel_k) / total_rel
-    total_rel = sum(useful)
-    if total_rel == 0:
-        return 0.0
-    precision_at_k = []
-    hits = 0
-    for k, u in enumerate(useful, 1):
-        if u:
-            hits += 1
-            precision_at_k.append(hits / k)
-    return round(sum(precision_at_k) / total_rel, 3)
-
-
-async def metric_context_recall(judge, ground_truth: str, contexts: list[str]) -> float | None:
-    """
-    Break ground_truth en sentencias. Para cada una, juzgar si es atribuible al contexto.
-    """
-    ctx = "\n\n".join(contexts)
-    extracted = await _ainvoke_json(
-        judge,
-        system=(
-            "Parte el texto en sentencias atómicas. Devuelve JSON: "
-            '{"sentences": ["s1", "s2", ...]}. Máximo 8 sentencias.'
-        ),
-        human=f"Texto:\n{ground_truth}",
-    )
-    if not extracted or "sentences" not in extracted:
-        return None
-    sents = [str(s).strip() for s in extracted["sentences"] if str(s).strip()]
-    if not sents:
-        return 1.0
-
-    verdict = await _ainvoke_json(
-        judge,
-        system=(
-            "Para cada SENTENCIA, responde si está respaldada por el CONTEXTO. "
-            'Devuelve JSON: {"verdicts": [{"sentence": "...", "attributable": true|false}, ...]}. '
-            "Sé estricto."
-        ),
-        human=f"CONTEXTO:\n{ctx}\n\nSENTENCIAS:\n" + "\n".join(f"- {s}" for s in sents),
-    )
-    if not verdict or "verdicts" not in verdict:
-        return None
-    vs = verdict["verdicts"]
-    if not vs:
-        return None
-    attr = 0
-    for v in vs:
-        if isinstance(v, dict):
-            if v.get("attributable") is True:
-                attr += 1
-        elif isinstance(v, bool) and v:
-            attr += 1
-    return round(attr / len(vs), 3)
-
 
 # ----------------------------------------------------------------------------
 # Pipeline por pregunta
@@ -286,7 +83,7 @@ async def run_rag(question: str) -> tuple[str, list[str]]:
 
     async with async_session_maker() as db:
         query_vec = await embed_query(question)
-        chunks = await _semantic_search(query_vec, db)
+        chunks = await _semantic_search(query_vec, db, query_text=question)
         contexts = [c["content"] for c in chunks]
         result = await query_rag(
             question=question,
@@ -314,6 +111,9 @@ async def main(max_q: int | None, label: str):
     out_json = OUT_DIR / f"{stamp}_{label}.summary.json"
 
     judge = make_judge()
+    judge_b = make_judge_b()
+    kappa_a: list[bool] = []
+    kappa_b: list[bool] = []
     gen = make_generator()
     embedder = OllamaEmbeddings(
         base_url=settings.OLLAMA_BASE_URL,
@@ -334,6 +134,7 @@ async def main(max_q: int | None, label: str):
         "id", "module", "type", "difficulty",
         "question", "answer", "n_contexts",
         "faithfulness", "answer_relevancy", "context_precision", "context_recall",
+        "context_entities_recall", "answer_correctness",
         "elapsed_s", "error",
     ]
     with open(out_csv, "w", newline="", encoding="utf-8") as f:
@@ -355,6 +156,8 @@ async def main(max_q: int | None, label: str):
                 "answer_relevancy": None,
                 "context_precision": None,
                 "context_recall": None,
+                "context_entities_recall": None,
+                "answer_correctness": None,
                 "elapsed_s": 0,
                 "error": "",
             }
@@ -371,9 +174,23 @@ async def main(max_q: int | None, label: str):
                     row["context_recall"] = await metric_context_recall(
                         judge, q["ground_truth"], contexts
                     )
-                row["answer_relevancy"] = await metric_answer_relevancy(
-                    gen, embedder, q["question"], answer
-                )
+                    row["context_entities_recall"] = await metric_context_entities_recall(
+                        judge, q["ground_truth"], contexts
+                    )
+                    if judge_b is not None:
+                        claims = await extract_claims(judge, answer)
+                        if claims:
+                            la = await verify_claims(judge, claims, contexts)
+                            lb = await verify_claims(judge_b, claims, contexts)
+                            if la and lb and len(la) == len(lb):
+                                kappa_a.extend(la)
+                                kappa_b.extend(lb)
+                    row["answer_relevancy"] = await metric_answer_relevancy(
+                        gen, embedder, q["question"], answer
+                    )
+                    row["answer_correctness"] = await metric_answer_correctness(
+                        judge, embedder, answer, q["ground_truth"]
+                    )
             except Exception as e:
                 row["error"] = str(e)[:200]
                 print(f"  [err] Q{qid}: {e}")
@@ -385,7 +202,8 @@ async def main(max_q: int | None, label: str):
 
             metrics_str = " ".join(
                 f"{k[0]}={row[k]:.2f}" if isinstance(row[k], float) else f"{k[0]}=--"
-                for k in ("faithfulness", "answer_relevancy", "context_precision", "context_recall")
+                for k in ("faithfulness", "answer_relevancy", "context_precision",
+                          "context_recall", "context_entities_recall", "answer_correctness")
             )
             print(f"Q{qid:02d} [{q['module']}/{q['type']:12s}/{q['difficulty']:6s}] "
                   f"{row['elapsed_s']:5.1f}s  {metrics_str}  ·  {q['question'][:50]}")
@@ -394,6 +212,22 @@ async def main(max_q: int | None, label: str):
     def avg(key):
         vals = [r[key] for r in results if isinstance(r[key], (int, float))]
         return round(sum(vals) / len(vals), 3) if vals else None
+
+    OFFICIAL = {
+        "faithfulness": 0.80,
+        "answer_relevancy": 0.75,
+        "context_precision": 0.70,
+        "context_recall": 0.75,
+        "context_entities_recall": 0.70,
+        "answer_correctness": 0.70,
+    }
+
+    def none_rate(key):
+        total = len(results)
+        nones = sum(1 for r in results if r[key] is None)
+        return round(nones / total, 3) if total else None
+
+    kappa = cohen_kappa(kappa_a, kappa_b) if kappa_a else None
 
     summary = {
         "label": label,
@@ -405,22 +239,15 @@ async def main(max_q: int | None, label: str):
             "threshold": settings.RAG_SIMILARITY_THRESHOLD,
             "top_k": settings.RAG_TOP_K,
             "llm": settings.OLLAMA_MODEL,
+            "judge": settings.RAGAS_JUDGE_MODEL or settings.OLLAMA_MODEL,
+            "judge_b": settings.RAGAS_JUDGE_MODEL_B or None,
             "embed": settings.OLLAMA_EMBED_MODEL,
         },
-        "global": {
-            "faithfulness": avg("faithfulness"),
-            "answer_relevancy": avg("answer_relevancy"),
-            "context_precision": avg("context_precision"),
-            "context_recall": avg("context_recall"),
-        },
-        "thresholds": {
-            "faithfulness_required": 0.75,
-            "answer_relevancy_required": 0.70,
-        },
-        "pass": {
-            "faithfulness": (avg("faithfulness") or 0) >= 0.75,
-            "answer_relevancy": (avg("answer_relevancy") or 0) >= 0.70,
-        },
+        "global": {k: avg(k) for k in OFFICIAL},
+        "none_rate": {k: none_rate(k) for k in OFFICIAL},
+        "thresholds": OFFICIAL,
+        "kappa_faithfulness_verdicts": kappa,
+        "pass": {k: (avg(k) or 0) >= OFFICIAL[k] for k in OFFICIAL},
     }
 
     # Breakdown por módulo / tipo / dificultad
@@ -438,6 +265,8 @@ async def main(max_q: int | None, label: str):
                 "answer_relevancy": bavg("answer_relevancy"),
                 "context_precision": bavg("context_precision"),
                 "context_recall": bavg("context_recall"),
+                "context_entities_recall": bavg("context_entities_recall"),
+                "answer_correctness": bavg("answer_correctness"),
             }
         summary[f"by_{dim}"] = breakdown
 
@@ -448,8 +277,11 @@ async def main(max_q: int | None, label: str):
     print("RESUMEN")
     print(f"{'='*70}")
     print(json.dumps(summary["global"], indent=2))
-    print(f"\nfaithfulness ≥ 0.75  ·  {'✓' if summary['pass']['faithfulness'] else '✗'}")
-    print(f"answer_relevancy ≥ 0.70  ·  {'✓' if summary['pass']['answer_relevancy'] else '✗'}")
+    for k in OFFICIAL:
+        ok = "✓" if summary["pass"][k] else "✗"
+        print(f"{k} ≥ {OFFICIAL[k]:.2f}  ·  {ok}  (valor={summary['global'][k]}, none_rate={summary['none_rate'][k]})")
+    if kappa is not None:
+        print(f"Cohen's κ (faithfulness verdicts, juez A vs B): {kappa}")
     print(f"\nCSV:     {out_csv}")
     print(f"Summary: {out_json}")
 
