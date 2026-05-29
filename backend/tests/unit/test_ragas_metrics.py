@@ -115,3 +115,32 @@ def test_make_judge_falls_back_to_generator(monkeypatch):
     monkeypatch.setattr(rm.settings, "RAGAS_JUDGE_MODEL", "")
     judge = rm.make_judge()
     assert judge.model == rm.settings.OLLAMA_MODEL
+
+
+@pytest.mark.asyncio
+async def test_ainvoke_json_handles_fenced_and_prefixed():
+    judge = FakeLLM([
+        'Claro, aquí tienes:\n```json\n{"entities": ["A"]}\n```',
+        '{"verdicts": [{"entity": "A", "present": true}]}',
+    ])
+    score = await rm.metric_context_entities_recall(judge, "gt", ["ctx"])
+    assert score == 1.0
+
+
+@pytest.mark.asyncio
+async def test_entities_recall_denominator_is_entity_count():
+    # 2 entidades extraídas, el juez sólo devuelve 1 verdict (truncado) → 1/2 = 0.5
+    judge = FakeLLM([
+        '{"entities": ["A", "B"]}',
+        '{"verdicts": [{"entity": "A", "present": true}]}',
+    ])
+    score = await rm.metric_context_entities_recall(judge, "gt", ["ctx"])
+    assert score == 0.5
+
+
+@pytest.mark.asyncio
+async def test_answer_correctness_all_zero_counts_returns_none():
+    judge = FakeLLM(['{"tp": 0, "fp": 0, "fn": 0}'])
+    embedder = FakeEmbedder([[1.0, 0.0], [1.0, 0.0]])
+    score = await rm.metric_answer_correctness(judge, embedder, "answer", "gt")
+    assert score is None

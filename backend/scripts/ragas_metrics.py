@@ -51,8 +51,9 @@ async def _ainvoke_json(llm, system: str, human: str) -> dict | None:
             HumanMessage(content=human),
         ])
         raw = resp.content.strip()
-        raw = re.sub(r"^```(?:json)?\s*", "", raw)
-        raw = re.sub(r"\s*```$", "", raw)
+        m = re.search(r"(\{.*\}|\[.*\])", raw, re.DOTALL)
+        if m:
+            raw = m.group(1)
         return json.loads(raw)
     except Exception as e:
         print(f"  [warn] LLM JSON error: {e}")
@@ -207,7 +208,7 @@ async def metric_context_entities_recall(judge, ground_truth: str, contexts: lis
     if not vs:
         return None
     present = sum(1 for v in vs if isinstance(v, dict) and v.get("present") is True)
-    return round(present / len(vs), 3)
+    return round(present / len(entities), 3)
 
 
 def cohen_kappa(labels_a: list[bool], labels_b: list[bool]) -> float:
@@ -283,6 +284,8 @@ async def metric_answer_correctness(judge, embedder, answer: str, ground_truth: 
         fp = int(classified.get("fp", 0))
         fn = int(classified.get("fn", 0))
     except (TypeError, ValueError, AttributeError):
+        return None
+    if tp == 0 and fp == 0 and fn == 0:
         return None
     denom = tp + 0.5 * (fp + fn)
     f1 = (tp / denom) if denom > 0 else 0.0

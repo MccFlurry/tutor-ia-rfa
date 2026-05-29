@@ -1,14 +1,16 @@
 """
 run_ragas_eval.py — Evaluación RAGAS-style del pipeline RAG.
 
-Implementa las 4 métricas estándar RAGAS con Ollama local (más robusto
+Implementa las 6 métricas estándar RAGAS con Ollama local (más robusto
 que la librería `ragas` con LLMs no-OpenAI):
 
-- faithfulness       — proporción de claims del answer soportadas por el contexto
-- answer_relevancy   — similitud semántica entre pregunta original y pregunta
-                       inferida por el LLM a partir del answer
-- context_precision  — proporción de chunks recuperados marcados relevantes
-- context_recall     — proporción de sentencias de ground_truth cubiertas por el contexto
+- faithfulness              — proporción de claims del answer soportadas por el contexto
+- answer_relevancy          — similitud semántica entre pregunta original y pregunta
+                              inferida por el LLM a partir del answer
+- context_precision         — proporción de chunks recuperados marcados relevantes
+- context_recall            — proporción de sentencias de ground_truth cubiertas por el contexto
+- context_entities_recall   — fracción de entidades del ground_truth presentes en el contexto
+- answer_correctness        — F1 factual ponderado + similitud semántica con ground_truth
 
 Ejecutar:
     docker compose exec backend python scripts/run_ragas_eval.py [--max N] [--iter LABEL]
@@ -183,12 +185,12 @@ async def main(max_q: int | None, label: str):
                             if la and lb and len(la) == len(lb):
                                 kappa_a.extend(la)
                                 kappa_b.extend(lb)
-                row["answer_relevancy"] = await metric_answer_relevancy(
-                    gen, embedder, q["question"], answer
-                )
-                row["answer_correctness"] = await metric_answer_correctness(
-                    judge, embedder, answer, q["ground_truth"]
-                )
+                    row["answer_relevancy"] = await metric_answer_relevancy(
+                        gen, embedder, q["question"], answer
+                    )
+                    row["answer_correctness"] = await metric_answer_correctness(
+                        judge, embedder, answer, q["ground_truth"]
+                    )
             except Exception as e:
                 row["error"] = str(e)[:200]
                 print(f"  [err] Q{qid}: {e}")
