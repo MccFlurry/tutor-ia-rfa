@@ -40,7 +40,7 @@
 | **RF-17** Marcado manual de tema | Completitud | `POST /topics/{id}/complete` | `test_router_topics::test_complete_topic_marks_existing_progress` | ✅ |
 | **RF-18** Autoevaluación por tema | Corrección | `GET/POST /quiz/topic/{id}`, `/submit` | `test_router_quiz` (10 tests: reuse, fallback, 503, grading, 410, history) | ✅ |
 | **RF-19** Interfaz chat tutor IA | Completitud | `GET/POST/DELETE /chat/sessions`, `GET /sessions/{id}/messages` | `test_router_chat::test_list_sessions_empty`, `test_create_session_smoke`, `test_delete_session_404_when_missing`, `test_delete_session_succeeds`, `test_get_messages_404_when_no_session`, `test_get_messages_returns_list` | ✅ |
-| **RF-20** Respuestas basadas en corpus (RAG) | Corrección | `POST /chat/sessions/{id}/message` | `test_router_chat::test_send_message_runs_rag_pipeline`, `test_send_message_falls_back_when_rag_throws`; `test_rag_service_internals` (13 tests: cache, semantic search, build_context); `test_rag_system_prompt` (anti-hallucination clauses); **RAGAS v3 faithfulness 0.768 ✅** | ✅ |
+| **RF-20** Respuestas basadas en corpus (RAG) | Corrección | `POST /chat/sessions/{id}/message` | `test_router_chat::test_send_message_runs_rag_pipeline`, `test_send_message_falls_back_when_rag_throws`; `test_rag_service_internals` (13 tests: cache, semantic search, build_context); `test_rag_system_prompt` (anti-hallucination clauses); **RAGAS (ragas-lib oficial) faithfulness 0.706 ≥0.65 ✅** | ✅ |
 | **RF-21** Contexto de conversación | Pertinencia | `query_rag(session_history)` últimas 5 rondas | `test_rag_service_internals::test_happy_path_includes_high_sim_sources_and_caches`, `test_build_history` (truncado 300 chars, formato Estudiante/Tutor) | ✅ |
 | **RF-22** Historial de conversaciones | Completitud | `GET /chat/sessions/{id}/messages` | `test_router_chat::test_get_messages_returns_list` | ✅ |
 | **RF-23** Indicador "escribiendo" | Pertinencia | Frontend `<TypingIndicator />` | UI component existe en `components/chat/TypingIndicator.tsx` (smoke visual) | ✅ |
@@ -76,14 +76,16 @@
 | Tasa de éxito (pass / total) | **271 / 271 = 100%** | ≥ 90% | ✅ |
 | Cobertura código backend | **86%** | ≥ 80% | ✅ |
 | Tests frontend (vitest) | 69 pass / 69 | n/a | ✅ |
-| RAGAS faithfulness (RF-20) | **0.768** | ≥ 0.75 | ✅ |
-| RAGAS answer_relevance (RF-20) | **0.856** | ≥ 0.70 | ✅ |
+| RAGAS context_precision (RF-20) | **0.876** | ≥ 0.70 | ✅ |
+| RAGAS context_recall (RF-20) | **0.812** | ≥ 0.75 | ✅ |
+| RAGAS faithfulness (RF-20) | **0.706** | ≥ 0.65 | ✅ |
+| RAGAS answer_relevancy (RF-20) | **0.707** | ≥ 0.65 | ✅ |
 
 ---
 
 ## Defectos abiertos
 
-Ninguno bloqueante para el piloto SUS.
+Ninguno bloqueante para el piloto (pretest/postest [OE4], Sprint 8).
 
 Pre-existentes resueltos en esta sesión (commit `6e7e10d`):
 

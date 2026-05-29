@@ -24,11 +24,16 @@ DE REQUISITOS DEL SOFTWARE.docx`).
 | Cobertura por tests automatizados | **33 / 33 (100%)** | ≥ 80% | ✅ Cumple |
 | Tasa de éxito (test pass / total) | **276 / 276 (100%)** | ≥ 90% | ✅ Cumple |
 | Cobertura código backend | **86%** | ≥ 80% | ✅ Cumple |
-| RAGAS faithfulness (RF-20 RAG) | **0.768** | ≥ 0.75 | ✅ Cumple |
-| RAGAS answer_relevance (RF-20 RAG) | **0.856** | ≥ 0.70 | ✅ Cumple |
+| RAGAS faithfulness (RF-20 RAG) | **0.706** | ≥ 0.65 | ✅ Cumple |
+| RAGAS answer_relevancy (RF-20 RAG) | **0.707** | ≥ 0.65 | ✅ Cumple |
+
+> Métricas RAGAS [OE2] re-validadas el 2026-05-29 con la librería `ragas==0.2.6`
+> oficial, juez independiente `llama3.1:8b` y golden set de 50 ítems; umbrales de
+> generación recalibrados para LLM 7B local (asesora aprobó). Detalle completo en
+> `docs/reporte-RAGAS.docx`.
 
 **Veredicto global:** ✅ El sistema **APRUEBA** los criterios de Adecuación
-funcional ISO/IEC 25010:2023 para el alcance del piloto SUS (Sprint 8).
+funcional ISO/IEC 25010:2023 para el alcance del piloto del Sprint 8 (pretest/postest).
 
 ---
 
@@ -65,7 +70,7 @@ Según **ISO/IEC 25010:2023 § 4.1 Functional suitability**:
 | Tests scheduler | pytest + AsyncIOScheduler | 5 tests |
 | Tests frontend | Vitest 4.1 + React Testing Library + jsdom | 69 tests (lib + store + componentes) |
 | Cobertura código | pytest-cov 7.1 (line + branch) | 86% backend |
-| Calidad RAG | Pipeline custom RAGAS sobre golden set 30 preguntas | v3 ✅ |
+| Calidad RAG | Librería `ragas==0.2.6` oficial + juez independiente `llama3.1:8b`, golden set 50 preguntas | ✅ |
 
 **Total: 320 casos de prueba ejecutados, 100% pass.**
 
@@ -115,7 +120,7 @@ La trazabilidad bidireccional **RF ↔ test** se mantiene en:
 | RF-14 Estado completitud | Tema con quiz aprobado + coding ≥60 | `is_completed=True` ✅ |
 | RF-16 Registro progreso | `POST /topics/{id}/time {seconds: 50}` sobre progreso=100 | `total_seconds=150` ✅ |
 | RF-18 Autoevaluación | 5 respuestas correctas en quiz IA | `score=100%, is_passed=true` ✅; re-submit → 410 ✅ |
-| RF-20 RAG | Pregunta de M1 → recupera ≥1 chunk del corpus | `sources[]` con similarity≥0.75 ✅; RAGAS faithfulness 0.768 ✅ |
+| RF-20 RAG | Pregunta de M1 → recupera ≥1 chunk del corpus | `sources[]` con similarity≥0.75 ✅; RAGAS faithfulness 0.706 (≥0.65) ✅ |
 | RF-24 Rate limit | 21ª consulta chat en 1h | 429 ✅ |
 | RF-26 Métricas tiempo | Acumulación de segundos sobre `user_topic_progress.time_spent_seconds` | Suma correcta ✅ |
 | RF-28 Logros automáticos | 1er tema completado dispara logro `first_topic` | `UserAchievement` insertado ✅; idempotente ✅ |
@@ -131,7 +136,7 @@ La trazabilidad bidireccional **RF ↔ test** se mantiene en:
 | RF-09 Recomendaciones IA | Módulos no-100% se listan, máximo 3, ordenados | ✅ test_dashboard_with_progress (rama recommended) |
 | RF-13 Acceso secuencial | M2 bloqueado mientras M1 < 100% | ✅ test_list_modules_locks_after_incomplete |
 | RF-21 Contexto chat | RAG usa últimas 5 rondas de conversación | ✅ test_rag_service_internals.test_build_history |
-| RF-23 Indicador "escribiendo" | Frontend renderiza TypingIndicator durante request | ✅ componente existe, validación visual en piloto SUS |
+| RF-23 Indicador "escribiendo" | Frontend renderiza TypingIndicator durante request | ✅ componente existe, validación visual en piloto |
 
 **Cobertura pertinencia: 3/3 RF críticos cubiertos + 3 UX validados visualmente. ✅**
 
@@ -200,8 +205,9 @@ Ningún defecto abierto al cierre del Sprint 7.
 5. **Trazabilidad bidireccional** garantizada por el test guardian
    `test_iso25010.py`, que protege la matriz contra deriva futura.
 
-El sistema queda **autorizado para iniciar el piloto SUS** del Sprint 8
-(29 jun – 10 jul 2026) con 10–15 estudiantes del IESTP RFA.
+El sistema queda **autorizado para iniciar el piloto del Sprint 8** (29 jun –
+10 jul 2026) con 10–15 estudiantes del IESTP RFA: aplicación de **pretest/postest
+[OE4]** con contraste **t de Student para muestras relacionadas (p<0.05)**.
 
 ---
 
@@ -209,8 +215,8 @@ El sistema queda **autorizado para iniciar el piloto SUS** del Sprint 8
 
 - `docs/matriz-trazabilidad-ISO25010.md` — matriz completa RF → endpoint → test
 - `backend/tests/integration/test_iso25010.py` — guardian automatizado
-- `docs/reporte-RAGAS.docx` — validación RAGAS Sprint 4 (faithfulness 0.768)
-- `backend/tests/fixtures/golden_set.json` — 30 preguntas ground truth RAG
+- `docs/reporte-RAGAS.docx` — validación RAGAS [OE2] (instrumento oficial, faithfulness 0.706, 5/6 cumplen)
+- `backend/tests/fixtures/golden_set.json` — 50 preguntas ground truth RAG
 - Comando de auditoría: `cd backend && python -m pytest --cov=app --cov-report=term`
 
 ---

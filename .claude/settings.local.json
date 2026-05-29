@@ -126,7 +126,18 @@
       "Bash(findstr /C:\"html2pdf\")",
       "Bash(git branch *)",
       "Bash(git ls-remote *)",
-      "Bash(echo \"remote real: $\\(git ls-remote origin refs/heads/main\\)\")"
+      "Bash(echo \"remote real: $\\(git ls-remote origin refs/heads/main\\)\")",
+      "Bash(pandoc --version)",
+      "Bash(docker exec *)",
+      "Bash(curl -s -m 6 -o /dev/null -w \"%{http_code}\" https://huggingface.co)",
+      "Bash(echo \"INSTALL_DONE rc=$?\")",
+      "Bash(echo \"GEN_DONE rc=$?\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\tutor-ia-rfa\\\\backend\\\\app\\\\services\" -File)",
+      "Bash(Select-Object Name)",
+      "Bash(Get-ChildItem *)",
+      "Bash(grep -E \"\\\\.\\(ts|js|json\\)$\")",
+      "Bash(xargs grep -l \"firebase\\\\|Firebase\")",
+      "Bash(unzip -l reporte-OE1-metricas-oficiales.docx)"
     ]
   }
 }

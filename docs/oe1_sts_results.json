@@ -1,0 +1,9 @@
+{
+  "embed_model": "mxbai-embed-large",
+  "dataset": "PhilipMay/stsb_multi_mt (es, split=test)",
+  "n_pairs": 1379,
+  "spearman": 0.6641,
+  "pearson": 0.6619,
+  "threshold": 0.7,
+  "pass": false
+}

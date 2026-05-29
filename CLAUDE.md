@@ -290,10 +290,11 @@ Genera evaluación entrada vía LLM (fallback banco docente). Score ponderado: p
 
 ## 📊 EVALUACIÓN Y VALIDACIÓN
 
-### OE1 — Selección LLM + embeddings
-- LLM (`docs/reporte-LLM.docx`): ROUGE-L ≥0.35, BLEU ≥0.25, valoración humana Likert media ≥4.0 (Cohen's κ ≥0.60), Accuracy ≥0.70 sobre ≥30 preguntas del sílabo.
-- Embeddings: nDCG@10 ≥0.55, Recall@5 ≥0.70, MRR@10 ≥0.65, Spearman STS ≥0.70.
-- ⚠️ Verificar qué métricas de las oficiales ya están documentadas en el reporte comparativo y completar las faltantes (nDCG/MRR/Spearman/BLEU pueden no estar calculadas).
+### OE1 — Selección LLM + embeddings — ✅ VALIDADO bajo encuadre aprobado (asesora 2026-05-29)
+- Reportes: `docs/reporte-LLM.docx` (Sprint 2: comparativa 3 LLM + 2 embeddings, Likert/latencia/VRAM) + `docs/reporte-OE1-metricas-oficiales.docx` (indicadores oficiales medidos sobre golden set 50 + pipeline producción). Harness: `backend/scripts/oe1_{generation,retrieval,sts}.py`.
+- **Generación (qwen2.5, juez independiente llama3.1):** Accuracy 0.72 ✅ (≥0.70) · Likert media 4.325 ✅ (≥4.0) · ROUGE-L 0.171 ❌ (≥0.35) · BLEU 0.059 ❌ (≥0.25) · Cohen's κ inter-juez 0.211 Likert / 0.239 binario ❌ (≥0.60).
+- **Recuperación (mxbai + rerank):** Recall@5 0.72 ✅ (≥0.70) · MRR@10 0.684 ✅ (≥0.65) · nDCG@10 0.686 ✅ (≥0.55) · Spearman STS 0.664 ❌ (≥0.70, stsb_multi_mt es).
+- **Encuadre ✅ aprobado por asesora (2026-05-29):** `docs/oe1-encuadre-instrumentos-propuesta.md/.docx`. Los 4 por debajo reflejan **inadecuación del instrumento**, no deficiencia del sistema. ROUGE-L/BLEU (n-gram) penalizan respuestas pedagógicas extensas vs ground_truth corto → calidad validada por Accuracy/Likert + RAGAS (faithfulness 0.706, correctness 0.609). κ bajo en ambas formulaciones: jueces LLM con leniencia dispar (llama3.1 72% vs llama3 92%) → κ humano = trabajo futuro. STS general fuera de dominio; recuperación de dominio sí cumple (Recall@5 0.72, RAGAS recall 0.812). **Encuadre adoptado:** ROUGE/BLEU/STS/κ-automático = **secundarias/diagnósticas** (mismo precedente que `context_entity_recall` en OE2); criterio = semánticas (generación) + retrieval canónico (recuperación) → **OE1 validado**. Umbrales aspiracionales se mantienen con nota de instrumento secundario; sin recalibrar.
 
 ### RAGAS [OE2] — ✅ VALIDADO (recalibrado para LLM 7B local)
 - Golden set 50 ítems (M1-M5) → `backend/tests/fixtures/golden_set.json`. Juez **independiente** `llama3.1:8b` (≠ generador qwen2.5 → elimina sesgo de auto-preferencia).
@@ -325,7 +326,7 @@ Formato: portada (título + autor + asesora Mg. Reyes Burgos + USAT + fecha), í
 | 1 | `docs/ERS.docx` | S1 ✅ | base | 52 RF en 8 módulos; 33 priorizados (insumo de OE3 y OE5) |
 | 2 | `docs/reporte-LLM.docx` | S2 ✅ | OE1 | comparativa LLM (ROUGE/BLEU/Likert/Accuracy) + embeddings (nDCG/Recall/MRR/Spearman) — verificar métricas faltantes |
 | 3 | `docs/arquitectura.docx` | S3 | OE3 | C4 + justificación stack + despliegue |
-| 4 | `docs/reporte-RAGAS.docx` | S4/S7 ⚠️ | OE2 | golden set + 6 métricas oficiales — **re-validar** (no cumple umbrales) |
+| 4 | `docs/reporte-RAGAS.docx` | S4/S7 ✅ | OE2 | golden set 50 + 6 métricas (librería ragas oficial + juez independiente) — **5/6 cumplen** (generación recalibrada LLM 7B, asesora aprobó). Regenerado 2026-05-29 |
 | 5 | `docs/matriz-trazabilidad-ISO25010.docx` | S7 | OE5 | caso de prueba ↔ RF ↔ subcaracterística ISO |
 | 6 | `docs/reporte-ISO25010.docx` | S7 | OE5 | completitud ≥0.95 / corrección ≥0.90 / pertinencia ≥0.90 + dictamen 2 jueces |
 | 7 | `docs/reporte-rendimiento-academico.docx` | S8 | OE4 | pretest/postest + t de Student pareada (p<0.05) |
@@ -531,7 +532,7 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 
 **Validación métricas (umbrales oficiales):**
 - [x] Modelo qwen2.5:7b-instruct-q4_K_M + mxbai-embed-large seleccionados **[OE1]**
-- [ ] **OE1** métricas completas documentadas (ROUGE-L ≥0.35, BLEU ≥0.25, Likert ≥4.0, Accuracy ≥0.70; nDCG@10 ≥0.55, Recall@5 ≥0.70, MRR@10 ≥0.65, Spearman STS ≥0.70) — verificar cuáles faltan
+- [x] **OE1** validado bajo **encuadre aprobado (asesora 2026-05-29)** (`docs/reporte-OE1-metricas-oficiales.docx` + `oe1-encuadre-instrumentos-propuesta.docx`). Primarias cumplen: Accuracy 0.72, Likert 4.325, Recall@5 0.72, MRR@10 0.684, nDCG@10 0.686. Secundarias/diagnósticas (fuera de pass-criteria): ROUGE-L 0.171, BLEU 0.059, κ 0.211/0.239, Spearman STS 0.664. κ humano multi-evaluador = trabajo futuro.
 - [x] Golden set ≥30 preguntas ground truth (falta confirmar anotación por 2 jueces + κ ≥0.60)
 - [x] **RAGAS context_precision ≥0.70** (ragas-lib: 0.876 ✅)
 - [x] **RAGAS context_recall ≥0.75** (ragas-lib: 0.812 ✅)
@@ -568,7 +569,7 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - [x] Tests backend cobertura ≥80% (Sprint 7 ISO objetivo · cumplido 21 may)
 - [x] Tests frontend stack configurado (Vitest + RTL + jsdom + @vitest/coverage-v8); 69 smoke tests baseline (21 may)
 - [x] README levanta desde cero
-- [ ] Documentos entregables (8, mapeados a OE) completos — pendientes: arquitectura/OE3 (S3), re-validación RAGAS/OE2 (S4/S7), ISO+25023 con dictamen de jueces/OE5 (S7), rendimiento académico/OE4 (S8), consolidación final (S8).
+- [~] Documentos entregables (8, mapeados a OE) — `.docx` generados: ERS, reporte-LLM, arquitectura, **reporte-RAGAS (5/6, re-validado)**, **matriz-trazabilidad-ISO25010**, **reporte-ISO25010** (estos 3 últimos 2026-05-29) + anexo **reporte-OE1-metricas-oficiales** (5/9). Pendientes: dictamen ≥2 jueces pertinencia/OE5 (S7), rendimiento-académico/OE4 (S8, piloto), consolidación-final (S8).
 
 ---
 
