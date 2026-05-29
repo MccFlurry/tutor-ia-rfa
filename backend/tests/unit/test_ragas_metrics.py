@@ -1,0 +1,53 @@
+import pytest
+from scripts import ragas_metrics as rm
+
+
+class FakeLLM:
+    """Devuelve respuestas .content predefinidas, en orden, por cada ainvoke."""
+    def __init__(self, responses):
+        self._responses = list(responses)
+        self.calls = 0
+
+    async def ainvoke(self, messages):
+        resp = self._responses[self.calls]
+        self.calls += 1
+        class _M:
+            content = resp
+        return _M()
+
+
+class FakeEmbedder:
+    def __init__(self, vectors):
+        self._vectors = vectors
+
+    async def aembed_documents(self, texts):
+        return self._vectors[: len(texts)]
+
+
+@pytest.mark.asyncio
+async def test_faithfulness_half_supported():
+    judge = FakeLLM([
+        '{"claims": ["c1", "c2"]}',
+        '{"verdicts": [{"claim": "c1", "supported": true}, {"claim": "c2", "supported": false}]}',
+    ])
+    score = await rm.metric_faithfulness(judge, "answer", ["ctx"])
+    assert score == 0.5
+
+
+@pytest.mark.asyncio
+async def test_context_recall_all_attributable():
+    judge = FakeLLM([
+        '{"sentences": ["s1", "s2"]}',
+        '{"verdicts": [{"sentence": "s1", "attributable": true}, {"sentence": "s2", "attributable": true}]}',
+    ])
+    score = await rm.metric_context_recall(judge, "ground truth", ["ctx"])
+    assert score == 1.0
+
+
+@pytest.mark.asyncio
+async def test_context_precision_top_ranked_relevant():
+    judge = FakeLLM([
+        '{"verdicts": [{"useful": true}, {"useful": false}]}',
+    ])
+    score = await rm.metric_context_precision(judge, "q", "gt", ["c1", "c2"])
+    assert score == 1.0
