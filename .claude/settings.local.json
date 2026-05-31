@@ -168,7 +168,11 @@
       "Bash(IMPECCABLE_CRITIQUE_META='{\"target\":\"frontend/src/pages/ChatPage.tsx\",\"total_score\":27,\"p0_count\":0,\"p1_count\":2}' node .claude/skills/impeccable/scripts/critique-storage.mjs write frontend-src-pages-chatpage-tsx .impeccable/critique/_tmp_chatpage_body.md)",
       "Bash(echo \"ESLINT_EXIT=$?\")",
       "Bash(echo \"VITEST_EXIT=$?\")",
-      "Bash(IMPECCABLE_CRITIQUE_META='{\"target\":\"frontend/src/pages/ChatPage.tsx\",\"total_score\":34,\"p0_count\":0,\"p1_count\":0}' node .claude/skills/impeccable/scripts/critique-storage.mjs write frontend-src-pages-chatpage-tsx .impeccable/critique/_tmp_chatpage_body.md)"
+      "Bash(IMPECCABLE_CRITIQUE_META='{\"target\":\"frontend/src/pages/ChatPage.tsx\",\"total_score\":34,\"p0_count\":0,\"p1_count\":0}' node .claude/skills/impeccable/scripts/critique-storage.mjs write frontend-src-pages-chatpage-tsx .impeccable/critique/_tmp_chatpage_body.md)",
+      "Bash(IMPECCABLE_CRITIQUE_META='{\"target\":\"frontend/src/pages/DashboardPage.tsx\",\"total_score\":28,\"p0_count\":0,\"p1_count\":2}' node *)",
+      "Bash(npm --prefix frontend run build)",
+      "Bash(npm --prefix frontend run test)",
+      "Bash(IMPECCABLE_CRITIQUE_META='{\"target\":\"frontend/src/pages/DashboardPage.tsx\",\"total_score\":35,\"p0_count\":0,\"p1_count\":0}' node .claude/skills/impeccable/scripts/critique-storage.mjs write frontend-src-pages-dashboardpage-tsx .impeccable/critique/.tmp-dashboard-body.md)"
     ]
   }
 }
