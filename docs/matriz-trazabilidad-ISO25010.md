@@ -65,6 +65,7 @@
 | **RF-NEW-RPT-04** Exportación de reporte IA a PDF elaborado (portada + encabezado/pie + paginación) | Operabilidad | `html2pdf.js` client-side con plantilla branded | `frontend/src/pages/__tests__/AdminStudentReportPage.test.tsx::test_print_button_invokes_window_print` | ⏳ (frontend Tasks 12-16) |
 | **RF-NEW-TUTOR-01** Acompañamiento proactivo del tutor (nudges contextuales) | Pertinencia funcional / Operabilidad | `GET /tutor/nudges` (`routers/tutor.py` + `services/tutor_service.py`) | `backend/tests/unit/test_tutor_service.py`, `backend/tests/integration/test_router_tutor.py` | ✅ |
 | **RF-NEW-TUTOR-02** Asistente flotante del tutor (chat RAG omnipresente) | Operabilidad / Pertinencia funcional | `/chat` (reusado) · `components/tutor/FloatingTutor.tsx` | `frontend/src/components/tutor/FloatingTutor.test.tsx` + cobertura backend `/chat` existente | implementado |
+| **RF-NEW-TUTOR-03** Banco de recursos de aprendizaje curados (videos/libros) | Pertinencia funcional / Operabilidad | `/resources + /admin/resources` · `components/resources/*` | `test_router_resources.py + test_router_admin_resources.py + ResourceCard.test.tsx` | implementado |
 
 ---
 

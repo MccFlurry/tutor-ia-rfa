@@ -26,6 +26,12 @@ from app.models.quiz import QuizQuestion
 from app.models.coding import CodingChallenge
 from app.models.document import Document
 from app.models.assessment_bank import EntryAssessmentBank
+from app.models.learning_resource import LearningResource
+from app.schemas.learning_resource import (
+    LearningResourceResponse,
+    LearningResourceCreate,
+    LearningResourceUpdate,
+)
 from app.schemas.admin_bank import (
     AssessmentBankItemCreate,
     AssessmentBankItemUpdate,
@@ -142,6 +148,87 @@ async def delete_bank_item(
     item = result.scalar_one_or_none()
     if not item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pregunta no encontrada")
+    await db.delete(item)
+    await db.commit()
+
+
+# ==========================================================
+# Learning Resources CRUD (videos/libros curados — Fase 3)
+# ==========================================================
+
+@router.get("/resources", response_model=list[LearningResourceResponse])
+async def list_resources_admin(
+    module_id: int | None = Query(None),
+    topic_id: int | None = Query(None),
+    _admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(LearningResource)
+    if module_id is not None:
+        query = query.where(LearningResource.module_id == module_id)
+    if topic_id is not None:
+        query = query.where(LearningResource.topic_id == topic_id)
+    query = query.order_by(LearningResource.module_id, LearningResource.order_index, LearningResource.id)
+    result = await db.execute(query)
+    return [LearningResourceResponse.model_validate(r) for r in result.scalars().all()]
+
+
+@router.post("/resources", response_model=LearningResourceResponse, status_code=status.HTTP_201_CREATED)
+async def create_resource(
+    data: LearningResourceCreate,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    item = LearningResource(
+        module_id=data.module_id,
+        topic_id=data.topic_id,
+        kind=data.kind,
+        title=data.title,
+        url=data.url,
+        author=data.author,
+        description=data.description,
+        order_index=data.order_index,
+        created_by=admin.id,
+        is_active=True,
+    )
+    db.add(item)
+    await db.flush()
+    await db.commit()
+    await db.refresh(item)
+    return LearningResourceResponse.model_validate(item)
+
+
+@router.put("/resources/{resource_id}", response_model=LearningResourceResponse)
+async def update_resource(
+    resource_id: int,
+    data: LearningResourceUpdate,
+    _admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(LearningResource).where(LearningResource.id == resource_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recurso no encontrado")
+    for field in ("module_id", "topic_id", "kind", "title", "url", "author", "description", "order_index", "is_active"):
+        value = getattr(data, field)
+        if value is not None:
+            setattr(item, field, value)
+    await db.flush()
+    await db.commit()
+    await db.refresh(item)
+    return LearningResourceResponse.model_validate(item)
+
+
+@router.delete("/resources/{resource_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_resource(
+    resource_id: int,
+    _admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(LearningResource).where(LearningResource.id == resource_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recurso no encontrado")
     await db.delete(item)
     await db.commit()
 

@@ -12,6 +12,7 @@ import { getAchievementIcon } from '@/lib/achievementIcon'
 import { cn } from '@/lib/utils'
 import type { StudentLevel } from '@/types/assessment'
 import TutorNudgeList from '@/components/tutor/TutorNudgeList'
+import ResourceList from '@/components/resources/ResourceList'
 
 const LEVEL_LABEL: Record<StudentLevel, string> = {
   beginner: 'Principiante',
@@ -241,6 +242,11 @@ export default function DashboardPage() {
             ))}
           </div>
         </section>
+      )}
+
+      {/* Resources for first recommended module */}
+      {data?.recommended_modules?.[0] && (
+        <ResourceList moduleId={data.recommended_modules[0].id} title="Recursos recomendados" />
       )}
 
       {/* Recent achievements */}
