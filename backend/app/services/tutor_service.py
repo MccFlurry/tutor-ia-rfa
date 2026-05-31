@@ -77,7 +77,7 @@ def _result_nudges(context: str, score: float | None, topic_id: int | None) -> l
     if context == "assessment_result":
         if score < 40:
             msg = "Empezarás por las bases. Sigue el orden de los módulos desde el M1, a tu ritmo."
-        elif score <= 75:
+        elif score < 75:
             msg = "Tienes buenas bases. Enfócate en los temas que más se te dificulten."
         else:
             msg = "¡Gran dominio! Reta tus habilidades con los módulos más avanzados."
