@@ -36,11 +36,13 @@ export default function ResourcesTab() {
     mutationFn: ({ id, data }: { id: number; data: Partial<LearningResource> }) =>
       adminApi.updateResource(id, data),
     onSuccess: () => { toast.success('Actualizado'); invalidate() },
+    onError: () => toast.error('Error al actualizar'),
   })
 
   const deleteItem = useMutation({
     mutationFn: adminApi.deleteResource,
     onSuccess: () => { toast.success('Eliminado'); invalidate() },
+    onError: () => toast.error('Error al eliminar'),
   })
 
   const handleCreate = () => {

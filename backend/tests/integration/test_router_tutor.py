@@ -20,6 +20,7 @@ async def test_nudges_no_level(client, mock_db):
     assert r.status_code == 200
     body = r.json()
     assert body["nudges"][0]["id"] == "no_level"
+    assert len(body["nudges"]) == 1
 
 
 @pytest.mark.asyncio
@@ -49,6 +50,25 @@ async def test_nudges_dashboard_zero_progress(client, mock_db):
     assert r.status_code == 200
     ids = [n["id"] for n in r.json()["nudges"]]
     assert "welcome_start" in ids
+
+
+@pytest.mark.asyncio
+async def test_quiz_result_context_skips_db_and_returns_reinforcement(client, mock_db):
+    # Result contexts must NOT hit the DB (no gather_snapshot); nudge comes from score.
+    r = await client.get("/api/v1/tutor/nudges?context=quiz_result&topic_id=8&score=40")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["nudges"][0]["id"] == "quiz_result_low"
+    assert body["nudges"][0]["cta_route"] == "/topics/8"
+    mock_db.execute.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_assessment_result_context_skips_db(client, mock_db):
+    r = await client.get("/api/v1/tutor/nudges?context=assessment_result&score=90")
+    assert r.status_code == 200
+    assert r.json()["nudges"][0]["id"] == "assessment_result"
+    mock_db.execute.assert_not_called()
 
 
 @pytest.mark.asyncio
