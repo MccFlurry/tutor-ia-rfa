@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ChevronRight, ChevronLeft, ArrowRight, CheckCircle2, FileQuestion, Code2, Sparkles } from 'lucide-react'
+import { ChevronRight, ChevronLeft, ArrowRight, CheckCircle2, FileQuestion, Code2, Sparkles, AlertTriangle, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { topicsApi } from '@/api/topics'
 import { codingApi } from '@/api/coding'
 import { modulesApi } from '@/api/modules'
 import { Button } from '@/components/ui/button'
 import Skeleton, { SkeletonLine } from '@/components/common/Skeleton'
+import EmptyState from '@/components/common/EmptyState'
 import ContentRenderer from '@/components/topics/ContentRenderer'
 import TutorNudgeList from '@/components/tutor/TutorNudgeList'
 import ResourceList from '@/components/resources/ResourceList'
@@ -21,7 +22,7 @@ export default function TopicPage() {
 
   const topicId = Number(id)
 
-  const { data: topic, isLoading } = useQuery({
+  const { data: topic, isLoading, isError, refetch } = useQuery({
     queryKey: ['topic', topicId],
     queryFn: () => topicsApi.get(topicId).then((r) => r.data),
     enabled: !!id,
@@ -100,10 +101,49 @@ export default function TopicPage() {
     )
   }
 
+  if (isError) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6">
+        <EmptyState
+          icon={AlertTriangle}
+          tone="error"
+          title="No pudimos cargar el tema"
+          description="Hubo un problema al obtener este contenido. Revisa tu conexión e inténtalo de nuevo."
+          action={
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <Button onClick={() => refetch()}>
+                <RefreshCw className="w-4 h-4 mr-2" aria-hidden="true" />
+                Reintentar
+              </Button>
+              <Link
+                to="/modules"
+                className="text-sm font-semibold text-primary rounded hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                Volver a módulos
+              </Link>
+            </div>
+          }
+        />
+      </div>
+    )
+  }
+
   if (!topic) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8 text-center">
-        <p className="text-muted-foreground">Tema no encontrado.</p>
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6">
+        <EmptyState
+          icon={FileQuestion}
+          title="Tema no encontrado"
+          description="Este tema no existe o fue movido. Vuelve a los módulos para elegir otro."
+          action={
+            <Link
+              to="/modules"
+              className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+            >
+              Volver a módulos
+            </Link>
+          }
+        />
       </div>
     )
   }
@@ -115,6 +155,13 @@ export default function TopicPage() {
   const nextTopic = currentIdx < siblings.length - 1 ? siblings[currentIdx + 1] : null
 
   const isCompleted = topic.progress_info?.is_completed ?? false
+
+  // The advancing action is the single blue primary; coding is always secondary.
+  const showComplete = !isCompleted && !topic.has_quiz
+  const showQuizPrimary = !isCompleted && topic.has_quiz
+  const showQuizSecondary = isCompleted && topic.has_quiz
+  const showCoding = topic.has_coding_challenge
+  const hasActions = showComplete || showQuizPrimary || showQuizSecondary || showCoding
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 pb-24 sm:pb-8">
@@ -163,6 +210,7 @@ export default function TopicPage() {
             src={topic.video_url}
             title={topic.title}
             className="w-full h-full"
+            loading="lazy"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
@@ -174,49 +222,67 @@ export default function TopicPage() {
         <ContentRenderer content={topic.content_markdown} />
       </div>
 
-      {/* Action buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-8">
-        {!isCompleted && !topic.has_quiz && (
-          <Button
-            onClick={() => completeMutation.mutate()}
-            disabled={completeMutation.isPending}
-            className="bg-success hover:bg-success/90 text-success-foreground w-full sm:w-auto min-h-[44px]"
-          >
-            <CheckCircle2 className="w-4 h-4 mr-2" />
-            {completeMutation.isPending ? 'Marcando...' : 'Marcar como completado'}
-          </Button>
-        )}
-        {topic.has_quiz && (
-          <Button
-            onClick={() => navigate(`/quiz/${topic.id}`)}
-            variant="outline"
-            className="w-full sm:w-auto min-h-[44px]"
-          >
-            <FileQuestion className="w-4 h-4 mr-2" />
-            Ir a la Autoevaluación
-          </Button>
-        )}
-        {topic.has_coding_challenge && (
-          <Button
-            onClick={() => startCodingMutation.mutate()}
-            disabled={startCodingMutation.isPending}
-            variant="outline"
-            className="border-heritage-300 text-heritage-700 hover:bg-heritage-50 dark:border-heritage-700 dark:text-heritage-200 dark:hover:bg-heritage-700/20 w-full sm:w-auto min-h-[44px]"
-          >
-            {startCodingMutation.isPending ? (
-              <>
-                <Sparkles className="w-4 h-4 mr-2 animate-pulse" />
-                Preparando desafío con IA...
-              </>
-            ) : (
-              <>
-                <Code2 className="w-4 h-4 mr-2" />
-                Desafío de Código
-              </>
+      {/* Action buttons — the advancing action is the single blue primary */}
+      {hasActions && (
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row gap-3">
+            {showComplete && (
+              <Button
+                onClick={() => completeMutation.mutate()}
+                disabled={completeMutation.isPending}
+                className="w-full sm:w-auto min-h-[44px]"
+              >
+                <CheckCircle2 className="w-4 h-4 mr-2" aria-hidden="true" />
+                {completeMutation.isPending ? 'Marcando...' : 'Marcar como completado'}
+              </Button>
             )}
-          </Button>
-        )}
-      </div>
+            {showQuizPrimary && (
+              <Button
+                onClick={() => navigate(`/quiz/${topic.id}`)}
+                className="w-full sm:w-auto min-h-[44px]"
+              >
+                <FileQuestion className="w-4 h-4 mr-2" aria-hidden="true" />
+                Ir a la Autoevaluación
+              </Button>
+            )}
+            {showQuizSecondary && (
+              <Button
+                onClick={() => navigate(`/quiz/${topic.id}`)}
+                variant="outline"
+                className="w-full sm:w-auto min-h-[44px]"
+              >
+                <FileQuestion className="w-4 h-4 mr-2" aria-hidden="true" />
+                Repasar autoevaluación
+              </Button>
+            )}
+            {showCoding && (
+              <Button
+                onClick={() => startCodingMutation.mutate()}
+                disabled={startCodingMutation.isPending}
+                variant="outline"
+                className="border-heritage-300 text-heritage-700 hover:bg-heritage-50 dark:border-heritage-700 dark:text-heritage-200 dark:hover:bg-heritage-700/20 w-full sm:w-auto min-h-[44px]"
+              >
+                {startCodingMutation.isPending ? (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2 animate-pulse" aria-hidden="true" />
+                    Preparando desafío con IA...
+                  </>
+                ) : (
+                  <>
+                    <Code2 className="w-4 h-4 mr-2" aria-hidden="true" />
+                    Desafío de Código
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+          {showQuizPrimary && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Aprueba la autoevaluación para completar este tema.
+            </p>
+          )}
+        </div>
+      )}
 
       {!isNaN(topicId) && <ResourceList topicId={topicId} />}
 
@@ -224,29 +290,35 @@ export default function TopicPage() {
       <div className="sticky bottom-0 sm:static -mx-4 sm:mx-0 px-4 sm:px-0 py-3 sm:py-0 bg-background/95 sm:bg-transparent backdrop-blur sm:backdrop-blur-0 border-t border-border sm:pt-6 flex items-center justify-between gap-2">
         {prevTopic ? (
           <Button
+            asChild
             variant="ghost"
-            onClick={() => navigate(`/topics/${prevTopic.id}`)}
             className="text-muted-foreground min-h-[44px] max-w-[45%] sm:max-w-none"
           >
-            <ChevronLeft className="w-4 h-4 mr-1 shrink-0" />
-            <span className="truncate">{prevTopic.title}</span>
+            <Link to={`/topics/${prevTopic.id}`}>
+              <ChevronLeft className="w-4 h-4 mr-1 shrink-0" aria-hidden="true" />
+              <span className="truncate">{prevTopic.title}</span>
+            </Link>
           </Button>
         ) : (
           <div />
         )}
 
-        <span className="text-xs text-muted-foreground hidden sm:block">
-          {currentIdx + 1} de {siblings.length}
-        </span>
+        {siblings.length > 0 && (
+          <span className="text-xs text-muted-foreground shrink-0 px-2 tabular-nums">
+            {currentIdx + 1} de {siblings.length}
+          </span>
+        )}
 
         {nextTopic ? (
           <Button
+            asChild
             variant="ghost"
-            onClick={() => navigate(`/topics/${nextTopic.id}`)}
             className="text-muted-foreground min-h-[44px] max-w-[45%] sm:max-w-none"
           >
-            <span className="truncate">{nextTopic.title}</span>
-            <ArrowRight className="w-4 h-4 ml-1 shrink-0" />
+            <Link to={`/topics/${nextTopic.id}`}>
+              <span className="truncate">{nextTopic.title}</span>
+              <ArrowRight className="w-4 h-4 ml-1 shrink-0" aria-hidden="true" />
+            </Link>
           </Button>
         ) : (
           <div />
