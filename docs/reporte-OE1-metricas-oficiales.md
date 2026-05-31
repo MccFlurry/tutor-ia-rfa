@@ -205,3 +205,21 @@ Caminos honestos, NO excluyentes:
 
 *Instrumentos reproducibles en el contenedor backend. El fundamento bibliográfico de las
 decisiones de encuadre se integra en el documento de tesis.*
+
+---
+
+## 10. Adenda 2026-05-31 — Criterio OE1 finalizado (anteproyecto V.2.1)
+
+La asesora confirmó la versión final del set de indicadores OE1 en el anteproyecto. El **criterio
+de aprobación** lo forman los **instrumentos primarios**, todos cumplidos:
+
+| Dimensión | Indicadores del criterio | Estado |
+|---|---|---|
+| Generación (qwen2.5) | Accuracy ≥0.70 (0.72) · Likert ≥4.0 (4.325) | ✅ 2/2 |
+| Recuperación (mxbai) | nDCG@10 ≥0.55 (0.686) · Recall@5 ≥0.70 (0.72) · MRR@10 ≥0.65 (0.684) | ✅ 3/3 |
+
+**ROUGE-L, BLEU, Cohen's κ automático y Spearman STS general se retiran del criterio formal** por
+inadecuación del instrumento a la tarea/tecnología (justificación en §6), y se conservan en este
+reporte **medidos como diagnóstico** — la medición de los 9 indicadores del §1 permanece intacta
+como evidencia. Mismo precedente que `context_entity_recall` en OE2. **Resultado: 5/5 indicadores
+primarios cumplen → OE1 validado.**

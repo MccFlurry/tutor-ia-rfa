@@ -139,3 +139,20 @@ no forman parte del pass-criteria, igual que `context_entity_recall` en OE2.
 - `backend/scripts/oe1_{generation,retrieval,sts}.py` — harness reproducible.
 - `docs/oe1_{generation,retrieval,sts}_results.json` + `oe1_generation_log.jsonl`.
 - Precedente OE2: `docs/oe2-recalibracion-umbrales-propuesta.md` (aprobado 2026-05-29).
+
+---
+
+## Adenda 2026-05-31 — Set de indicadores OE1 finalizado en el anteproyecto (V.2.1)
+
+Tras este encuadre, la asesora confirmó la versión final del set de indicadores OE1 en el
+anteproyecto. El **criterio de aprobación** queda formado por los **instrumentos primarios**:
+
+- **Generación:** Accuracy ≥0.70 (0.72 ✅) · Likert media ≥4.0 (4.325 ✅).
+- **Recuperación:** nDCG@10 ≥0.55 (0.686 ✅) · Recall@5 ≥0.70 (0.72 ✅) · MRR@10 ≥0.65 (0.684 ✅).
+
+ROUGE-L, BLEU, Cohen's κ automático y Spearman STS general **se retiran del criterio** por
+inadecuación de instrumento (fundamento en §3 de este documento) y se conservan **medidos como
+diagnóstico** en el anexo `reporte-OE1-metricas-oficiales.md`, no como pass-criteria. Es el mismo
+tratamiento que `context_entity_recall` en OE2. **La medición de los 9 indicadores permanece
+intacta como evidencia**; lo único que cambia es qué subconjunto constituye el criterio formal de
+OE1. Resultado: **5/5 indicadores primarios cumplen → OE1 validado.**
