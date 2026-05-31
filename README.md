@@ -7,7 +7,7 @@ Sistema Tutor Inteligente (STI) con RAG privado para el curso **Aplicaciones Mó
 - **Coordinador piloto (IESTP RFA):** Téc. Xavier Benites Marín
 - **Sustentación:** 10 julio 2026
 
-Ver `CLAUDE.md` para documentación técnica completa y `CLAUDE.original.md` para el plan formal de tesis.
+Ver `CLAUDE.md` para documentación técnica completa.
 
 ---
 
