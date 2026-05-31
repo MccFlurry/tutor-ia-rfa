@@ -5,7 +5,7 @@
 **Asesora:** Mg. Reyes Burgos, Karla
 **Objetivo específico:** OE2 — Validar la precisión de recuperación y la fidelidad de generación del pipeline RAG mediante RAGAS sobre un golden set representativo.
 **Fecha de corte:** 2026-05-29
-**Versión:** 8.0 (consolidada, instrumento oficial + umbrales recalibrados)
+**Versión:** 8.1 (criterio finalizado: 5 métricas primarias, entity_recall diagnóstica — 2026-05-31)
 
 ---
 
@@ -23,12 +23,16 @@ set de 50 ítems** distribuidos en los módulos M1–M5. El pipeline evaluado in
 |---|---|---|
 | **Recuperación** (context_precision, context_recall) | 0.876 / 0.812 | ✅ **Cumple** (umbrales canónicos estrictos) |
 | **Generación** (faithfulness, answer_relevancy, answer_correctness) | 0.706 / 0.707 / 0.609 | ✅ **Cumple** (umbrales recalibrados para LLM 7B local) |
-| **context_entity_recall** (secundaria) | 0.200 | informativa, fuera del pass-criteria |
+| **context_entity_recall** (diagnóstica) | 0.200 | informativa, retirada del criterio (§6) |
 
-**Resultado global: 5 de 6 métricas cumplen.** La recuperación se valida con
+**Criterio OE2 = 5 métricas primarias; resultado: 5/5 cumplen.** La recuperación se valida con
 métricas canónicas sin recalibración; la generación cumple bajo umbrales
 recalibrados a la clase de modelo (7B open-source, auto-hospedado, sin
-fine-tuning), aprobados por la asesora el 2026-05-29.
+fine-tuning), aprobados por la asesora el 2026-05-29. `context_entity_recall` se
+retira del criterio formal por **inadecuación de instrumento** (matching literal vs
+corpus parafraseado, §6) y se conserva **medida como diagnóstico** — mismo
+tratamiento que las métricas retiradas del criterio OE1. Criterio finalizado el
+2026-05-31, en paralelo al anteproyecto V.2.1 de OE1.
 
 ---
 
@@ -99,9 +103,10 @@ define umbrales universales de aprobación**: son dependientes de la aplicación
 | **faithfulness** | **0.706** | ≥0.65 | ✅ Cumple |
 | **answer_relevancy** | **0.707** | ≥0.65 | ✅ Cumple |
 | **answer_correctness** | **0.609** | ≥0.55 | ✅ Cumple |
-| context_entity_recall | 0.200 | secundaria | informativa (ver §6) |
+| context_entity_recall | 0.200 | diagnóstica (retirada del criterio) | informativa (ver §6) |
 
-**5 de 6 cumplen.** Artefacto: `backend/scripts/ragas_runs/20260529_1025_ragaslib.json`.
+**Criterio = 5 primarias → 5/5 cumplen.** entity_recall medida como diagnóstico, fuera del
+criterio formal. Artefacto: `backend/scripts/ragas_runs/20260529_1025_ragaslib.json`.
 
 ---
 
@@ -146,9 +151,11 @@ del `reference` contra los contextos. Los ground_truth del golden set son **dens
 entidades** (cifras y specs: "8 GB RAM", "x86_64", "1280×800") que el corpus **parafrasea o
 normaliza** → muchas entidades no aparecen literalmente en los chunks.
 
-**Decisión:** NO es señal de mala recuperación (ya validada por precision 0.876 / recall 0.812).
-Se trata como **métrica secundaria / informativa**, documentando la causa, y **no se usa como
-criterio de aprobación**. Script: `backend/scripts/investigate_entity_recall.py`.
+**Decisión (finalizada 2026-05-31):** NO es señal de mala recuperación (ya validada por
+precision 0.876 / recall 0.812). Se **retira del criterio formal de aprobación por inadecuación
+de instrumento** (matching literal vs corpus parafraseado) y se conserva **medida como
+diagnóstico/informativa**, documentando la causa. Mismo precedente que las cuatro métricas
+retiradas del criterio OE1. Script: `backend/scripts/investigate_entity_recall.py`.
 
 ---
 
@@ -160,10 +167,13 @@ criterio de aprobación**. Script: `backend/scripts/investigate_entity_recall.py
    self-hosted (faithfulness 0.706, answer_relevancy 0.707, answer_correctness 0.609);
    recalibración aprobada por la asesora con encuadre honesto (calibración a la clase de
    modelo, **no** ajuste al dato).
-3. **context_entity_recall** queda como métrica secundaria (matching literal vs corpus
-   parafraseado), fuera del pass-criteria.
-4. **5/6 métricas cumplen.** OE2 se considera **validado** para el alcance de la tesis,
-   con la limitación de generación documentada como trabajo futuro.
+3. **context_entity_recall** se **retira del criterio formal** por inadecuación de instrumento
+   (matching literal vs corpus parafraseado) y se conserva **medida como diagnóstico** (0.200,
+   reproducible) — mismo tratamiento que las métricas retiradas del criterio OE1.
+4. **Criterio OE2 = 5 métricas primarias → 5/5 cumplen.** Criterio finalizado el 2026-05-31
+   (paralelo al anteproyecto V.2.1 de OE1); la medición de las 6 permanece intacta como
+   evidencia. OE2 se considera **validado** para el alcance de la tesis, con la limitación de
+   generación documentada como trabajo futuro.
 
 ---
 

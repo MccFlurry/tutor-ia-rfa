@@ -17,7 +17,7 @@ Estudiantes: estudian 5 módulos, consultan tutor IA privado (RAG), autoevalúan
 - Sin fine-tuning: "entrenar el modelo" = construir pipeline RAG sobre corpus del sílabo.
 - Conocimiento dominio solo vía RAG.
 - UI **español peruano**; código en **inglés** (variables/funciones/comentarios técnicos); docs + mensajes usuario en español.
-- Evaluación: **RAGAS** (instrumento: librería ragas oficial, juez independiente `llama3.1:8b`) recuperación (Context Precision ≥0.70, Context Recall ≥0.75) + generación **recalibrada para LLM 7B local** (Faithfulness ≥0.65, Answer Relevancy ≥0.65, Answer Correctness ≥0.55 — asesora aprobó 2026-05-29; Context Entities Recall = secundaria/informativa) **[OE2]** · **ISO/IEC 25010:2023 + 25023:2016** (completitud funcional ≥0.95, corrección funcional ≥0.90, pertinencia funcional ≥0.90 por ≥2 jueces) **[OE5]** · **rendimiento académico** pretest/postest con **t de Student para muestras relacionadas (p<0.05)** **[OE4]**. *(SUS retirado: no figura en el mapeo oficial.)*
+- Evaluación: **RAGAS** (instrumento: librería ragas oficial, juez independiente `llama3.1:8b`) recuperación (Context Precision ≥0.70, Context Recall ≥0.75) + generación **recalibrada para LLM 7B local** (Faithfulness ≥0.65, Answer Relevancy ≥0.65, Answer Correctness ≥0.55 — asesora aprobó 2026-05-29; Context Entities Recall = diagnóstica, retirada del criterio por inadecuación de instrumento) **[OE2]** · **ISO/IEC 25010:2023 + 25023:2016** (completitud funcional ≥0.95, corrección funcional ≥0.90, pertinencia funcional ≥0.90 por ≥2 jueces) **[OE5]** · **rendimiento académico** pretest/postest con **t de Student para muestras relacionadas (p<0.05)** **[OE4]**. *(SUS retirado: no figura en el mapeo oficial.)*
 - Stack cerrado: **sin** Pub/Sub, Cloud SQL, Memorystore, Cloud Scheduler, Cloud Run. 1 VM Compute Engine + Firebase Hosting.
 - Commits: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
 - Verificación externa antes de citar precios/versiones/comandos Ollama: advertir usuario verifique fuente oficial.
@@ -33,7 +33,7 @@ Estudiantes: estudian 5 módulos, consultan tutor IA privado (RAG), autoevalúan
 | OE | Enunciado | Resultado esperado | Indicadores objetivamente verificables |
 |----|-----------|--------------------|-----------------------------------------|
 | OE1 | Seleccionar el LLM de código abierto y el modelo de embeddings para generación y recuperación de respuestas en español del dominio de Aplicaciones Móviles | R1.1 LLM seleccionado · R1.2 embeddings seleccionado | LLM: Likert media ≥4.0, Accuracy ≥0.70 (≥30 preguntas). Embeddings: nDCG@10 ≥0.55, Recall@5 ≥0.70, MRR@10 ≥0.65. *(ROUGE-L/BLEU/κ-automático/Spearman STS retirados del criterio por inadecuación de instrumento, set finalizado 2026-05-31; medidos como diagnóstico en `docs/reporte-OE1-metricas-oficiales.md`)* |
-| OE2 | Validar la precisión de recuperación y la fidelidad de generación del pipeline RAG mediante RAGAS sobre un golden set representativo | R2.1 recuperación y generación del RAG validadas | Recuperación: Context Precision ≥0.70, Context Recall ≥0.75. Generación (recalibrados LLM 7B local): Faithfulness ≥0.65, Answer Relevancy ≥0.65, Answer Correctness ≥0.55. Context Entities Recall = secundaria. Instrumento: librería ragas oficial + juez independiente. Golden set 50 ítems M1-M5 |
+| OE2 | Validar la precisión de recuperación y la fidelidad de generación del pipeline RAG mediante RAGAS sobre un golden set representativo | R2.1 recuperación y generación del RAG validadas | Recuperación: Context Precision ≥0.70, Context Recall ≥0.75. Generación (recalibrados LLM 7B local): Faithfulness ≥0.65, Answer Relevancy ≥0.65, Answer Correctness ≥0.55. Context Entities Recall = diagnóstica (retirada del criterio por inadecuación de instrumento, set finalizado 2026-05-31). Instrumento: librería ragas oficial + juez independiente. Golden set 50 ítems M1-M5 |
 | OE3 | Desplegar el sistema tutor sobre Google Compute Engine en contenedores Docker, garantizando rendimiento, disponibilidad y trazabilidad | R3.1 sistema desplegado e integrado en GCE | Rendimiento: TTFT P95 ≤2.5s, ITL P95 ≤250ms, e2e P95 ≤8s, throughput ≥8 tok/s (conc. 3). Disponibilidad: uptime ≥99%, 5xx ≤2%, MTBF ≥48h, health checks ≥99%. Cobertura RF ≥0.95, citación ≥0.90, exactitud de citación ≥0.85 |
 | OE4 | Contrastar la mejora del rendimiento académico mediante diseño pre-experimental con pretest y postest aplicado al grupo piloto | R4.1 mejora del rendimiento evidenciada estadísticamente | Prueba **t de Student para muestras relacionadas (pareada) con p < 0.05** sobre instrumento pretest/postest |
 | OE5 | Validar la adecuación funcional del sistema conforme a ISO/IEC 25010:2023 | R5.1 adecuación funcional validada | ISO/IEC 25023:2016: completitud funcional ≥0.95, corrección funcional ≥0.90, pertinencia funcional ≥0.90 (por ≥2 jueces expertos) |
@@ -51,7 +51,7 @@ Estudiantes: estudian 5 módulos, consultan tutor IA privado (RAG), autoevalúan
 | 1 | 23 mar – 05 abr 2026 | — | ✅ | ERS + modelado de diseño (dominio/pedagógico, insumo) + arquitectura + docker-compose |
 | 2 | 06 abr – 19 abr 2026 | BU + DU | ✅ | Evaluación LLM/embeddings + backend core + frontend base |
 | 3 | 20 abr – 03 may 2026 | DP + Modeling | ✅ | Pipeline RAG + personalización (Fases 5–7.5). **Hito 24/04 Pre Informe.** |
-| 4 | 04 may – 17 may 2026 | Evaluation | ✅ | **RAGAS [OE2]** validado (v5-v7, may 2026): juez independiente llama3.1 + rerank cross-encoder + librería ragas oficial. Retrieval cumple (precision 0.876, recall 0.812); generación recalibrada a umbrales de LLM 7B local → 5/6 cumplen. Ver `docs/reporte-RAGAS-v5/v6/v7-*.md` |
+| 4 | 04 may – 17 may 2026 | Evaluation | ✅ | **RAGAS [OE2]** validado (v5-v7, may 2026): juez independiente llama3.1 + rerank cross-encoder + librería ragas oficial. Retrieval cumple (precision 0.876, recall 0.812); generación recalibrada a umbrales de LLM 7B local. Criterio = 5 primarias → 5/5 cumplen (entity_recall retirada del criterio por inadecuación de instrumento, set finalizado 2026-05-31). Ver `docs/reporte-RAGAS-v5/v6/v7-*.md` |
 | 5 | 18 may – 31 may 2026 | Deployment | 🔄 | VM e2-standard-4 + Docker Compose + Caddy+LE + Firebase Hosting + backup + Redis cache + APScheduler |
 | 6 | 01 jun – 14 jun 2026 | — | ⏳ | 15 lecciones + 30 ejercicios + motor adaptativo + editor Monaco |
 | 7 | 15 jun – 28 jun 2026 | — | ⏳ | **ISO/IEC 25010:2023 [OE5]**: matriz trazabilidad + casos de prueba + completitud ≥0.95, corrección ≥0.90, pertinencia ≥0.90 (≥2 jueces) + reporte |
@@ -299,9 +299,9 @@ Genera evaluación entrada vía LLM (fallback banco docente). Score ponderado: p
 ### RAGAS [OE2] — ✅ VALIDADO (recalibrado para LLM 7B local)
 - Golden set 50 ítems (M1-M5) → `backend/tests/fixtures/golden_set.json`. Juez **independiente** `llama3.1:8b` (≠ generador qwen2.5 → elimina sesgo de auto-preferencia).
 - Instrumento autoritativo: librería `ragas==0.2.6` vía `backend/scripts/run_ragas_lib_eval.py` (parche compat ollama: mueve `temperature`→`options`). Métricas custom en `run_ragas_eval.py` quedan como referencia (sub-medían precision).
-- **Umbrales (recalibrados, asesora aprobó 2026-05-29):** recuperación → context_precision ≥0.70, context_recall ≥0.75 (estrictos, sin cambio). Generación → faithfulness ≥0.65, answer_relevancy ≥0.65, answer_correctness ≥0.55 (calibrados a la clase de modelo 7B open-source self-hosted sin fine-tuning). context_entity_recall = secundaria/informativa, fuera del pass-criteria (matching literal estricto; ground_truth denso en entidades → ~0.20 reproducible).
-- **Estado (ragas-lib oficial, rerank cross-encoder on):** context_precision 0.876 ✅ · context_recall 0.812 ✅ · faithfulness 0.706 ✅ · answer_relevancy 0.707 ✅ · answer_correctness 0.609 ✅ · context_entity_recall 0.200 (secundaria). **5/6 cumplen.**
-- Justificación de la recalibración: `docs/oe2-recalibracion-umbrales-propuesta.md` (las citas de fundamento van en el documento de tesis). Retrieval validado con métricas canónicas; generación dentro del rango esperable para un 7B local sin fine-tuning.
+- **Criterio = 5 métricas primarias (set finalizado 2026-05-31, paralelo al anteproyecto V.2.1 de OE1; recalibración generación aprobada asesora 2026-05-29):** recuperación → context_precision ≥0.70, context_recall ≥0.75 (canónicos estrictos, sin cambio). Generación → faithfulness ≥0.65, answer_relevancy ≥0.65, answer_correctness ≥0.55 (calibrados a la clase de modelo 7B open-source self-hosted sin fine-tuning). context_entity_recall **retirada del criterio por inadecuación de instrumento** (matching literal estricto vs corpus parafraseado; ground_truth denso en entidades → ~0.20 reproducible), conservada **medida como diagnóstico** — mismo tratamiento que las 4 métricas retiradas del criterio OE1.
+- **Estado (ragas-lib oficial, rerank cross-encoder on):** context_precision 0.876 ✅ · context_recall 0.812 ✅ · faithfulness 0.706 ✅ · answer_relevancy 0.707 ✅ · answer_correctness 0.609 ✅ → **5/5 primarias cumplen**. context_entity_recall 0.200 (diagnóstica, fuera del criterio). La medición de las 6 permanece intacta como evidencia.
+- Justificación de la recalibración + retirada de entity_recall: `docs/oe2-recalibracion-umbrales-propuesta.md` (Adenda 2026-05-31; citas de fundamento van en el documento de tesis). Retrieval validado con métricas canónicas; generación dentro del rango esperable para un 7B local sin fine-tuning. Criterio OE2 = 5 primarias **todas ✅ → OE2 validado**.
 
 ### ISO/IEC 25010:2023 + 25023:2016 [OE5] (Sprint 7)
 - Matriz trazabilidad caso de prueba ↔ RF ↔ subcaracterística ISO → `docs/matriz-trazabilidad-ISO25010.md` (exportar .docx pre-sustentación).
@@ -326,7 +326,7 @@ Formato: portada (título + autor + asesora Mg. Reyes Burgos + USAT + fecha), í
 | 1 | `docs/ERS.docx` | S1 ✅ | base | 52 RF en 8 módulos; 33 priorizados (insumo de OE3 y OE5) |
 | 2 | `docs/reporte-LLM.docx` | S2 ✅ | OE1 | comparativa LLM (ROUGE/BLEU/Likert/Accuracy) + embeddings (nDCG/Recall/MRR/Spearman) — verificar métricas faltantes |
 | 3 | `docs/arquitectura.docx` | S3 | OE3 | C4 + justificación stack + despliegue |
-| 4 | `docs/reporte-RAGAS.docx` | S4/S7 ✅ | OE2 | golden set 50 + 6 métricas (librería ragas oficial + juez independiente) — **5/6 cumplen** (generación recalibrada LLM 7B, asesora aprobó). Regenerado 2026-05-29 |
+| 4 | `docs/reporte-RAGAS.docx` | S4/S7 ✅ | OE2 | golden set 50 + 6 métricas (librería ragas oficial + juez independiente). Criterio = 5 primarias → **5/5 cumplen** (generación recalibrada LLM 7B, asesora aprobó; entity_recall retirada del criterio por inadecuación de instrumento, set finalizado 2026-05-31). Regenerado 2026-05-29 |
 | 5 | `docs/matriz-trazabilidad-ISO25010.docx` | S7 | OE5 | caso de prueba ↔ RF ↔ subcaracterística ISO |
 | 6 | `docs/reporte-ISO25010.docx` | S7 | OE5 | completitud ≥0.95 / corrección ≥0.90 / pertinencia ≥0.90 + dictamen 2 jueces |
 | 7 | `docs/reporte-rendimiento-academico.docx` | S8 | OE4 | pretest/postest + t de Student pareada (p<0.05) |
@@ -460,7 +460,7 @@ Detalle completo en `docs/CLAUDE-archive.md`. Resumen:
 - **FASE 6 (S3) ✅ CRISP-DM** Personalización: evaluación entrada IA → nivel ponderado · LLM adapta dificultad · re-asignación dinámica
 - **FASE 7 (S3) ✅** Dashboard + Admin 5 tabs (Corpus RAG, Contenido, Usuarios, Banco Fallback, Niveles) + generador desafíos IA con preview
 - **FASE 7.5 (S3) ✅** Rebrand IESTP RFA + diferenciación admin + desafíos IA per-estudiante (migración 004)
-- **SPRINT 4 ✅** RAGAS validado (v5-v7, may 2026): juez independiente llama3.1 + rerank cross-encoder + librería ragas oficial. Retrieval cumple (precision 0.876/recall 0.812); generación recalibrada a umbrales de LLM 7B local (5/6). Modelo qwen2.5+mxbai sin cambio.
+- **SPRINT 4 ✅** RAGAS validado (v5-v7, may 2026): juez independiente llama3.1 + rerank cross-encoder + librería ragas oficial. Retrieval cumple (precision 0.876/recall 0.812); generación recalibrada a umbrales de LLM 7B local. Criterio = 5 primarias → 5/5 (entity_recall retirada del criterio, set finalizado 2026-05-31). Modelo qwen2.5+mxbai sin cambio.
 
 ### Tier 1 + 2 + 3 UI/UX Polish ✅ (12 may 2026, pre-piloto)
 
@@ -539,7 +539,7 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - [x] **RAGAS faithfulness ≥0.65** (ragas-lib: 0.706 ✅ · recalibrado de 0.80, LLM 7B local)
 - [x] **RAGAS answer_relevancy ≥0.65** (ragas-lib: 0.707 ✅ · recalibrado de 0.75)
 - [x] **RAGAS answer_correctness ≥0.55** (ragas-lib: 0.609 ✅ · recalibrado de 0.70)
-- [~] **RAGAS context_entity_recall** secundaria (ragas-lib: 0.200 · matching literal, fuera de pass-criteria)
+- [~] **RAGAS context_entity_recall** diagnóstica · retirada del criterio OE2 por inadecuación de instrumento (ragas-lib: 0.200 · matching literal vs corpus parafraseado; set finalizado 2026-05-31, mismo precedente que las 4 métricas retiradas de OE1) → **criterio OE2 = 5 primarias, 5/5 ✅**
 - [ ] **ISO/IEC 25023 completitud funcional ≥0.95** (interno 33/33; falta formalizar A/B)
 - [ ] **ISO/IEC 25023 corrección funcional ≥0.90** (276/276 tests; falta formalizar 1−A/B)
 - [ ] **ISO/IEC 25023 pertinencia funcional ≥0.90** (pendiente dictamen ≥2 jueces) **[OE5]**
@@ -569,7 +569,7 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 - [x] Tests backend cobertura ≥80% (Sprint 7 ISO objetivo · cumplido 21 may)
 - [x] Tests frontend stack configurado (Vitest + RTL + jsdom + @vitest/coverage-v8); 69 smoke tests baseline (21 may)
 - [x] README levanta desde cero
-- [~] Documentos entregables (8, mapeados a OE) — `.docx` generados: ERS, reporte-LLM, arquitectura, **reporte-RAGAS (5/6, re-validado)**, **matriz-trazabilidad-ISO25010**, **reporte-ISO25010** (estos 3 últimos 2026-05-29) + anexo **reporte-OE1-metricas-oficiales** (criterio 5/5; 9 indicadores medidos). Pendientes: dictamen ≥2 jueces pertinencia/OE5 (S7), rendimiento-académico/OE4 (S8, piloto), consolidación-final (S8).
+- [~] Documentos entregables (8, mapeados a OE) — `.docx` generados: ERS, reporte-LLM, arquitectura, **reporte-RAGAS (criterio 5/5, re-validado)**, **matriz-trazabilidad-ISO25010**, **reporte-ISO25010** (estos 3 últimos 2026-05-29) + anexo **reporte-OE1-metricas-oficiales** (criterio 5/5; 9 indicadores medidos). Pendientes: dictamen ≥2 jueces pertinencia/OE5 (S7), rendimiento-académico/OE4 (S8, piloto), consolidación-final (S8).
 
 ---
 
@@ -623,4 +623,4 @@ Spec: `docs/superpowers/specs/2026-05-12-tier3-uiux-polish-design.md` · Plan: `
 
 ---
 
-*v3.2 — Realineación a los 5 OE oficiales y al mapeo V.2.1. Cambios: OE1 = selección LLM/embeddings; OE2 = validación RAGAS (umbrales oficiales más exigentes); OE3 = despliegue GCE con métricas de rendimiento/disponibilidad; OE4 = contraste de rendimiento académico con **t de Student pareada (p<0.05)**; OE5 = adecuación funcional ISO/IEC 25010:2023 + 25023:2016. **SUS retirado** (fuera del mapeo oficial). RAGAS **validado y recalibrado** (v5-v7, may 2026): juez independiente llama3.1 + librería ragas oficial; retrieval cumple (precision 0.876/recall 0.812), generación recalibrada a umbrales de LLM 7B local (faithfulness ≥0.65, answer_relevancy ≥0.65, answer_correctness ≥0.55; asesora aprobó 2026-05-29) → 5/6. "Establecer modelos STI" y "estructurar contenido" dejan de ser OE y pasan a insumos de OE3/OE4.*
+*v3.2 — Realineación a los 5 OE oficiales y al mapeo V.2.1. Cambios: OE1 = selección LLM/embeddings; OE2 = validación RAGAS (umbrales oficiales más exigentes); OE3 = despliegue GCE con métricas de rendimiento/disponibilidad; OE4 = contraste de rendimiento académico con **t de Student pareada (p<0.05)**; OE5 = adecuación funcional ISO/IEC 25010:2023 + 25023:2016. **SUS retirado** (fuera del mapeo oficial). RAGAS **validado y recalibrado** (v5-v7, may 2026): juez independiente llama3.1 + librería ragas oficial; retrieval cumple (precision 0.876/recall 0.812), generación recalibrada a umbrales de LLM 7B local (faithfulness ≥0.65, answer_relevancy ≥0.65, answer_correctness ≥0.55; asesora aprobó 2026-05-29); criterio = 5 primarias → 5/5 (context_entity_recall retirada del criterio por inadecuación de instrumento, set finalizado 2026-05-31, mismo precedente que OE1). "Establecer modelos STI" y "estructurar contenido" dejan de ser OE y pasan a insumos de OE3/OE4.*

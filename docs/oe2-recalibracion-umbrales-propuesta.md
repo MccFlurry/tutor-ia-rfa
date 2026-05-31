@@ -26,7 +26,7 @@
 | answer_correctness | generación | ≥0.70 | 0.609 | **≥0.55 (APROBADO)** | ✅ (+0.059) | answer_correctness es métrica estricta (F1 factual + semántica); valores 0.5–0.7 incluso en sistemas fuertes **[VERIFICAR FUENTE]** |
 | context_entity_recall | recuperación | ≥0.70 | 0.211 (genuino, reproducible) | **secundaria / excluir del pass-criteria** | n/a | matching literal de entidades; ground_truth denso → ~0.20 estable; ver §Resultado investigación |
 
-**Resultado bajo umbrales propuestos: 5/6 cumplen** (entity_recall tratada como secundaria, ver abajo).
+**Resultado bajo umbrales propuestos: 5/6 cumplen** (entity_recall tratada como secundaria, ver abajo). → *Finalizado 2026-05-31 (ver Adenda al pie): entity_recall se retira del criterio formal por inadecuación de instrumento, conservada como diagnóstico → **criterio = 5 primarias, 5/5 cumplen**.*
 
 ## §Resultado investigación: context_entity_recall ≈ 0.20 es GENUINO (no artefacto)
 
@@ -53,5 +53,30 @@ Causa: `context_entity_recall` de RAGAS hace **matching casi literal** de las en
 
 1. ~~Investigar entity_recall~~ ✅ hecho: genuino ~0.20, tratar como secundaria (§Resultado investigación).
 2. Tesista consigue/verifica las citas de fundamento para los umbrales de generación recalibrados.
-3. Asesora aprueba la recalibración + el encuadre (incl. tratamiento de entity_recall).
-4. Recién entonces: actualizar umbrales en `CLAUDE.md` (§OE2) y en el documento oficial de OE, dejando registro del cambio.
+3. ~~Asesora aprueba la recalibración + el encuadre (incl. tratamiento de entity_recall).~~ ✅ aprobada 2026-05-29.
+4. ~~Actualizar umbrales en `CLAUDE.md` (§OE2) y en el documento oficial de OE.~~ ✅ aplicado.
+
+---
+
+## Adenda 2026-05-31 — Set de métricas OE2 finalizado (criterio = 5 primarias)
+
+Consolidación paralela a la del OE1 (anteproyecto V.2.1, 2026-05-31). El **criterio de
+aprobación de OE2** queda formado por las **5 métricas primarias RAGAS**:
+
+- **Recuperación (canónicas, sin recalibrar):** context_precision ≥0.70 (0.876 ✅) ·
+  context_recall ≥0.75 (0.812 ✅).
+- **Generación (recalibradas a la clase de modelo 7B local, aprobadas 2026-05-29):**
+  faithfulness ≥0.65 (0.706 ✅) · answer_relevancy ≥0.65 (0.707 ✅) ·
+  answer_correctness ≥0.55 (0.609 ✅).
+
+`context_entity_recall` **se retira del criterio formal de aprobación** por **inadecuación
+de instrumento** (matching casi literal de entidades contra un corpus que parafrasea/normaliza
+las specs del ground_truth; causa documentada en §Resultado investigación), y se conserva
+**medida como diagnóstico/informativa** (0.200, reproducible). Es el mismo tratamiento que las
+cuatro métricas retiradas del criterio OE1 (ROUGE-L, BLEU, κ automático, Spearman STS) — la
+retirada refleja **inadecuación del instrumento, no deficiencia del sistema** (la recuperación
+queda validada por las métricas de retrieval canónicas: precision 0.876, recall 0.812).
+
+**La medición de las 6 métricas permanece intacta como evidencia**; lo único que cambia es qué
+subconjunto constituye el criterio formal de OE2. Resultado: **5/5 métricas primarias cumplen →
+OE2 validado.**

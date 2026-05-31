@@ -215,7 +215,7 @@ El sistema queda **autorizado para iniciar el piloto del Sprint 8** (29 jun –
 
 - `docs/matriz-trazabilidad-ISO25010.md` — matriz completa RF → endpoint → test
 - `backend/tests/integration/test_iso25010.py` — guardian automatizado
-- `docs/reporte-RAGAS.docx` — validación RAGAS [OE2] (instrumento oficial, faithfulness 0.706, 5/6 cumplen)
+- `docs/reporte-RAGAS.docx` — validación RAGAS [OE2] (instrumento oficial, faithfulness 0.706, criterio 5 primarias → 5/5 cumplen)
 - `backend/tests/fixtures/golden_set.json` — 50 preguntas ground truth RAG
 - Comando de auditoría: `cd backend && python -m pytest --cov=app --cov-report=term`
 
