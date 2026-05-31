@@ -33,7 +33,7 @@ export default function FloatingTutor() {
     if (!input && location.pathname.startsWith('/topics/')) {
       setInput('Sobre el tema actual, ')
     }
-    if (!sessionId) {
+    if (!sessionId && !createSession.isPending) {
       try {
         const s = await createSession.mutateAsync()
         setSessionId(s.id)
