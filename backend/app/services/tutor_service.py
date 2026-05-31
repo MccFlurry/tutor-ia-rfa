@@ -23,6 +23,71 @@ STREAK_MILESTONES = (3, 7, 14, 30)
 INACTIVE_DAYS = 7
 # Máximo de nudges en el dashboard (evita saturar)
 DASHBOARD_MAX = 3
+# Contextos de resultado — deterministas por score, sin snapshot
+RESULT_CONTEXTS = ("quiz_result", "coding_result", "assessment_result")
+
+
+def _result_nudges(context: str, score: float | None, topic_id: int | None) -> list[Nudge]:
+    """Refuerzo determinista por banda de puntaje (0-100). Fase 4."""
+    if score is None:
+        return []
+
+    if context == "quiz_result":
+        if score >= 80:
+            return [Nudge(
+                id="quiz_result_high", tone="success", icon="trophy",
+                title="¡Excelente trabajo!",
+                message="Dominas este tema. Mantén el ritmo y sigue avanzando.",
+            )]
+        if score >= 60:
+            return [Nudge(
+                id="quiz_result_pass", tone="success", icon="check",
+                title="¡Aprobaste!",
+                message="Buen trabajo. Repasa los puntos que fallaste para afianzar lo aprendido.",
+                cta_label="Repasar el tema" if topic_id else None,
+                cta_route=f"/topics/{topic_id}" if topic_id else None,
+            )]
+        return [Nudge(
+            id="quiz_result_low", tone="warning", icon="repeat",
+            title="Casi lo logras",
+            message="No alcanzaste el 60%. Repasa el contenido y vuelve a intentarlo; cada intento te acerca.",
+            cta_label="Repasar el tema" if topic_id else None,
+            cta_route=f"/topics/{topic_id}" if topic_id else None,
+        )]
+
+    if context == "coding_result":
+        if score >= 80:
+            return [Nudge(
+                id="coding_result_high", tone="success", icon="trophy",
+                title="¡Código sólido!",
+                message="Gran solución. Anímate con un desafío de mayor dificultad.",
+            )]
+        if score >= 60:
+            return [Nudge(
+                id="coding_result_mid", tone="encourage", icon="rocket",
+                title="Buen avance",
+                message="Tu código funciona; revisa las mejoras sugeridas para pulirlo aún más.",
+            )]
+        return [Nudge(
+            id="coding_result_low", tone="warning", icon="repeat",
+            title="Sigamos puliendo",
+            message="Revisa la retroalimentación y las pistas, ajusta tu código y vuelve a enviarlo.",
+        )]
+
+    if context == "assessment_result":
+        if score < 40:
+            msg = "Empezarás por las bases. Sigue el orden de los módulos desde el M1, a tu ritmo."
+        elif score <= 75:
+            msg = "Tienes buenas bases. Enfócate en los temas que más se te dificulten."
+        else:
+            msg = "¡Gran dominio! Reta tus habilidades con los módulos más avanzados."
+        return [Nudge(
+            id="assessment_result", tone="info", icon="compass",
+            title="Tu ruta de aprendizaje",
+            message=msg, cta_label="Ver módulos", cta_route="/modules",
+        )]
+
+    return []
 
 
 def build_nudges(
@@ -34,6 +99,10 @@ def build_nudges(
     score: float | None = None,  # usado por quiz_result/coding_result (Fase 4)
 ) -> list[Nudge]:
     """Aplica las reglas deterministas y devuelve los nudges del contexto."""
+    # Fase 4 — contextos de resultado: deterministas por score, sin snapshot
+    if context in RESULT_CONTEXTS:
+        return _result_nudges(context, score, topic_id)
+
     nudges: list[Nudge] = []
 
     # R1 — sin evaluación de entrada: bloquea todo lo demás
@@ -112,7 +181,7 @@ def build_nudges(
             ))
         return nudges
 
-    # contextos de resultado (quiz_result/coding_result/assessment_result) → Fase 4
+    # contexto desconocido — sin nudges
     return nudges
 
 
@@ -232,6 +301,9 @@ async def get_nudges(
     score: float | None = None,
 ) -> list[Nudge]:
     """Resuelve el snapshot desde BD y aplica las reglas deterministas."""
+    # Fase 4 — result contexts are score-only; skip the DB round-trip
+    if context in RESULT_CONTEXTS:
+        return build_nudges(None, context, topic_id=topic_id, module_id=module_id, score=score)
     snap = await gather_snapshot(user, db, topic_id=topic_id)
     return build_nudges(
         snap, context, topic_id=topic_id, module_id=module_id, score=score
