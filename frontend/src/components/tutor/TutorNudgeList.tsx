@@ -13,7 +13,7 @@ export default function TutorNudgeList({ context, topicId, moduleId, score }: Pr
   const { data: nudges } = useTutorNudges({ context, topicId, moduleId, score })
   if (!nudges || nudges.length === 0) return null
   return (
-    <div className="space-y-3" aria-label="Mensajes del tutor">
+    <div role="region" aria-label="Mensajes del tutor" className="space-y-3">
       {nudges.map((n) => (
         <TutorNudge key={n.id} nudge={n} />
       ))}

@@ -153,11 +153,7 @@ export default function TopicPage() {
         </div>
       </div>
 
-      {!isNaN(topicId) && (
-        <div className="mb-8">
-          <TutorNudgeList context="topic" topicId={topicId} />
-        </div>
-      )}
+      {!isNaN(topicId) && <TutorNudgeList context="topic" topicId={topicId} />}
 
       {/* Video embed */}
       {topic.video_url && (

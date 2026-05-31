@@ -8,5 +8,6 @@ export function useTutorNudges(params: NudgeParams) {
       const { data } = await tutorApi.getNudges(params)
       return data.nudges
     },
+    staleTime: 60_000,
   })
 }
