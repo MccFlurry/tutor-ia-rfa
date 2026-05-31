@@ -218,7 +218,7 @@ export default function TopicPage() {
         )}
       </div>
 
-      {!isNaN(topicId) && <div className="mb-8"><ResourceList topicId={topicId} /></div>}
+      {!isNaN(topicId) && <ResourceList topicId={topicId} />}
 
       {/* Prev / Next navigation — sticky on mobile so it stays reachable */}
       <div className="sticky bottom-0 sm:static -mx-4 sm:mx-0 px-4 sm:px-0 py-3 sm:py-0 bg-background/95 sm:bg-transparent backdrop-blur sm:backdrop-blur-0 border-t border-border sm:pt-6 flex items-center justify-between gap-2">

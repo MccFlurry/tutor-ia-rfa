@@ -12,7 +12,7 @@ export default function ResourceList({ moduleId, topicId, title = 'Recursos para
   const { data: resources } = useResources({ moduleId, topicId })
   if (!resources || resources.length === 0) return null
   return (
-    <section aria-label={title} className="space-y-2">
+    <section aria-label={title} className="space-y-2 mb-8">
       <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <BookOpen className="h-4 w-4 text-primary" aria-hidden="true" />
         {title}

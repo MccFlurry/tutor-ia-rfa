@@ -246,9 +246,7 @@ export default function DashboardPage() {
 
       {/* Resources for first recommended module */}
       {data?.recommended_modules?.[0] && (
-        <div className="mb-8">
-          <ResourceList moduleId={data.recommended_modules[0].id} title="Recursos recomendados" />
-        </div>
+        <ResourceList moduleId={data.recommended_modules[0].id} title="Recursos recomendados" />
       )}
 
       {/* Recent achievements */}
