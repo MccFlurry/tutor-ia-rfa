@@ -11,6 +11,8 @@ interface StatCardProps {
   accent?: Accent
   progress?: number
   helperText?: React.ReactNode
+  /** Announce value changes to screen readers (for async-loaded values like streak). */
+  liveValue?: boolean
   className?: string
 }
 
@@ -39,6 +41,7 @@ export default function StatCard({
   accent = 'neutral',
   progress,
   helperText,
+  liveValue,
   className,
 }: StatCardProps) {
   return (
@@ -64,7 +67,10 @@ export default function StatCard({
           {label}
         </p>
       </div>
-      <p className={cn('text-3xl font-extrabold tabular-nums mt-1', ACCENT_VALUE_COLOR[accent])}>
+      <p
+        className={cn('text-3xl font-extrabold tabular-nums mt-1', ACCENT_VALUE_COLOR[accent])}
+        aria-live={liveValue ? 'polite' : undefined}
+      >
         {value}
       </p>
       {progress !== undefined && (
