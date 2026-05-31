@@ -139,7 +139,11 @@
       "Bash(xargs grep -l \"firebase\\\\|Firebase\")",
       "Bash(unzip -l reporte-OE1-metricas-oficiales.docx)",
       "PowerShell(Get-Command *)",
-      "Bash(git restore *)"
+      "Bash(git restore *)",
+      "Bash(PYTHONIOENCODING=utf-8 python *)",
+      "Bash(git -c core.quotepath=false status --short docs/)",
+      "Bash(echo \"exit ls: $?\")",
+      "Bash(git -c core.quotepath=false status --short)"
     ]
   }
 }
