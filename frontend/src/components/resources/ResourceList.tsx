@@ -6,17 +6,19 @@ interface Props {
   moduleId?: number
   topicId?: number
   title?: string
+  headingLevel?: 2 | 3 | 4
 }
 
-export default function ResourceList({ moduleId, topicId, title = 'Recursos para reforzar' }: Props) {
+export default function ResourceList({ moduleId, topicId, title = 'Recursos para reforzar', headingLevel = 2 }: Props) {
   const { data: resources } = useResources({ moduleId, topicId })
   if (!resources || resources.length === 0) return null
+  const Heading = (`h${headingLevel}`) as 'h2' | 'h3' | 'h4'
   return (
     <section aria-label={title} className="space-y-2 mb-8">
-      <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+      <Heading className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <BookOpen className="h-4 w-4 text-primary" aria-hidden="true" />
         {title}
-      </h2>
+      </Heading>
       <div className="grid gap-2 sm:grid-cols-2">
         {resources.map((r) => (
           <ResourceCard key={r.id} resource={r} />

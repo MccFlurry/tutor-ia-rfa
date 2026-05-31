@@ -255,7 +255,7 @@ export const adminApi = {
   // Learning resources
   listResources: (params?: { module_id?: number; topic_id?: number }) =>
     apiClient.get<LearningResource[]>('/admin/resources', { params }),
-  createResource: (data: Partial<LearningResource>) =>
+  createResource: (data: Pick<LearningResource, 'kind' | 'title' | 'url'> & Partial<LearningResource>) =>
     apiClient.post<LearningResource>('/admin/resources', data),
   updateResource: (id: number, data: Partial<LearningResource>) =>
     apiClient.put<LearningResource>(`/admin/resources/${id}`, data),
