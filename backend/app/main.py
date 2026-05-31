@@ -10,7 +10,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from app.config import settings
-from app.routers import auth, users, modules, topics, quiz, progress, achievements, chat, coding, assessment, admin, dashboard, admin_reports
+from app.routers import auth, users, modules, topics, quiz, progress, achievements, chat, coding, assessment, admin, dashboard, admin_reports, tutor
 from app.services.scheduler_service import build_scheduler
 from app.utils.logger import logger
 
@@ -93,6 +93,7 @@ app.include_router(assessment.router, prefix="/api/v1")
 app.include_router(admin.router, prefix="/api/v1")
 app.include_router(admin_reports.router, prefix="/api/v1")
 app.include_router(dashboard.router, prefix="/api/v1")
+app.include_router(tutor.router, prefix="/api/v1")
 
 
 @app.get("/health")

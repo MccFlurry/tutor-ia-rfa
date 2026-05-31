@@ -4,7 +4,18 @@ build_nudges() es una función pura: recibe un StudentSnapshot ya resuelto
 y el contexto de pantalla, devuelve los nudges aplicables. Sin BD ni LLM.
 gather_snapshot()/get_nudges() (Task 3) resuelven el estado desde BD.
 """
+from datetime import datetime, timezone
+
+from sqlalchemy import select, func, desc
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.user_level import UserLevel
+from app.models.topic import Topic
+from app.models.module import Module
+from app.models.progress import UserTopicProgress
+from app.models.quiz import QuizAttempt
 from app.schemas.tutor import Nudge, StudentSnapshot
+from app.services.progress_service import compute_streak
 
 # Días de racha que disparan felicitación
 STREAK_MILESTONES = (3, 7, 14, 30)
@@ -103,3 +114,125 @@ def build_nudges(
 
     # contextos de resultado (quiz_result/coding_result/assessment_result) → Fase 4
     return nudges
+
+
+# ---------------------------------------------------------------------------
+# Umbral de "módulo casi completo" (porcentaje mínimo para disparar R4)
+# ---------------------------------------------------------------------------
+NEAR_COMPLETE_PCT = 80.0
+
+
+async def gather_snapshot(
+    user, db: AsyncSession, *, topic_id: int | None = None
+) -> StudentSnapshot:
+    """Resuelve el estado del estudiante desde BD (sin LLM)."""
+    # 1. Nivel del estudiante
+    level_row = await db.execute(
+        select(UserLevel).where(UserLevel.user_id == user.id)
+    )
+    level = level_row.scalar_one_or_none()
+    if level is None:
+        return StudentSnapshot(
+            has_level=False, level=None, overall_pct=0.0,
+            last_quiz_passed=None, last_quiz_topic_title=None,
+            last_quiz_topic_id=None, days_inactive=None,
+            near_complete_module_title=None, near_complete_module_id=None,
+            streak_days=0,
+        )
+
+    # 2. Progreso global (temas activos totales vs completados por el usuario)
+    total_q = await db.execute(
+        select(func.count(Topic.id)).where(Topic.is_active == True)  # noqa: E712
+    )
+    total = total_q.scalar() or 0
+    done_q = await db.execute(
+        select(func.count(UserTopicProgress.id))
+        .join(Topic, Topic.id == UserTopicProgress.topic_id)
+        .where(
+            UserTopicProgress.user_id == user.id,
+            UserTopicProgress.is_completed == True,  # noqa: E712
+            Topic.is_active == True,  # noqa: E712
+        )
+    )
+    done = done_q.scalar() or 0
+    overall_pct = round(done / total * 100, 1) if total else 0.0
+
+    # 3. Último intento de quiz (para reglas R3/R6)
+    last_quiz_q = await db.execute(
+        select(QuizAttempt, Topic)
+        .join(Topic, Topic.id == QuizAttempt.topic_id)
+        .where(QuizAttempt.user_id == user.id)
+        .order_by(desc(QuizAttempt.attempted_at))
+        .limit(1)
+    )
+    lq = last_quiz_q.first()
+    last_quiz_passed = lq[0].is_passed if lq else None
+    last_quiz_topic_title = lq[1].title if lq else None
+    last_quiz_topic_id = lq[1].id if lq else None
+
+    # 4. Días sin actividad (último acceso a cualquier tema)
+    last_acc_q = await db.execute(
+        select(UserTopicProgress.last_accessed_at)
+        .where(UserTopicProgress.user_id == user.id)
+        .order_by(desc(UserTopicProgress.last_accessed_at))
+        .limit(1)
+    )
+    last_acc = last_acc_q.first()
+    days_inactive = None
+    if last_acc and last_acc[0]:
+        delta = datetime.now(timezone.utc) - last_acc[0]
+        days_inactive = delta.days
+
+    # 5. Módulo casi completo (mayor porcentaje en [NEAR_COMPLETE_PCT, 100))
+    near_title = None
+    near_id = None
+    mod_rows = await db.execute(
+        select(
+            Module.id, Module.title,
+            func.count(Topic.id).label("total"),
+            func.count(UserTopicProgress.id).filter(
+                UserTopicProgress.is_completed == True  # noqa: E712
+            ).label("done"),
+        )
+        .join(Topic, Topic.module_id == Module.id)
+        .outerjoin(
+            UserTopicProgress,
+            (UserTopicProgress.topic_id == Topic.id)
+            & (UserTopicProgress.user_id == user.id),
+        )
+        .where(Module.is_active == True, Topic.is_active == True)  # noqa: E712
+        .group_by(Module.id, Module.title)
+        .order_by(Module.order_index)
+    )
+    best_pct = 0.0
+    for mid, mtitle, mtotal, mdone in mod_rows.all():
+        pct = round((mdone or 0) / mtotal * 100, 1) if mtotal else 0.0
+        if NEAR_COMPLETE_PCT <= pct < 100 and pct > best_pct:
+            best_pct, near_title, near_id = pct, mtitle, mid
+
+    # 6. Racha (delega a compute_streak; retorna dict con clave "current_streak")
+    streak = await compute_streak(user.id, db)
+    streak_days = streak.get("current_streak", 0) if streak else 0
+
+    return StudentSnapshot(
+        has_level=True, level=level.level, overall_pct=overall_pct,
+        last_quiz_passed=last_quiz_passed,
+        last_quiz_topic_title=last_quiz_topic_title,
+        last_quiz_topic_id=last_quiz_topic_id,
+        days_inactive=days_inactive,
+        near_complete_module_title=near_title,
+        near_complete_module_id=near_id,
+        streak_days=streak_days,
+    )
+
+
+async def get_nudges(
+    user, db: AsyncSession, context: str, *,
+    topic_id: int | None = None, module_id: int | None = None,
+    score: float | None = None,
+) -> list[Nudge]:
+    """Resuelve el snapshot desde BD y aplica las reglas deterministas."""
+    snap = await gather_snapshot(user, db, topic_id=topic_id)
+    return build_nudges(
+        snap, context, topic_id=topic_id, module_id=module_id, score=score
+    )
