@@ -12,6 +12,7 @@ import {
   Signal,
   AlertTriangle,
   RefreshCw,
+  HelpCircle,
 } from 'lucide-react'
 import { dashboardApi } from '@/api/dashboard'
 import { progressApi } from '@/api/progress'
@@ -77,6 +78,7 @@ export default function DashboardPage() {
       <div className="max-w-3xl mx-auto px-4 py-8 sm:px-6">
         <EmptyState
           icon={AlertTriangle}
+          tone="error"
           title="No pudimos cargar tu panel"
           description="Hubo un problema al obtener tu progreso. Revisa tu conexión e inténtalo de nuevo."
           action={
@@ -167,7 +169,7 @@ export default function DashboardPage() {
       {/* Hero: the single next step on the path (always present) */}
       <section
         aria-labelledby="hero-resume"
-        className="relative bg-brand-hero text-white rounded-2xl p-6 sm:p-7 mb-8 shadow-brand-lg overflow-hidden"
+        className="relative bg-brand-hero text-white rounded-2xl p-6 sm:p-7 mb-6 shadow-brand-lg overflow-hidden"
       >
         <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-heritage-500/15 blur-3xl" aria-hidden="true" />
         <div className="absolute bottom-0 left-0 h-1 w-full bg-heritage-accent" aria-hidden="true" />
@@ -195,6 +197,18 @@ export default function DashboardPage() {
           </Button>
         </div>
       </section>
+
+      {/* Help pointer: ties the dashboard to the tutor, for students unsure how to continue */}
+      <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-sm text-muted-foreground mb-8">
+        <HelpCircle className="w-4 h-4 text-primary" aria-hidden="true" />
+        ¿No sabes cómo continuar?{' '}
+        <Link
+          to="/chat"
+          className="font-semibold text-primary rounded hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          Pregúntale a tu tutor IA
+        </Link>
+      </p>
 
       {/* Stats */}
       <section aria-labelledby="stats-heading" className="mb-8">
@@ -281,8 +295,9 @@ export default function DashboardPage() {
                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <div
-                  className="w-10 h-10 rounded-lg mb-3 flex items-center justify-center text-white font-bold
-                             bg-[color:var(--module-color)]"
+                  className="w-10 h-10 rounded-lg mb-3 flex items-center justify-center font-bold
+                             bg-[color:var(--module-color)]/12 text-[color:var(--module-color)]
+                             ring-1 ring-inset ring-[color:var(--module-color)]/25"
                   aria-hidden="true"
                 >
                   {m.title[0]}

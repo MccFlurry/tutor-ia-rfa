@@ -2,6 +2,18 @@ import * as React from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+type EmptyStateTone = 'default' | 'error'
+
+const TONE_CIRCLE: Record<EmptyStateTone, string> = {
+  default: 'bg-primary-50 dark:bg-primary/15',
+  error: 'bg-destructive/10',
+}
+
+const TONE_ICON: Record<EmptyStateTone, string> = {
+  default: 'text-primary-500',
+  error: 'text-destructive',
+}
+
 interface EmptyStateProps {
   icon?: LucideIcon
   illustration?: string | React.ReactNode
@@ -9,6 +21,8 @@ interface EmptyStateProps {
   title: string
   description?: React.ReactNode
   action?: React.ReactNode
+  /** Visual tone of the icon badge: neutral 'default' or a 'error' (destructive) treatment. */
+  tone?: EmptyStateTone
   className?: string
 }
 
@@ -19,6 +33,7 @@ export default function EmptyState({
   title,
   description,
   action,
+  tone = 'default',
   className,
 }: EmptyStateProps) {
   const showIllustration = !!illustration
@@ -48,10 +63,13 @@ export default function EmptyState({
       )}
       {showIcon && Icon && (
         <div
-          className="w-14 h-14 bg-primary-50 dark:bg-primary/15 rounded-full flex items-center justify-center mb-4"
+          className={cn(
+            'w-14 h-14 rounded-full flex items-center justify-center mb-4',
+            TONE_CIRCLE[tone]
+          )}
           aria-hidden="true"
         >
-          <Icon className="w-7 h-7 text-primary-500" />
+          <Icon className={cn('w-7 h-7', TONE_ICON[tone])} />
         </div>
       )}
       <h3 className="text-base font-semibold text-foreground mb-1">{title}</h3>
