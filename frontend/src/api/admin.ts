@@ -1,5 +1,6 @@
 import apiClient from './client'
 import type { StudentLevel, Difficulty } from '@/types/assessment'
+import type { LearningResource } from '@/types/resource'
 
 // ---------- Assessment Bank ----------
 export interface AssessmentBankItem {
@@ -250,4 +251,13 @@ export const adminApi = {
   listUsers: () => apiClient.get<UserAdmin[]>('/admin/users'),
   updateUser: (id: string, data: UserAdminUpdate) =>
     apiClient.put<UserAdmin>(`/admin/users/${id}`, data),
+
+  // Learning resources
+  listResources: (params?: { module_id?: number; topic_id?: number }) =>
+    apiClient.get<LearningResource[]>('/admin/resources', { params }),
+  createResource: (data: Partial<LearningResource>) =>
+    apiClient.post<LearningResource>('/admin/resources', data),
+  updateResource: (id: number, data: Partial<LearningResource>) =>
+    apiClient.put<LearningResource>(`/admin/resources/${id}`, data),
+  deleteResource: (id: number) => apiClient.delete(`/admin/resources/${id}`),
 }

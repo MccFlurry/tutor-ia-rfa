@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Database, FileCode, Users, ClipboardList, TrendingUp, BarChart3 } from 'lucide-react'
+import { Database, FileCode, Users, ClipboardList, TrendingUp, BarChart3, Library } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import CorpusTab from '@/components/admin/CorpusTab'
 import ContentTab from '@/components/admin/ContentTab'
@@ -7,13 +7,15 @@ import UsersTab from '@/components/admin/UsersTab'
 import BankTab from '@/components/admin/BankTab'
 import LevelsTab from '@/components/admin/LevelsTab'
 import StudentsReportTab from '@/components/admin/StudentsReportTab'
+import ResourcesTab from '@/components/admin/ResourcesTab'
 
-type TabId = 'reports' | 'corpus' | 'content' | 'users' | 'bank' | 'levels'
+type TabId = 'reports' | 'corpus' | 'content' | 'users' | 'bank' | 'levels' | 'resources'
 
 const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: 'reports', label: 'Reportes', icon: BarChart3 },
   { id: 'corpus', label: 'Corpus RAG', icon: Database },
   { id: 'content', label: 'Contenido', icon: FileCode },
+  { id: 'resources', label: 'Recursos', icon: Library },
   { id: 'users', label: 'Usuarios', icon: Users },
   { id: 'bank', label: 'Banco Fallback', icon: ClipboardList },
   { id: 'levels', label: 'Niveles', icon: TrendingUp },
@@ -59,6 +61,7 @@ export default function AdminPage() {
       {tab === 'reports' && <StudentsReportTab />}
       {tab === 'corpus' && <CorpusTab />}
       {tab === 'content' && <ContentTab />}
+      {tab === 'resources' && <ResourcesTab />}
       {tab === 'users' && <UsersTab />}
       {tab === 'bank' && <BankTab />}
       {tab === 'levels' && <LevelsTab />}
