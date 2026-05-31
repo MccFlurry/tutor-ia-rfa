@@ -209,6 +209,10 @@ Auth: `Authorization: Bearer <access_token>` (excepto `/auth/login`, `/auth/regi
 ### `/tutor` (acompañamiento proactivo — Fase 1)
 - `GET /nudges?context=&topic_id=&module_id=&score=` → `{nudges:[{id,tone,icon,title,message,cta_label,cta_route}]}`. Motor determinista (reglas + plantillas, sin LLM). `context ∈ {dashboard,topic,module,quiz_result,coding_result,assessment_result}`. Caché Redis TTL 30s salvo contextos `*_result`.
 
+### `/resources` (recursos de aprendizaje — Fase 3)
+- `GET /resources?module_id=&topic_id=` → `LearningResource[]` activos (estudiante). Recursos curados (videos/libros/artículos). El LLM nunca los genera.
+- Admin CRUD: `GET/POST/PUT/DELETE /admin/resources` (role=admin).
+
 ### `/modules`
 - `GET /` → lista con `progress_pct, is_locked, total_topics, completed_topics`
 - `GET /{id}` → Module + temas con `status: not_started|in_progress|completed`
@@ -465,6 +469,7 @@ Detalle completo en `docs/CLAUDE-archive.md`. Resumen:
 - **FASE 7.5 (S3) ✅** Rebrand IESTP RFA + diferenciación admin + desafíos IA per-estudiante (migración 004)
 - **FASE DE ACOMPAÑAMIENTO PROACTIVO (Fase 1) ✅** Motor determinista de nudges (`services/tutor_service.py` + `routers/tutor.py`, endpoint `GET /tutor/nudges`) montado en Dashboard y Topic (`<TutorNudge>`/`<TutorNudgeList>`). Reglas: sin-nivel, progreso-cero, inactividad, módulo casi completo, racha, reintento-quiz. Sin LLM → 100% testeable (suma RF a OE5/ISO). Operacionaliza el modelo de interacción/pedagógico del STI (insumo OE3/OE5); NO crea OE nuevo ni toca OE1/OE2/OE4. Spec/plan en `docs/superpowers/`. Contextos `*_result` + asistente flotante + banco de recursos = fases siguientes.
 - **ACOMPAÑAMIENTO PROACTIVO (Fase 2) ✅** Asistente flotante del tutor (`frontend/src/components/tutor/FloatingTutor.tsx`) montado en `AppLayout` → presente en toda pantalla con layout (no en Login/Assessment). Burbuja fija → panel de chat RAG que reusa el pipeline `/chat` existente (sesión contextual con precarga en temas, contador de consultas, rate limit 20/h, ESC/cierre, móvil a pantalla completa). Sin cambios de backend. Operacionaliza el modelo de interacción del STI.
+- **ACOMPAÑAMIENTO PROACTIVO (Fase 3) ✅** Banco de recursos curados `learning_resources` (migración 006) — videos/libros/artículos por módulo/tema. Endpoint estudiante `GET /resources`; CRUD admin `/admin/resources` + pestaña "Recursos" en AdminPage; `ResourceList` montado en Dashboard y Topic. Seed inicial con URLs marcadas para verificación humana. El LLM NUNCA genera recursos (regla "no inventa"). Cierra el pedido del jurado (links de libros/videos).
 - **SPRINT 4 ✅** RAGAS validado (may 2026): juez independiente llama3.1 + rerank cross-encoder + librería ragas oficial. Recuperación precision 0.876/recall 0.812; generación faithfulness 0.706/relevancy 0.707/correctness 0.609 → 5/5 cumplen. Modelo qwen2.5+mxbai sin cambio.
 
 ### Tier 1 + 2 + 3 UI/UX Polish ✅ (12 may 2026, pre-piloto)
