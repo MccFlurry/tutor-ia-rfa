@@ -9,6 +9,7 @@ import { modulesApi } from '@/api/modules'
 import { Button } from '@/components/ui/button'
 import Skeleton, { SkeletonLine } from '@/components/common/Skeleton'
 import ContentRenderer from '@/components/topics/ContentRenderer'
+import TutorNudgeList from '@/components/tutor/TutorNudgeList'
 
 export default function TopicPage() {
   const { id } = useParams<{ id: string }>()
@@ -151,6 +152,12 @@ export default function TopicPage() {
           )}
         </div>
       </div>
+
+      {!isNaN(topicId) && (
+        <div className="mb-8">
+          <TutorNudgeList context="topic" topicId={topicId} />
+        </div>
+      )}
 
       {/* Video embed */}
       {topic.video_url && (
