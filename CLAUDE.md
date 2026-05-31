@@ -634,3 +634,23 @@ Branch: `feat/tier3-uiux-polish`. Build green (tsc + Vite). Lighthouse mobile pe
 ---
 
 *v3.3 — Realineación a los 5 OE oficiales y al mapeo V.2.1. OE1 = selección LLM/embeddings; OE2 = validación RAGAS; OE3 = despliegue GCE con métricas de rendimiento/disponibilidad; OE4 = rendimiento académico con **t de Student pareada (p<0.05)**; OE5 = adecuación funcional ISO/IEC 25010:2023 + 25023:2016. **SUS retirado** (fuera del mapeo oficial). RAGAS validado (may 2026): librería ragas oficial + juez independiente llama3.1 + rerank; recuperación precision 0.876/recall 0.812, generación faithfulness 0.706/relevancy 0.707/correctness 0.609 → 5/5. "Establecer modelos STI" y "estructurar contenido" son insumos de OE3/OE4, no OE independientes.*
+
+---
+
+## 🎨 DESIGN CONTEXT (impeccable)
+
+Contexto de diseño para agentes. Fuente completa: **`PRODUCT.md`** (estratégico) + **`DESIGN.md`** (sistema visual), ambos en la raíz del proyecto.
+
+- **Register:** `product` — UI de aplicación; el diseño SIRVE a la tarea de aprender, no es marketing.
+- **Personalidad:** confianza institucional cálida — *trustworthy, encouraging, focused*, con acabado moderno. Voz: español peruano, claro y cercano; el tutor admite incertidumbre y **no inventa**.
+- **Anti-referencias:** NO un LMS recargado tipo Moodle · NO plantilla SaaS genérica (hero-metric, grids de tarjetas idénticas, gradient text) · NO gamificación infantil/chillona.
+- **5 principios de diseño:**
+  1. *El tutor no inventa* — confianza por trazabilidad (citar fuentes, admitir límites).
+  2. *Encontrar al estudiante donde está* — el nivel adapta dificultad/feedback; nunca callejón sin salida.
+  3. *Momentum sobre decoración* — la gamificación mapea a progreso real.
+  4. *La herramienta desaparece en la tarea* — un trabajo primario por pantalla.
+  5. *Resiliente por diseño* — todo camino IA tiene fallback elegante (quiz→banco, coding→catálogo, assessment→banco docente).
+- **Accesibilidad:** objetivo **WCAG 2.1 AA** (contraste ≥4.5:1, foco visible, `prefers-reduced-motion`, touch ≥44px), light + dark.
+- **Identidad visual:** azul institucional + navy + oro heritage + rojo Perú; Plus Jakarta Sans + JetBrains Mono; tokens HSL semánticos (light/dark). **Preservar identidad existente.**
+
+> Generado por `/impeccable init` (2026-05-31). Para iterar diseño: `/impeccable critique|audit|polish|live …`.

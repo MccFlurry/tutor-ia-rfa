@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-31",
+  "title": "Design System: Tutor IA RFA",
+  "extensions": {
+    "colorMeta": {
+      "institutional-blue": { "role": "primary", "displayName": "Institutional Blue", "canonical": "hsl(217 91% 42%)", "tonalRamp": ["#0b1845", "#172554", "#1e3a8a", "#1e40af", "#1d4ed8", "#2563eb", "#60a5fa", "#93c5fd"] },
+      "deep-navy": { "role": "secondary", "displayName": "Deep Navy", "canonical": "#172554", "tonalRamp": ["#0f172a", "#172554", "#1e293b", "#1e3a8a", "#1e40af", "#1d4ed8", "#3b82f6", "#93c5fd"] },
+      "heritage-gold": { "role": "tertiary", "displayName": "Heritage Gold", "canonical": "hsl(38 92% 50%)", "tonalRamp": ["#b45309", "#d97706", "#f59e0b", "#facc15", "#fde68a", "#fef3c7", "#fffbeb", "#fffef5"] },
+      "andean-red": { "role": "tertiary", "displayName": "Andean Red", "canonical": "hsl(0 74% 46%)", "tonalRamp": ["#991b1b", "#b91c1c", "#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fecaca", "#fef2f2"] },
+      "success-green": { "role": "success", "displayName": "Success Green", "canonical": "hsl(142 71% 36%)", "tonalRamp": ["#14532d", "#166534", "#15803d", "#16a34a", "#22c55e", "#4ade80", "#86efac", "#dcfce7"] },
+      "info-sky": { "role": "info", "displayName": "Info Sky", "canonical": "hsl(199 89% 48%)", "tonalRamp": ["#0c4a6e", "#075985", "#0369a1", "#0284c7", "#0ea5e9", "#38bdf8", "#7dd3fc", "#e0f2fe"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "hsl(222 47% 11%)", "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0"] },
+      "muted-ink": { "role": "neutral", "displayName": "Muted Ink", "canonical": "hsl(215 16% 45%)", "tonalRamp": ["#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#f1f5f9", "#f8fafc"] },
+      "surface": { "role": "neutral", "displayName": "Surface White", "canonical": "#ffffff", "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#f1f5f9", "#ffffff"] },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "hsl(214 32% 91%)", "tonalRamp": ["#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#f1f5f9", "#f8fafc"] },
+      "locked-gray": { "role": "neutral", "displayName": "Locked Gray", "canonical": "#9ca3af", "tonalRamp": ["#374151", "#4b5563", "#6b7280", "#9ca3af", "#d1d5db", "#e5e7eb", "#f3f4f6", "#f9fafb"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page and hero titles. Fixed rem (no fluid clamp) since users view at consistent DPI." },
+      "headline": { "displayName": "Headline", "purpose": "Section and card titles (CardTitle, text-2xl tracking-tight)." },
+      "title": { "displayName": "Title", "purpose": "Sub-section headings and list-group labels." },
+      "body": { "displayName": "Body", "purpose": "Prose and lesson content. Cap measure at 65-75ch." },
+      "label": { "displayName": "Label", "purpose": "Badges, chips, short metadata. Uppercase only for <=4-word labels." },
+      "mono": { "displayName": "Code / Data", "purpose": "JetBrains Mono — Kotlin code blocks, Monaco editor, dense tables only." }
+    },
+    "shadows": [
+      { "name": "brand-sm", "value": "0 1px 2px 0 rgba(23,37,84,0.08)", "purpose": "Resting card shadow; barely-there. Navy-tinted, not neutral black." },
+      { "name": "brand-md", "value": "0 4px 12px -2px rgba(23,37,84,0.12), 0 2px 4px -1px rgba(23,37,84,0.06)", "purpose": "Hover/active lift on interactive cards and popovers." },
+      { "name": "brand-lg", "value": "0 20px 40px -12px rgba(23,37,84,0.25)", "purpose": "Modals and the dashboard hero only." }
+    ],
+    "motion": [
+      { "name": "interactive", "value": "150ms ease-out", "purpose": "Default state transitions: hover lift, button press scale(0.98)." },
+      { "name": "fade-in-up", "value": "220ms ease-out", "purpose": "Content entrance: opacity 0->1, translateY(8px)->0." },
+      { "name": "reduced-motion", "value": "transition/animation collapsed to ~0.01ms", "purpose": "Active under prefers-reduced-motion: reduce (wired globally in index.css)." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px", "purpose": "Side nav collapses to a drawer below this." },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px", "purpose": "Audited at 375 / 768 / 1440 in the Tier 3 mobile pass." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single decisive action per view — the next step on the path.",
+      "html": "<button class='ds-btn-primary'>Continuar aprendiendo</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 16px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; font-weight: 500; color: #ffffff; background: #2563eb; border: none; border-radius: 8px; cursor: pointer; transition: background 150ms ease-out, transform 150ms ease-out; } .ds-btn-primary:hover { background: #2160dd; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #2563eb; } .ds-btn-primary:active { transform: scale(0.98); }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "The quiet default for every action that is not the next step.",
+      "html": "<button class='ds-btn-outline'>Ver detalle</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 16px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; font-weight: 500; color: #0f172a; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: background 150ms ease-out, transform 150ms ease-out; } .ds-btn-outline:hover { background: #f1f5f9; } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #2563eb; } .ds-btn-outline:active { transform: scale(0.98); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Flat at rest; lifts on hover when interactive. Navy-tinted shadow, hairline border, no colored side-stripe.",
+      "html": "<div class='ds-card'><h3 class='ds-card-title'>Kotlin: Funciones</h3><p class='ds-card-desc'>Aprende a declarar y usar funciones en Kotlin.</p></div>",
+      "css": ".ds-card { padding: 24px; background: #ffffff; color: #0f172a; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 1px 2px 0 rgba(23,37,84,0.08); transition: transform 150ms ease-out, box-shadow 150ms ease-out; } .ds-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px -2px rgba(23,37,84,0.12), 0 2px 4px -1px rgba(23,37,84,0.06); } .ds-card-title { margin: 0 0 6px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 24px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; } .ds-card-desc { margin: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; color: #64748b; line-height: 1.6; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "44px touch target, hairline border, focus ring + border shift to blue.",
+      "html": "<input class='ds-input' type='text' placeholder='Escribe tu pregunta al tutor...' />",
+      "css": ".ds-input { display: block; width: 100%; height: 44px; padding: 8px 16px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; color: #0f172a; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; transition: border-color 150ms ease-out, box-shadow 150ms ease-out; } .ds-input::placeholder { color: #64748b; } .ds-input:focus-visible { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #2563eb; } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; background: #f1f5f9; }"
+    },
+    {
+      "name": "Level Badge",
+      "kind": "chip",
+      "refersTo": "badge-default",
+      "description": "Fully-pill chip for student level and AI-generated tags. Blue by default; gold only when it marks something earned.",
+      "html": "<span class='ds-badge'>Nivel: intermedio</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 2px 10px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; color: #ffffff; background: #2563eb; border-radius: 9999px; }"
+    },
+    {
+      "name": "Module / Step Card",
+      "kind": "custom",
+      "refersTo": "card-default",
+      "description": "Signature component: the route made visible. State ring (gray locked / blue in-progress / green done), progress bar, gold check when earned. Must reflect real progress.",
+      "html": "<article class='ds-module'><div class='ds-module-top'><span class='ds-module-state ds-module-state--progress'></span><h3 class='ds-module-name'>M2 · Kotlin esencial</h3><span class='ds-module-pct'>60%</span></div><div class='ds-module-track'><span class='ds-module-fill' style='width:60%'></span></div><div class='ds-module-meta'>3 de 5 temas completados</div></article>",
+      "css": ".ds-module { padding: 24px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 1px 2px 0 rgba(23,37,84,0.08); transition: transform 150ms ease-out, box-shadow 150ms ease-out; } .ds-module:hover { transform: translateY(-2px); box-shadow: 0 4px 12px -2px rgba(23,37,84,0.12), 0 2px 4px -1px rgba(23,37,84,0.06); } .ds-module-top { display: flex; align-items: center; gap: 10px; } .ds-module-state { width: 12px; height: 12px; border-radius: 9999px; flex: none; } .ds-module-state--progress { background: #2563eb; } .ds-module-state--locked { background: #9ca3af; } .ds-module-state--done { background: #16a34a; } .ds-module-name { margin: 0; flex: 1; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 18px; font-weight: 600; color: #0f172a; } .ds-module-pct { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 12px; font-weight: 600; color: #2563eb; } .ds-module-track { margin: 14px 0 8px; height: 8px; background: #e2e8f0; border-radius: 9999px; overflow: hidden; } .ds-module-fill { display: block; height: 100%; background: #2563eb; border-radius: 9999px; } .ds-module-meta { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 12px; color: #64748b; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "La Ruta del Aprendiz",
+    "overview": "The interface is a guided climb. A student logs in somewhere on a route — modules are stages, topics are steps, and the system always shows the next foothold rather than the whole mountain. Deep navy is the rock of the route; institutional blue is the path and the current step; heritage gold marks only what the student has earned. The surface underfoot is a calm near-white (or deep navy-black in dark mode) that never competes with content. This is a product surface: design serves the task of learning, with warm institutional confidence — a real institute, thesis-grade, but human and encouraging, never cold and never childish. Progress is a journey with momentum, not a scoreboard of points.",
+    "keyCharacteristics": [
+      "Register: product — the tool disappears into the act of learning.",
+      "Identity: institutional navy + earned heritage gold + Andean red accent, on a clean white / deep-navy surface.",
+      "One typeface (Plus Jakarta Sans) carries everything; JetBrains Mono for code and data only.",
+      "Flat at rest; a navy-tinted lift appears only on interaction.",
+      "Progress reads as a route with milestones — blue = current, green = done, gold = earned.",
+      "WCAG 2.1 AA, full light + dark parity, mobile-first down to 375px."
+    ],
+    "rules": [
+      { "name": "The Earned-Gold Rule", "body": "Heritage gold marks only what the student has earned — achievements, completed milestones, the accent bar. Never decoration or a generic highlight. Its scarcity is the reward.", "section": "colors" },
+      { "name": "The Traffic-Light-Free Rule", "body": "Module/topic state is gray (locked) -> blue (in progress) -> green (completed). Red is never 'not done'; it is destructive + Peru accent only. State also carries an icon + label, never color alone.", "section": "colors" },
+      { "name": "The One-Loud-Color Rule", "body": "Institutional blue is the only saturated color allowed to carry weight on a working screen. Gold and red appear in slivers. If two colors fight for the eye, one is wrong.", "section": "colors" },
+      { "name": "The One-Voice Rule", "body": "Plus Jakarta Sans carries headings, buttons, labels, body, and data. No second display typeface; contrast comes from weight and size. JetBrains Mono is the only exception, for code/data.", "section": "typography" },
+      { "name": "The No-Shout Rule", "body": "No all-caps body copy. Uppercase is for short labels and badges only. The in-app display ceiling is 2.25rem; the page guides, it does not shout.", "section": "typography" },
+      { "name": "The Flat-at-Rest Rule", "body": "Surfaces are flat (hairline + brand-sm) at rest. The brand-md lift appears only on hover/focus as feedback. A page of pre-elevated cards is a smell.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep exactly one primary (institutional-blue) action per view — the next step on the path. Everything else is outline or ghost.",
+      "Do reserve heritage gold (#f59e0b) for earned achievements and milestone markers only.",
+      "Do convey module/topic state with gray -> blue -> green plus an icon and label, never color alone.",
+      "Do keep cards flat at rest (brand-sm) and let them lift (brand-md) on hover via .interactive-card.",
+      "Do hold body text at >=4.5:1 — ink (#0f172a) or muted-ink (#64748b) on white; the same bar for placeholders.",
+      "Do keep one shape vocabulary: buttons rounded-md (8px), cards & inputs rounded-lg (10px), chips & badges rounded-full.",
+      "Do honor prefers-reduced-motion and keep transitions 150-250ms; motion conveys state, not decoration.",
+      "Do make every AI surface degrade gracefully — a fallback (DB quiz bank, coding catalog) must look intentional, never broken."
+    ],
+    "donts": [
+      "Don't build a cluttered Moodle-style LMS: no everything-everywhere navigation, no content buried under nested tabs. One primary job per screen.",
+      "Don't ship generic template-SaaS slop: no hero-metric template, no endless identical icon-heading-text card grids, no gradient text.",
+      "Don't tip 'encouraging' into childish gamification: no cartoon mascots, neon badges, or confetti spam. These are adult technical students.",
+      "Don't use a border-left/border-right greater than 1px as a colored accent stripe. Use a full border, a background tint, or a leading icon.",
+      "Don't put a tiny uppercase tracked eyebrow above every section, or 01/02/03 numbered markers as default scaffolding.",
+      "Don't introduce a second display font, new palette hues, or glassmorphism-by-default. Contrast comes from weight and the existing palette.",
+      "Don't use light gray for body text 'for elegance' — it fails AA.",
+      "Don't use red to mean 'incomplete' — red is destructive + Peru accent only."
+    ]
+  }
+}
