@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { BookOpen, Lock } from 'lucide-react'
+import { BookOpen, Lock, AlertTriangle, RefreshCw } from 'lucide-react'
 import { modulesApi } from '@/api/modules'
 import ModuleCard from '@/components/modules/ModuleCard'
 import { SkeletonCard } from '@/components/common/Skeleton'
 import PageHeader from '@/components/common/PageHeader'
 import EmptyState from '@/components/common/EmptyState'
+import { Button } from '@/components/ui/button'
 
 export default function ModulesPage() {
-  const { data: modules, isLoading } = useQuery({
+  const { data: modules, isLoading, isError, refetch } = useQuery({
     queryKey: ['modules'],
     queryFn: () => modulesApi.list().then((r) => r.data),
   })
@@ -26,6 +27,19 @@ export default function ModulesPage() {
             <SkeletonCard key={i} className="h-48" />
           ))}
         </div>
+      ) : isError ? (
+        <EmptyState
+          icon={AlertTriangle}
+          tone="error"
+          title="No pudimos cargar los módulos"
+          description="Hubo un problema al obtener los módulos. Revisa tu conexión e inténtalo de nuevo."
+          action={
+            <Button onClick={() => refetch()}>
+              <RefreshCw className="w-4 h-4 mr-2" aria-hidden="true" />
+              Reintentar
+            </Button>
+          }
+        />
       ) : !modules || modules.length === 0 ? (
         <EmptyState
           icon={BookOpen}

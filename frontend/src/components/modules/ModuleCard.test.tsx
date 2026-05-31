@@ -41,13 +41,12 @@ describe('<ModuleCard />', () => {
     expect(screen.getByText('50%')).toBeInTheDocument()
   })
 
-  it('exposes button role and navigates on Enter when unlocked', async () => {
+  it('exposes link role and navigates when unlocked', async () => {
     const user = userEvent.setup()
     renderWithRouter(<ModuleCard module={baseModule()} />)
-    const card = screen.getByRole('button', { name: /Fundamentos/ })
-    expect(card).toHaveAttribute('tabindex', '0')
-    card.focus()
-    await user.keyboard('{Enter}')
+    const card = screen.getByRole('link', { name: /Fundamentos/ })
+    expect(card).toHaveAttribute('href', '/modules/1')
+    await user.click(card)
     expect(screen.getByTestId('detail-page')).toBeInTheDocument()
   })
 
@@ -57,8 +56,8 @@ describe('<ModuleCard />', () => {
     )
     const card = screen.getByLabelText(/Bloqueado/)
     expect(card).toHaveAttribute('aria-disabled', 'true')
-    expect(card).toHaveAttribute('tabindex', '-1')
-    // Click should not navigate
+    // Locked card is not a link, so it cannot navigate
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
     fireEvent.click(card)
     expect(screen.queryByTestId('detail-page')).not.toBeInTheDocument()
   })
