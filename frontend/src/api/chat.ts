@@ -19,10 +19,12 @@ export const chatApi = {
   getMessages: (sessionId: string) =>
     apiClient.get<ChatMessage[]>(`/chat/sessions/${sessionId}/messages`),
 
-  sendMessage: (sessionId: string, content: string) =>
-    apiClient.post<ChatMessageResponse>(`/chat/sessions/${sessionId}/message`, {
-      content,
-    }),
+  sendMessage: (sessionId: string, content: string, signal?: AbortSignal) =>
+    apiClient.post<ChatMessageResponse>(
+      `/chat/sessions/${sessionId}/message`,
+      { content },
+      { signal }
+    ),
 
   getRemaining: () =>
     apiClient.get<ChatRemainingResponse>('/chat/remaining'),

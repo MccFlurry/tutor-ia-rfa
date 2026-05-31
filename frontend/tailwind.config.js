@@ -131,9 +131,15 @@ export default {
           '0%':   { opacity: '0', transform: 'translateY(8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        // Smooth typing wave (no bounce/elastic): gentle lift + fade, looped.
+        'typing-dot': {
+          '0%, 100%': { opacity: '0.35', transform: 'translateY(0)' },
+          '50%':      { opacity: '1', transform: 'translateY(-3px)' },
+        },
       },
       animation: {
         'fade-in-up': 'fade-in-up 220ms ease-out',
+        'typing-dot': 'typing-dot 1.2s ease-in-out infinite',
       },
     },
   },

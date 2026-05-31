@@ -1,6 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
 import { chatApi } from '@/api/chat'
 import toast from 'react-hot-toast'
+
+/** Either a bare prompt (FloatingTutor) or a prompt with an abort signal (ChatPage cancel). */
+export type SendMessageVariables = string | { content: string; signal?: AbortSignal }
+
+/** True when an error is an aborted/cancelled request rather than a real failure. */
+function isCanceledError(error: unknown): boolean {
+  return (
+    axios.isCancel(error) ||
+    (error as { code?: string })?.code === 'ERR_CANCELED' ||
+    (error as { name?: string })?.name === 'CanceledError'
+  )
+}
 
 export function useChatSessions() {
   return useQuery({
@@ -49,6 +62,9 @@ export function useDeleteSession() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chat-sessions'] })
     },
+    onError: () => {
+      toast.error('No se pudo eliminar la conversación. Intenta de nuevo.')
+    },
   })
 }
 
@@ -56,9 +72,11 @@ export function useSendMessage(sessionId: string | null) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (content: string) => {
+    mutationFn: async (vars: SendMessageVariables) => {
       if (!sessionId) throw new Error('No session selected')
-      const { data } = await chatApi.sendMessage(sessionId, content)
+      const content = typeof vars === 'string' ? vars : vars.content
+      const signal = typeof vars === 'string' ? undefined : vars.signal
+      const { data } = await chatApi.sendMessage(sessionId, content, signal)
       return data
     },
     onSuccess: () => {
@@ -67,6 +85,9 @@ export function useSendMessage(sessionId: string | null) {
       queryClient.invalidateQueries({ queryKey: ['chat-remaining'] })
     },
     onError: (error: any) => {
+      // User cancelled an in-flight response: not an error, stay quiet.
+      if (isCanceledError(error)) return
+
       const status = error?.response?.status
       const detail = error?.response?.data?.detail
 

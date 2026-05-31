@@ -11,15 +11,15 @@ export default function TypingIndicator() {
           <span className="text-sm text-muted-foreground">Tutor escribiendo</span>
           <div className="flex gap-1">
             <div
-              className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce"
+              className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-typing-dot motion-reduce:animate-none"
               style={{ animationDelay: '0ms' }}
             />
             <div
-              className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce"
+              className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-typing-dot motion-reduce:animate-none"
               style={{ animationDelay: '150ms' }}
             />
             <div
-              className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce"
+              className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-typing-dot motion-reduce:animate-none"
               style={{ animationDelay: '300ms' }}
             />
           </div>

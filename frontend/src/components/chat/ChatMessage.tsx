@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import CodeBlock from '@/components/topics/CodeBlock'
 import ChatSources from './ChatSources'
+import { formatTimeOfDay } from '@/lib/datetime'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
 
 interface ChatMessageProps {
@@ -11,6 +12,7 @@ interface ChatMessageProps {
 
 export default function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === 'user'
+  const time = formatTimeOfDay(message.created_at)
 
   return (
     <div className={`flex items-start gap-3 py-3 ${isUser ? 'flex-row-reverse' : ''}`}>
@@ -38,7 +40,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         {isUser ? (
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
         ) : (
-          <div className="prose prose-sm prose-gray dark:prose-invert max-w-none prose-p:my-1.5 prose-p:leading-relaxed prose-headings:text-foreground prose-code:text-primary-700 dark:prose-code:text-primary-300 prose-code:bg-background/60 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:before:content-none prose-code:after:content-none prose-pre:my-2 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-blockquote:border-primary-400 prose-blockquote:my-2">
+          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1.5 prose-p:leading-relaxed prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-headings:text-foreground prose-code:text-primary-700 dark:prose-code:text-primary-300 prose-code:bg-background/60 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:before:content-none prose-code:after:content-none prose-pre:my-2 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-blockquote:border-primary-400 prose-blockquote:my-2">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
@@ -64,6 +66,16 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         {/* Sources for assistant messages */}
         {!isUser && message.sources && message.sources.length > 0 && (
           <ChatSources sources={message.sources} />
+        )}
+
+        {time && (
+          <div
+            className={`mt-1 text-[11px] ${
+              isUser ? 'text-right text-primary-foreground/70' : 'text-muted-foreground'
+            }`}
+          >
+            {time}
+          </div>
         )}
       </div>
     </div>
