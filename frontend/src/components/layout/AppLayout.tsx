@@ -6,6 +6,7 @@ import Footer from './Footer'
 import ReassessmentModal from '@/components/auth/ReassessmentModal'
 import PageTransition from '@/components/common/PageTransition'
 import { useFocusMain } from '@/hooks/useFocusMain'
+import FloatingTutor from '@/components/tutor/FloatingTutor'
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -27,6 +28,7 @@ export default function AppLayout() {
         <Footer />
       </div>
       <ReassessmentModal />
+      <FloatingTutor />
     </div>
   )
 }
