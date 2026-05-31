@@ -66,6 +66,7 @@
 | **RF-NEW-TUTOR-01** Acompañamiento proactivo del tutor (nudges contextuales) | Pertinencia funcional / Operabilidad | `GET /tutor/nudges` (`routers/tutor.py` + `services/tutor_service.py`) | `backend/tests/unit/test_tutor_service.py`, `backend/tests/integration/test_router_tutor.py` | ✅ |
 | **RF-NEW-TUTOR-02** Asistente flotante del tutor (chat RAG omnipresente) | Operabilidad / Pertinencia funcional | `/chat` (reusado) · `components/tutor/FloatingTutor.tsx` | `frontend/src/components/tutor/FloatingTutor.test.tsx` + cobertura backend `/chat` existente | implementado |
 | **RF-NEW-TUTOR-03** Banco de recursos de aprendizaje curados (videos/libros) | Pertinencia funcional / Operabilidad | `/resources + /admin/resources` · `components/resources/*` | `test_router_resources.py + test_router_admin_resources.py + ResourceCard.test.tsx` | implementado |
+| **RF-NEW-TUTOR-04** Refuerzo del tutor en resultados de evaluación (quiz/coding/entrada) | Pertinencia funcional / Operabilidad | `tutor_service._result_nudges` · montajes en QuizPage/CodingChallengePage/EntryAssessmentPage | `test_tutor_service.py (bandas de resultado)` | implementado |
 
 ---
 
