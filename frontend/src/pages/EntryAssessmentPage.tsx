@@ -11,6 +11,7 @@ import OptionRadio from '@/components/common/OptionRadio'
 import AILoadingState from '@/components/common/AILoadingState'
 import { cn } from '@/lib/utils'
 import BrandLogo from '@/components/brand/BrandLogo'
+import TutorNudgeList from '@/components/tutor/TutorNudgeList'
 import { useAuthStore } from '@/store/authStore'
 import type {
   AssessmentStartResponse,
@@ -156,6 +157,8 @@ export default function EntryAssessmentPage() {
                 {Math.round(result.confidence * 100)}%
               </p>
             </div>
+
+            <TutorNudgeList context="assessment_result" score={result.score} />
 
             <p className="text-foreground leading-relaxed mb-6">{result.feedback}</p>
 

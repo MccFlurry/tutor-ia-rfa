@@ -73,3 +73,41 @@ def test_topic_context_quiz_retry_nudge():
         context="topic", topic_id=8,
     )
     assert any(n.id == "quiz_retry" for n in nudges)
+
+
+# --- Fase 4: contextos de resultado (independientes del snapshot) ---
+from app.services.tutor_service import build_nudges as _bn
+
+
+def test_quiz_result_high_score():
+    n = _bn(None, "quiz_result", topic_id=5, score=90)
+    assert len(n) == 1 and n[0].id == "quiz_result_high" and n[0].tone == "success"
+
+
+def test_quiz_result_pass_band():
+    n = _bn(None, "quiz_result", topic_id=5, score=70)
+    assert n[0].id == "quiz_result_pass"
+    assert n[0].cta_route == "/topics/5"
+
+
+def test_quiz_result_low_score_warns_and_links_topic():
+    n = _bn(None, "quiz_result", topic_id=8, score=40)
+    assert n[0].id == "quiz_result_low" and n[0].tone == "warning"
+    assert n[0].cta_route == "/topics/8"
+
+
+def test_coding_result_bands():
+    assert _bn(None, "coding_result", score=85)[0].id == "coding_result_high"
+    assert _bn(None, "coding_result", score=65)[0].id == "coding_result_mid"
+    assert _bn(None, "coding_result", score=30)[0].id == "coding_result_low"
+
+
+def test_assessment_result_levels_link_modules():
+    beginner = _bn(None, "assessment_result", score=20)[0]
+    assert beginner.id == "assessment_result" and beginner.cta_route == "/modules"
+    assert _bn(None, "assessment_result", score=60)[0].cta_route == "/modules"
+    assert _bn(None, "assessment_result", score=90)[0].cta_route == "/modules"
+
+
+def test_result_context_without_score_is_empty():
+    assert _bn(None, "quiz_result", score=None) == []
