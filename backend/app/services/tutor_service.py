@@ -19,8 +19,8 @@ def build_nudges(
     context: str,
     *,
     topic_id: int | None = None,
-    module_id: int | None = None,
-    score: float | None = None,
+    module_id: int | None = None,  # reservado para reglas por módulo (Fase 4)
+    score: float | None = None,  # usado por quiz_result/coding_result (Fase 4)
 ) -> list[Nudge]:
     """Aplica las reglas deterministas y devuelve los nudges del contexto."""
     nudges: list[Nudge] = []
@@ -47,7 +47,7 @@ def build_nudges(
             ))
 
         # R3 — inactividad
-        if snap.days_inactive is not None and snap.days_inactive >= INACTIVE_DAYS:
+        if snap.overall_pct > 0 and snap.days_inactive is not None and snap.days_inactive >= INACTIVE_DAYS:
             msg = "¡Qué bueno verte de nuevo!"
             cta_label = None
             cta_route = None
@@ -63,7 +63,7 @@ def build_nudges(
             ))
 
         # R4 — módulo casi completo
-        if snap.near_complete_module_title:
+        if snap.near_complete_module_title and snap.near_complete_module_id is not None:
             nudges.append(Nudge(
                 id="near_complete", tone="info", icon="flag",
                 title="¡Estás muy cerca!",

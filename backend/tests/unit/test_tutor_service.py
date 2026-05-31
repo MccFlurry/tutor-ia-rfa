@@ -63,7 +63,7 @@ def test_dashboard_caps_at_three_nudges():
               near_complete_module_id=1, streak_days=7),
         context="dashboard",
     )
-    assert len(nudges) <= 3
+    assert len(nudges) == 3
 
 
 def test_topic_context_quiz_retry_nudge():
