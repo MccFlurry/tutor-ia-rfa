@@ -143,7 +143,26 @@
       "Bash(PYTHONIOENCODING=utf-8 python *)",
       "Bash(git -c core.quotepath=false status --short docs/)",
       "Bash(echo \"exit ls: $?\")",
-      "Bash(git -c core.quotepath=false status --short)"
+      "Bash(git -c core.quotepath=false status --short)",
+      "PowerShell(git *)",
+      "Bash(git -C \"C:/tutor-ia-rfa\" add backend/app/schemas/tutor.py)",
+      "Bash(git -C \"C:/tutor-ia-rfa\" commit -m \"feat\\(tutor\\): agregar schemas Nudge y StudentSnapshot\")",
+      "Bash(head -30 backend/tests/unit/test_progress_service.py)",
+      "Bash(head -30 backend/tests/unit/test_auth_service.py)",
+      "Bash(git -C C:\\\\tutor-ia-rfa add backend/app/services/tutor_service.py backend/tests/unit/test_tutor_service.py)",
+      "Bash(git -C C:\\\\tutor-ia-rfa commit -m \"refactor\\(tutor\\): guard CTA modulo, excluir inactividad en progreso cero, reforzar test cap\")",
+      "Bash(git *)",
+      "PowerShell(npx tsc --noEmit; if \\($?\\) { \"TSC_OK\" })",
+      "PowerShell(.\\\\node_modules\\\\.bin\\\\tsc --noEmit; if \\($?\\) { \"TSC_OK\" })",
+      "PowerShell(npm install *)",
+      "Bash(echo \"---TSC EXIT $?---\")",
+      "Bash(New-Item -ItemType Directory -Path \"C:\\\\tutor-ia-rfa\\\\frontend\\\\src\\\\components\\\\tutor\" -Force)",
+      "Bash(Out-Null)",
+      "Bash(Write-Host \"dir created\")",
+      "PowerShell(npx vitest run src/components/tutor/FloatingTutor.test.tsx)",
+      "Bash(Test-Path *)",
+      "PowerShell(try { \\(Invoke-WebRequest -Uri \"http://localhost:8000/health\" -UseBasicParsing -TimeoutSec 10\\).Content } catch { \"health check failed: $\\($_.Exception.Message\\)\" })",
+      "WebSearch"
     ]
   }
 }
