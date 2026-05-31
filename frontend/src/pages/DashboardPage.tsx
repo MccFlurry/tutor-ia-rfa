@@ -156,6 +156,13 @@ export default function DashboardPage() {
     navigate('/modules')
   }
 
+  // When the hero points at a recommended module (just-completed / no-resume path),
+  // drop that module from the grid below so it isn't shown twice.
+  const heroModuleId = !resumeActive && nextModule ? nextModule.id : undefined
+  const recommendations = heroModuleId
+    ? data.recommended_modules.filter((m) => m.id !== heroModuleId)
+    : data.recommended_modules
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <PageHeader
@@ -274,7 +281,7 @@ export default function DashboardPage() {
       </section>
 
       {/* Recommended modules */}
-      {data.recommended_modules.length > 0 && (
+      {recommendations.length > 0 && (
         <section aria-labelledby="recommended-heading" className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 id="recommended-heading" className="font-semibold text-foreground">
@@ -285,7 +292,7 @@ export default function DashboardPage() {
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.recommended_modules.map((m) => (
+            {recommendations.map((m) => (
               <button
                 key={m.id}
                 onClick={() => navigate(`/modules/${m.id}`)}
