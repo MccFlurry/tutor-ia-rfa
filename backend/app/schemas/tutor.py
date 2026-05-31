@@ -1,11 +1,12 @@
 """schemas/tutor.py — Nudges proactivos del tutor (deterministas, sin LLM)."""
 from dataclasses import dataclass
+from typing import Literal
 from pydantic import BaseModel
 
 
 class Nudge(BaseModel):
     id: str          # id estable de la regla, p.ej. "no_level"
-    tone: str        # info | success | warning | encourage
+    tone: Literal["info", "success", "warning", "encourage"]
     icon: str        # nombre de icono lucide (ej. "compass", "rocket", "flame")
     title: str
     message: str
@@ -29,4 +30,4 @@ class StudentSnapshot:
     days_inactive: int | None
     near_complete_module_title: str | None
     near_complete_module_id: int | None
-    streak_days: int
+    streak_days: int = 0
