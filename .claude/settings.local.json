@@ -137,7 +137,9 @@
       "Bash(Get-ChildItem *)",
       "Bash(grep -E \"\\\\.\\(ts|js|json\\)$\")",
       "Bash(xargs grep -l \"firebase\\\\|Firebase\")",
-      "Bash(unzip -l reporte-OE1-metricas-oficiales.docx)"
+      "Bash(unzip -l reporte-OE1-metricas-oficiales.docx)",
+      "PowerShell(Get-Command *)",
+      "Bash(git restore *)"
     ]
   }
 }
