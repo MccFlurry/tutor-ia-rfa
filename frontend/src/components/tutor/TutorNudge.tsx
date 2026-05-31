@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
-import { Compass, Rocket, Hand, Flag, Flame, Repeat, Sparkles } from 'lucide-react'
+import { Compass, Rocket, Hand, Flag, Flame, Repeat, Sparkles, Trophy, CheckCircle2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { Nudge, NudgeTone } from '@/types/tutor'
 
 const ICONS: Record<string, LucideIcon> = {
   compass: Compass, rocket: Rocket, hand: Hand,
   flag: Flag, flame: Flame, repeat: Repeat,
+  trophy: Trophy, check: CheckCircle2,
 }
 
 // Clases por tono usando tokens semánticos (dark-mode safe)

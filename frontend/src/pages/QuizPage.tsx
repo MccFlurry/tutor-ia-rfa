@@ -8,6 +8,7 @@ import { topicsApi } from '@/api/topics'
 import { Button } from '@/components/ui/button'
 import QuizQuestionComponent from '@/components/quiz/QuizQuestion'
 import QuizResults from '@/components/quiz/QuizResults'
+import TutorNudgeList from '@/components/tutor/TutorNudgeList'
 import PageHeader from '@/components/common/PageHeader'
 import AILoadingState from '@/components/common/AILoadingState'
 import ErrorState from '@/components/common/ErrorState'
@@ -221,11 +222,14 @@ export default function QuizPage() {
       />
 
       {result ? (
-        <QuizResults
-          result={result}
-          onRetry={handleRetry}
-          onBack={() => navigate(`/topics/${tid}`)}
-        />
+        <div className="space-y-6">
+          <TutorNudgeList context="quiz_result" topicId={tid} score={result.score} />
+          <QuizResults
+            result={result}
+            onRetry={handleRetry}
+            onBack={() => navigate(`/topics/${tid}`)}
+          />
+        </div>
       ) : (
         <>
           <div className="space-y-4">

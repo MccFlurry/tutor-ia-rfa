@@ -44,6 +44,7 @@ import { topicsApi } from '@/api/topics'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useThemeStore } from '@/store/themeStore'
 import { handleLevelChange } from '@/lib/levelChange'
+import TutorNudgeList from '@/components/tutor/TutorNudgeList'
 import type { CodingEvaluation } from '@/types/coding'
 
 const difficultyConfig = {
@@ -311,6 +312,7 @@ export default function CodingChallengePage() {
           {/* Evaluation results */}
           {result && (
             <div className="bg-card rounded-xl border border-border p-5 space-y-4">
+              <TutorNudgeList context="coding_result" score={result.score} />
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-primary-500" aria-hidden="true" />
