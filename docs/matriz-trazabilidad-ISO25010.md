@@ -64,6 +64,7 @@
 | **RF-NEW-RPT-03** Reporte comparativo de grupo (2-15 estudiantes) | Pertinencia | `POST /admin/students/cohort/ai-report` | `test_student_report_cohort` (3 tests: filtra inválidos, bounds, cache key estable), `test_router_admin_reports::test_cohort_report_success`, `::test_cohort_report_validates_bounds` | ✅ |
 | **RF-NEW-RPT-04** Exportación de reporte IA a PDF elaborado (portada + encabezado/pie + paginación) | Operabilidad | `html2pdf.js` client-side con plantilla branded | `frontend/src/pages/__tests__/AdminStudentReportPage.test.tsx::test_print_button_invokes_window_print` | ⏳ (frontend Tasks 12-16) |
 | **RF-NEW-TUTOR-01** Acompañamiento proactivo del tutor (nudges contextuales) | Pertinencia funcional / Operabilidad | `GET /tutor/nudges` (`routers/tutor.py` + `services/tutor_service.py`) | `backend/tests/unit/test_tutor_service.py`, `backend/tests/integration/test_router_tutor.py` | ✅ |
+| **RF-NEW-TUTOR-02** Asistente flotante del tutor (chat RAG omnipresente) | Operabilidad / Pertinencia funcional | `/chat` (reusado) · `components/tutor/FloatingTutor.tsx` | `frontend/src/components/tutor/FloatingTutor.test.tsx` + cobertura backend `/chat` existente | implementado |
 
 ---
 
