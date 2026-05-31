@@ -11,6 +11,7 @@ import EmptyState from '@/components/common/EmptyState'
 import { getAchievementIcon } from '@/lib/achievementIcon'
 import { cn } from '@/lib/utils'
 import type { StudentLevel } from '@/types/assessment'
+import TutorNudgeList from '@/components/tutor/TutorNudgeList'
 
 const LEVEL_LABEL: Record<StudentLevel, string> = {
   beginner: 'Principiante',
@@ -101,6 +102,8 @@ export default function DashboardPage() {
         subtitle="Bienvenido al Sistema de Tutoría Inteligente para Aplicaciones Móviles."
         actions={levelChip}
       />
+
+      <TutorNudgeList context="dashboard" />
 
       {/* Hero: continue last topic */}
       {data.last_accessed_topic && !data.last_accessed_topic.is_completed && (

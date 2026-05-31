@@ -206,6 +206,9 @@ Auth: `Authorization: Bearer <access_token>` (excepto `/auth/login`, `/auth/regi
 ### `/dashboard`
 - `GET /` → `{user_name, user_level, overall_progress_pct, total_topics_completed, last_accessed_topic, recommended_modules, recent_achievements}`
 
+### `/tutor` (acompañamiento proactivo — Fase 1)
+- `GET /nudges?context=&topic_id=&module_id=&score=` → `{nudges:[{id,tone,icon,title,message,cta_label,cta_route}]}`. Motor determinista (reglas + plantillas, sin LLM). `context ∈ {dashboard,topic,module,quiz_result,coding_result,assessment_result}`. Caché Redis TTL 30s salvo contextos `*_result`.
+
 ### `/modules`
 - `GET /` → lista con `progress_pct, is_locked, total_topics, completed_topics`
 - `GET /{id}` → Module + temas con `status: not_started|in_progress|completed`
@@ -460,6 +463,7 @@ Detalle completo en `docs/CLAUDE-archive.md`. Resumen:
 - **FASE 6 (S3) ✅ CRISP-DM** Personalización: evaluación entrada IA → nivel ponderado · LLM adapta dificultad · re-asignación dinámica
 - **FASE 7 (S3) ✅** Dashboard + Admin 5 tabs (Corpus RAG, Contenido, Usuarios, Banco Fallback, Niveles) + generador desafíos IA con preview
 - **FASE 7.5 (S3) ✅** Rebrand IESTP RFA + diferenciación admin + desafíos IA per-estudiante (migración 004)
+- **FASE DE ACOMPAÑAMIENTO PROACTIVO (Fase 1) ✅** Motor determinista de nudges (`services/tutor_service.py` + `routers/tutor.py`, endpoint `GET /tutor/nudges`) montado en Dashboard y Topic (`<TutorNudge>`/`<TutorNudgeList>`). Reglas: sin-nivel, progreso-cero, inactividad, módulo casi completo, racha, reintento-quiz. Sin LLM → 100% testeable (suma RF a OE5/ISO). Operacionaliza el modelo de interacción/pedagógico del STI (insumo OE3/OE5); NO crea OE nuevo ni toca OE1/OE2/OE4. Spec/plan en `docs/superpowers/`. Contextos `*_result` + asistente flotante + banco de recursos = fases siguientes.
 - **SPRINT 4 ✅** RAGAS validado (may 2026): juez independiente llama3.1 + rerank cross-encoder + librería ragas oficial. Recuperación precision 0.876/recall 0.812; generación faithfulness 0.706/relevancy 0.707/correctness 0.609 → 5/5 cumplen. Modelo qwen2.5+mxbai sin cambio.
 
 ### Tier 1 + 2 + 3 UI/UX Polish ✅ (12 may 2026, pre-piloto)
