@@ -315,7 +315,7 @@ export default function LoginPage() {
                     aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     aria-pressed={showPassword}
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground rounded-md
-                               inline-flex items-center justify-center min-h-[40px] min-w-[40px]
+                               inline-flex items-center justify-center min-h-[44px] min-w-[44px]
                                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {showPassword ? (
@@ -365,6 +365,12 @@ export default function LoginPage() {
                   : '¿Primera vez? Crea tu cuenta'}
               </button>
             </div>
+
+            {!isRegister && (
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                ¿Olvidaste tu contraseña? Escribe al administrador del instituto.
+              </p>
+            )}
           </div>
 
           <p className="text-center text-muted-foreground text-xs mt-6 lg:hidden">

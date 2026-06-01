@@ -165,6 +165,12 @@ export default function FloatingTutor() {
             )}
           </div>
 
+          <p className="sr-only" aria-live="polite" aria-atomic="true">
+            {!sendMessage.isPending
+              ? [...messages].reverse().find((m) => m.role === 'assistant')?.content ?? ''
+              : ''}
+          </p>
+
           <div className="border-t border-border p-2">
             {rateLimited && (
               <p role="alert" className="text-xs text-warning px-1 pb-2">

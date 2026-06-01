@@ -122,7 +122,7 @@ export default function EntryAssessmentPage() {
   if (isLoadingLevel) {
     return (
       <div className="min-h-dvh flex items-center justify-center bg-gradient-to-br from-institutional-50 via-background to-heritage-50">
-        <div className="text-muted-foreground">Cargando...</div>
+        <div role="status" className="text-muted-foreground">Cargando tu perfil...</div>
       </div>
     )
   }

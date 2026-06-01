@@ -17,7 +17,11 @@ export default function AchievementsPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-4 sm:p-6">
+      <div
+        role="status"
+        aria-label="Cargando logros"
+        className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-4 sm:p-6"
+      >
         {Array.from({ length: 8 }).map((_, i) => (
           <SkeletonCard key={i} className="h-40" />
         ))}
@@ -48,6 +52,16 @@ export default function AchievementsPage() {
             </Link>
           }
         />
+        {total > 0 && (
+          <div className="mt-10">
+            <h2 className="font-semibold text-foreground mb-4">Por desbloquear</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {achievements?.map((a) => (
+                <AchievementCard key={a.id} achievement={a} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     )
   }

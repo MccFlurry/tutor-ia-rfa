@@ -39,7 +39,7 @@ export default function ProgressPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto space-y-6 p-4 sm:p-6">
+      <div role="status" aria-label="Cargando progreso" className="max-w-5xl mx-auto space-y-6 p-4 sm:p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} variant="card" className="h-24" />
@@ -178,8 +178,8 @@ export default function ProgressPage() {
         </h2>
         {activity && activity.length > 0 ? (
           <div className="space-y-3">
-            {activity.map((item, i) => (
-              <div key={i} className="flex items-start gap-3">
+            {activity.map((item) => (
+              <div key={`${item.timestamp}-${item.type}`} className="flex items-start gap-3">
                 <span className="mt-0.5 shrink-0">
                   {item.type === 'topic_completed' && (
                     <>
