@@ -35,9 +35,9 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
           <span className="text-xs font-semibold uppercase tracking-wider text-heritage-600 dark:text-heritage-400">
             IESTP RFA · Chiclayo
           </span>
-          <h1 className="text-base font-bold text-institutional-700 dark:text-institutional-100">
+          <p className="text-base font-bold text-institutional-700 dark:text-institutional-100">
             Sistema de Tutoría Inteligente
-          </h1>
+          </p>
         </div>
       </div>
 

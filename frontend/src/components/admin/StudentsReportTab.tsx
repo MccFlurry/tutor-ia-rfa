@@ -109,7 +109,11 @@ export default function StudentsReportTab() {
 
       <div className="bg-card border border-border rounded-xl overflow-x-auto">
         {isLoading ? (
-          <div className="p-8 text-center text-muted-foreground">Cargando estudiantes…</div>
+          <div className="p-6 space-y-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-10 bg-muted animate-pulse rounded" />
+            ))}
+          </div>
         ) : filtered.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">
             No hay estudiantes que coincidan con los filtros.

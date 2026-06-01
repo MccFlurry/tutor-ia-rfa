@@ -31,7 +31,7 @@ export default function ResourceCard({ resource }: { resource: LearningResource 
       <div className="flex-1 min-w-0">
         <p className="font-medium text-foreground flex items-center gap-1">
           <span className="truncate">{resource.title}</span>
-          <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100" aria-hidden="true" />
+          <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden="true" />
         </p>
         <p className="text-xs text-muted-foreground">
           {KIND_LABEL[resource.kind]}

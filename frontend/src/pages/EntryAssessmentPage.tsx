@@ -173,7 +173,7 @@ export default function EntryAssessmentPage() {
                       {m.correct}/{m.total} · {m.percentage.toFixed(0)}%
                     </span>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="h-2 bg-muted rounded-full overflow-hidden" aria-hidden="true">
                     <div
                       className="h-full bg-primary-500 transition-all"
                       style={{ width: `${m.percentage}%` }}

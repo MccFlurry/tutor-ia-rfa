@@ -30,7 +30,7 @@ export default function CodeBlock({ language, children }: CodeBlockProps) {
           type="button"
           onClick={handleCopy}
           aria-label={copied ? 'Código copiado' : 'Copiar código'}
-          className="text-gray-400 hover:text-white transition text-xs flex items-center gap-1 min-h-[36px] px-2 py-1"
+          className="text-gray-400 hover:text-white transition text-xs flex items-center gap-1 min-h-[44px] px-3"
         >
           {copied ? (
             <>

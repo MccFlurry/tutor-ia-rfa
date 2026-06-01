@@ -7,15 +7,21 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import ConfirmDialog from '@/components/common/ConfirmDialog'
 
-interface PromoteDlg {
+interface RoleDlg {
   open: boolean
   userId: string | null
   userName: string
+  newRole: string
 }
 
 export default function UsersTab() {
   const queryClient = useQueryClient()
-  const [promoteDlg, setPromoteDlg] = useState<PromoteDlg>({ open: false, userId: null, userName: '' })
+  const [roleDlg, setRoleDlg] = useState<RoleDlg>({
+    open: false,
+    userId: null,
+    userName: '',
+    newRole: '',
+  })
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['admin', 'users'],
@@ -31,23 +37,20 @@ export default function UsersTab() {
     onError: (e: any) => toast.error(e?.response?.data?.detail || 'Error'),
   })
 
+  // Any role change (both directions) goes through a confirmation.
   const handleRoleChange = (userId: string, userName: string, newRole: string) => {
-    if (newRole === 'admin') {
-      // Show confirm before granting admin
-      setPromoteDlg({ open: true, userId, userName })
-    } else {
-      // Demoting back to student is immediate
-      update.mutate({ id: userId, data: { role: 'student' } })
-    }
+    setRoleDlg({ open: true, userId, userName, newRole })
   }
 
-  const handleConfirmPromote = () => {
-    if (!promoteDlg.userId) return
+  const handleConfirmRole = () => {
+    if (!roleDlg.userId) return
     update.mutate(
-      { id: promoteDlg.userId, data: { role: 'admin' } },
-      { onSettled: () => setPromoteDlg({ open: false, userId: null, userName: '' }) }
+      { id: roleDlg.userId, data: { role: roleDlg.newRole } },
+      { onSettled: () => setRoleDlg({ open: false, userId: null, userName: '', newRole: '' }) }
     )
   }
+
+  const promoting = roleDlg.newRole === 'admin'
 
   return (
     <div>
@@ -65,12 +68,12 @@ export default function UsersTab() {
           <table className="w-full text-sm min-w-[640px]">
             <thead className="bg-muted text-muted-foreground text-xs uppercase">
               <tr>
-                <th className="px-4 py-3 text-left">Nombre</th>
-                <th className="px-4 py-3 text-left">Email</th>
-                <th className="px-4 py-3 text-left">Rol</th>
-                <th className="px-4 py-3 text-left">Nivel</th>
-                <th className="px-4 py-3 text-left">Estado</th>
-                <th className="px-4 py-3"></th>
+                <th scope="col" className="px-4 py-3 text-left">Nombre</th>
+                <th scope="col" className="px-4 py-3 text-left">Email</th>
+                <th scope="col" className="px-4 py-3 text-left">Rol</th>
+                <th scope="col" className="px-4 py-3 text-left">Nivel</th>
+                <th scope="col" className="px-4 py-3 text-left">Estado</th>
+                <th scope="col" className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody>
@@ -125,14 +128,22 @@ export default function UsersTab() {
       </div>
 
       <ConfirmDialog
-        open={promoteDlg.open}
-        onOpenChange={(o) => setPromoteDlg((s) => ({ ...s, open: o }))}
-        title={`¿Promover a "${promoteDlg.userName}" como administrador?`}
-        description="Este usuario tendrá acceso completo al panel de administración: corpus RAG, contenido, usuarios, banco de preguntas y niveles."
-        confirmLabel="Sí, promover"
-        destructive={false}
+        open={roleDlg.open}
+        onOpenChange={(o) => setRoleDlg((s) => ({ ...s, open: o }))}
+        title={
+          promoting
+            ? `¿Promover a "${roleDlg.userName}" como administrador?`
+            : `¿Quitar el rol de administrador a "${roleDlg.userName}"?`
+        }
+        description={
+          promoting
+            ? 'Este usuario tendrá acceso completo al panel de administración: corpus RAG, contenido, usuarios, banco de preguntas y niveles.'
+            : 'Volverá a ser estudiante y perderá el acceso al panel de administración.'
+        }
+        confirmLabel={promoting ? 'Sí, promover' : 'Sí, quitar acceso'}
+        destructive={!promoting}
         pending={update.isPending}
-        onConfirm={handleConfirmPromote}
+        onConfirm={handleConfirmRole}
       />
     </div>
   )

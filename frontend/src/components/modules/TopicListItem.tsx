@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { CheckCircle2, Circle, Clock, FileQuestion, Code2, ChevronRight } from 'lucide-react'
+import { CheckCircle2, Circle, CircleDot, Clock, FileQuestion, Code2, ChevronRight } from 'lucide-react'
 import type { TopicBrief } from '@/types/module'
 
 interface TopicListItemProps {
@@ -18,7 +18,7 @@ function getStatusIcon(status: string) {
     case 'in_progress':
       return (
         <>
-          <Circle className="w-5 h-5 text-info motion-safe:animate-pulse" aria-hidden="true" />
+          <CircleDot className="w-5 h-5 text-info motion-safe:animate-pulse" aria-hidden="true" />
           <span className="sr-only">En progreso</span>
         </>
       )

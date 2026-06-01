@@ -44,8 +44,10 @@ export default function StatCard({
   liveValue,
   className,
 }: StatCardProps) {
+  const labelId = React.useId()
   return (
     <article
+      aria-labelledby={labelId}
       className={cn(
         'bg-card rounded-xl border border-border shadow-brand-sm p-5',
         className
@@ -63,7 +65,10 @@ export default function StatCard({
             <Icon className="w-5 h-5" />
           </div>
         )}
-        <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+        <p
+          id={labelId}
+          className="text-xs text-muted-foreground uppercase tracking-wider font-semibold"
+        >
           {label}
         </p>
       </div>

@@ -69,13 +69,14 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         )}
 
         {time && (
-          <div
-            className={`mt-1 text-[11px] ${
+          <time
+            dateTime={message.created_at}
+            className={`mt-1 block text-[11px] ${
               isUser ? 'text-right text-primary-foreground/70' : 'text-muted-foreground'
             }`}
           >
             {time}
-          </div>
+          </time>
         )}
       </div>
     </div>

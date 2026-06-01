@@ -19,7 +19,7 @@ export default function AchievementCard({ achievement }: AchievementCardProps) {
         'rounded-xl border p-4 text-center transition',
         earned
           ? 'bg-card border-[color:var(--badge-color)]/30 shadow-brand-sm'
-          : 'bg-muted/50 border-border opacity-60 grayscale'
+          : 'bg-muted/50 border-border'
       )}
     >
       <div

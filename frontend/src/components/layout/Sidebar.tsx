@@ -67,22 +67,39 @@ interface SidebarProps {
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const user = useAuthStore((s) => s.user)
   const links = user?.role === 'admin' ? [...studentLinks, ...adminLinks] : studentLinks
-  const firstLinkRef = useRef<HTMLElement | null>(null)
+  const asideRef = useRef<HTMLElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
 
-  // Mobile drawer: lock body scroll, handle Escape, move focus in.
+  // Mobile drawer: lock body scroll, handle Escape, trap focus, move focus in.
   // These effects only matter when open===true, which is only toggled on mobile.
   useEffect(() => {
     if (!open) return
-    // Lock scroll
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    // Escape key
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      // Trap Tab focus within the drawer while it is the modal surface.
+      if (e.key === 'Tab' && asideRef.current) {
+        const focusables = asideRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusables.length === 0) return
+        const first = focusables[0]
+        const last = focusables[focusables.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
     }
     document.addEventListener('keydown', onKey)
-    // Focus close button (always present and labelled) when drawer opens
+    // Move focus to the labelled close button when the drawer opens.
     closeButtonRef.current?.focus()
     return () => {
       document.body.style.overflow = prev
@@ -102,7 +119,10 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       )}
 
       <aside
+        ref={asideRef}
         aria-label="Navegación principal"
+        role={open ? 'dialog' : undefined}
+        aria-modal={open ? true : undefined}
         className={`fixed top-0 left-0 z-50 h-dvh w-64 bg-card border-r border-border flex flex-col
                     transform transition-transform duration-200 lg:translate-x-0 lg:sticky lg:top-0 lg:z-0
                     ${open ? 'translate-x-0' : '-translate-x-full'}`}
@@ -129,13 +149,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         {/* Nav links */}
-        <nav
-          className="flex-1 px-3 py-4 space-y-1 overflow-y-auto"
-          ref={(el) => {
-            // Capture first focusable link for potential programmatic focus if needed
-            firstLinkRef.current = el?.querySelector('a') ?? null
-          }}
-        >
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Plataforma
           </p>
