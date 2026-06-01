@@ -23,6 +23,7 @@ from app.schemas.quiz import (
 from app.services.llm_service import generate_quiz_questions, QuizGenerationError
 from app.services.topic_completion_service import check_and_complete_topic
 from app.services.leveling_service import get_user_level, auto_apply_reassessment
+from app.services.module_service import assert_module_unlocked, assert_topic_unlocked
 from app.utils.logger import logger
 
 router = APIRouter(prefix="/quiz", tags=["quiz"])
@@ -101,6 +102,9 @@ async def get_quiz(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tema no encontrado")
     if not topic.has_quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Este tema no tiene autoevaluación")
+
+    # Sequential-unlock gate: don't generate/persist a quiz for a locked module.
+    await assert_module_unlocked(topic.module_id, current_user.id, db)
 
     # 1. Reuse the active session if one exists (persists across logout / navigation)
     existing = await _get_active_session(db, current_user.id, topic_id)
@@ -181,6 +185,10 @@ async def submit_quiz(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="session_id inválido",
         )
+
+    # Sequential-unlock gate: passing a quiz completes the topic, which feeds the
+    # unlock rule — refuse so a locked module can't be unlocked by the back door.
+    await assert_topic_unlocked(topic_id, current_user.id, db)
 
     result = await db.execute(
         select(AIQuizSession).where(

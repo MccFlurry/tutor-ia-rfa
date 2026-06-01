@@ -86,7 +86,10 @@ async def test_get_module_returns_topics(client, mock_db):
         topic_id=10, is_completed=True, first_visited_at="x"
     )
     mock_db.execute.side_effect = [
-        result_scalar_one_or_none(m1),  # module
+        result_scalar_one_or_none(m1),   # module fetch
+        result_scalars_all([m1]),        # lock check: modules ordered
+        result_rows([(1, 2)]),           # lock check: totals per module
+        result_rows([(1, 1)]),           # lock check: done per module (M1 first → unlocked)
         result_scalars_all([t1, t2]),    # topics
         result_scalars_all([progress]),  # progress map
         result_rows([(10, 1)]),          # coding_map for t1
@@ -95,7 +98,27 @@ async def test_get_module_returns_topics(client, mock_db):
     assert r.status_code == 200
     body = r.json()
     assert body["id"] == 1
+    assert body["is_locked"] is False
     assert len(body["topics"]) == 2
     statuses = {t["id"]: t["status"] for t in body["topics"]}
     assert statuses[10] == "completed"
     assert statuses[11] == "not_started"
+
+
+@pytest.mark.asyncio
+async def test_get_module_locked_withholds_topics(client, mock_db):
+    """Un módulo bloqueado no expone sus temas y se marca is_locked=True."""
+    m1 = _make_module(1, "M1", 1)
+    m2 = _make_module(2, "M2", 2)
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(m2),    # module fetch (M2)
+        result_scalars_all([m1, m2]),     # lock check: modules ordered
+        result_rows([(1, 4), (2, 4)]),    # totals: M1=4, M2=4
+        result_rows([(1, 2)]),            # done: M1=2 (50%, incompleto) → M2 bloqueado
+    ]
+    r = await client.get("/api/v1/modules/2")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["id"] == 2
+    assert body["is_locked"] is True
+    assert body["topics"] == []

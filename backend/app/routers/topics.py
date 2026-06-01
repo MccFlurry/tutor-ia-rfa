@@ -20,6 +20,7 @@ from app.schemas.topic import (
     TopicTimeRequest,
     TopicTimeResponse,
 )
+from app.services.module_service import assert_module_unlocked
 
 router = APIRouter(prefix="/topics", tags=["topics"])
 
@@ -62,6 +63,7 @@ async def get_topic(
 ):
     """Get full topic content with module info and user progress."""
     topic = await _get_topic_or_404(topic_id, db)
+    await assert_module_unlocked(topic.module_id, current_user.id, db)
 
     # Get module info
     module_result = await db.execute(
@@ -136,7 +138,8 @@ async def complete_topic(
     db: AsyncSession = Depends(get_db),
 ):
     """Mark a topic as completed manually (for topics without quiz)."""
-    await _get_topic_or_404(topic_id, db)
+    topic = await _get_topic_or_404(topic_id, db)
+    await assert_module_unlocked(topic.module_id, current_user.id, db)
     now = datetime.now(timezone.utc)
 
     progress = await _get_or_create_progress(current_user.id, topic_id, db)

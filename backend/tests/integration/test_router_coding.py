@@ -10,13 +10,34 @@ from tests.integration.conftest import (
     result_scalar,
     result_scalar_one_or_none,
     result_scalars_all,
+    result_rows,
 )
 
 
-def _challenge(id_=1, title="Reto Kotlin", language="kotlin"):
+# --- lock-gate query sequences (see app/services/module_service.get_module_locks) ---
+
+def _unlocked_locks_seq(module_id=1):
+    """3 queries where the module is the first → always unlocked."""
+    return [
+        result_scalars_all([SimpleNamespace(id=module_id)]),  # modules ordered
+        result_rows([(module_id, 4)]),                        # totals
+        result_rows([]),                                      # done
+    ]
+
+
+def _locked_module_seq():
+    """3 queries where M2 is locked because M1 (4 topics) is only 50% done."""
+    return [
+        result_scalars_all([SimpleNamespace(id=1), SimpleNamespace(id=2)]),  # modules
+        result_rows([(1, 4), (2, 4)]),  # totals
+        result_rows([(1, 2)]),          # done: M1 50% → M2 locked
+    ]
+
+
+def _challenge(id_=1, title="Reto Kotlin", language="kotlin", topic_id=1):
     return SimpleNamespace(
         id=id_,
-        topic_id=1,
+        topic_id=topic_id,
         title=title,
         description="Implementa X",
         initial_code="fun main() {}",
@@ -30,9 +51,9 @@ def _challenge(id_=1, title="Reto Kotlin", language="kotlin"):
     )
 
 
-def _topic(content="contenido"):
+def _topic(content="contenido", module_id=1):
     return SimpleNamespace(
-        id=1, title="T", module_id=1, order_index=1,
+        id=1, title="T", module_id=module_id, order_index=1,
         estimated_minutes=30, has_quiz=True, is_active=True,
         content=content, video_url=None,
     )
@@ -51,6 +72,7 @@ async def test_get_topic_returns_or_generates(client, mock_db):
     ch = _challenge()
     mock_db.execute.side_effect = [
         result_scalar_one_or_none(t),  # topic
+        *_unlocked_locks_seq(),        # lock gate (unlocked)
         result_scalar(1),              # has_fallback
     ]
     with patch("app.routers.coding.get_user_level", new=AsyncMock(return_value="intermediate")), \
@@ -68,6 +90,7 @@ async def test_get_topic_503_when_generator_runtime_error(client, mock_db):
     t = _topic()
     mock_db.execute.side_effect = [
         result_scalar_one_or_none(t),
+        *_unlocked_locks_seq(),        # lock gate (unlocked)
         result_scalar(1),
     ]
     with patch("app.routers.coding.get_user_level", new=AsyncMock(return_value="intermediate")), \
@@ -82,6 +105,7 @@ async def test_get_topic_404_when_no_content_no_fallback(client, mock_db):
     t = _topic(content=None)
     mock_db.execute.side_effect = [
         result_scalar_one_or_none(t),
+        *_unlocked_locks_seq(),        # lock gate (unlocked)
         result_scalar(0),  # no fallback
     ]
     r = await client.get("/api/v1/coding/topic/1")
@@ -92,7 +116,10 @@ async def test_get_topic_404_when_no_content_no_fallback(client, mock_db):
 async def test_regenerate_smoke(client, mock_db):
     t = _topic()
     ch = _challenge(id_=99, title="Nuevo reto")
-    mock_db.execute.return_value = result_scalar_one_or_none(t)
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(t),  # topic
+        *_unlocked_locks_seq(),        # lock gate (unlocked)
+    ]
     with patch("app.routers.coding.get_user_level", new=AsyncMock(return_value="advanced")), \
          patch("app.routers.coding.regenerate_for_student", new=AsyncMock(return_value=ch)):
         r = await client.post("/api/v1/coding/topic/1/regenerate")
@@ -112,7 +139,11 @@ async def test_get_challenge_by_id(client, mock_db):
 @pytest.mark.asyncio
 async def test_submit_code_grades_and_caches(client, mock_db):
     ch = _challenge()
-    mock_db.execute.return_value = result_scalar_one_or_none(ch)
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(ch),  # challenge lookup
+        result_scalar_one_or_none(1),   # assert_topic_unlocked: topic→module_id
+        *_unlocked_locks_seq(),         # lock gate (unlocked)
+    ]
     evaluation = {
         "score": 82.5,
         "feedback": "Bien",
@@ -148,7 +179,11 @@ async def test_submit_code_grades_and_caches(client, mock_db):
 async def test_submit_code_returns_level_change(client, mock_db):
     """Coding submit propagates level_change payload when auto-apply fires."""
     ch = _challenge()
-    mock_db.execute.return_value = result_scalar_one_or_none(ch)
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(ch),  # challenge lookup
+        result_scalar_one_or_none(1),   # assert_topic_unlocked: topic→module_id
+        *_unlocked_locks_seq(),         # lock gate (unlocked)
+    ]
     evaluation = {
         "score": 92.0,
         "feedback": "Excelente",
@@ -181,7 +216,11 @@ async def test_submit_code_returns_level_change(client, mock_db):
 @pytest.mark.asyncio
 async def test_submit_code_503_on_llm_failure(client, mock_db):
     ch = _challenge()
-    mock_db.execute.return_value = result_scalar_one_or_none(ch)
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(ch),  # challenge lookup
+        result_scalar_one_or_none(1),   # assert_topic_unlocked: topic→module_id
+        *_unlocked_locks_seq(),         # lock gate (unlocked)
+    ]
     with patch("app.routers.coding.get_user_level", new=AsyncMock(return_value="beginner")), \
          patch("app.routers.coding.evaluate_code", new=AsyncMock(side_effect=RuntimeError("boom"))):
         r = await client.post(
@@ -189,6 +228,46 @@ async def test_submit_code_503_on_llm_failure(client, mock_db):
             json={"code": "fun x(){}"},
         )
     assert r.status_code == 503
+
+
+@pytest.mark.asyncio
+async def test_get_topic_challenge_forbidden_when_module_locked(client, mock_db):
+    """No se genera desafío para un tema de módulo bloqueado (403)."""
+    t = _topic(module_id=2)
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(t),  # topic lookup
+        *_locked_module_seq(),         # lock gate → M2 locked
+    ]
+    r = await client.get("/api/v1/coding/topic/1")
+    assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_regenerate_forbidden_when_module_locked(client, mock_db):
+    """No se regenera desafío para un tema de módulo bloqueado (403)."""
+    t = _topic(module_id=2)
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(t),  # topic lookup
+        *_locked_module_seq(),         # lock gate → M2 locked
+    ]
+    r = await client.post("/api/v1/coding/topic/1/regenerate")
+    assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_submit_code_forbidden_when_module_locked(client, mock_db):
+    """No se puede enviar código de un módulo bloqueado → cierra el atajo de desbloqueo (403)."""
+    ch = _challenge(topic_id=2)
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(ch),  # challenge lookup
+        result_scalar_one_or_none(2),   # assert_topic_unlocked: topic→module_id
+        *_locked_module_seq(),          # lock gate → M2 locked
+    ]
+    r = await client.post(
+        "/api/v1/coding/challenge/1/submit",
+        json={"code": "fun main() {}"},
+    )
+    assert r.status_code == 403
 
 
 @pytest.mark.asyncio

@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Lock } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { modulesApi } from '@/api/modules'
 import { Progress } from '@/components/ui/progress'
@@ -44,6 +44,40 @@ export default function ModuleDetailPage() {
   }
 
   const Icon = getIcon(module.icon_name)
+
+  // Locked module: the backend withholds the topics. Explain why instead of
+  // exposing an enterable (but empty) content list — no dead-ends.
+  if (module.is_locked) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6">
+        <nav className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mb-6">
+          <Link to="/modules" className="hover:text-primary-600 dark:hover:text-primary-400 transition">
+            Módulos
+          </Link>
+          <ChevronRight className="w-4 h-4 shrink-0" />
+          <span className="text-foreground font-medium break-words">{module.title}</span>
+        </nav>
+
+        <div className="bg-card rounded-xl border border-border p-6 sm:p-8 text-center">
+          <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-7 h-7 text-muted-foreground" aria-hidden="true" />
+          </div>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-foreground mb-2 break-words">
+            {module.title}
+          </h1>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
+            Completa el módulo anterior para desbloquear este contenido.
+          </p>
+          <Link
+            to="/modules"
+            className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            Volver a módulos
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6">

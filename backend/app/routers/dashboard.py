@@ -19,6 +19,7 @@ from app.schemas.dashboard import (
     RecommendedModule,
     RecentAchievement,
 )
+from app.services.module_service import compute_locks
 from app.utils.cache import cached_json
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -106,26 +107,23 @@ async def _compute_dashboard(
             is_completed=prog.is_completed,
         )
 
-    # 4. Recommended modules — next 3 in progress / not started, ordered
+    # 4. Recommended modules — next unlocked, not-yet-complete modules (max 3).
+    # Gather per-module progress IN ORDER, then apply the shared sequential-unlock
+    # rule. A locked module must never be recommended (it isn't enterable yet).
     mods_q = await db.execute(
         select(Module).where(Module.is_active == True).order_by(Module.order_index)
     )
     modules = list(mods_q.scalars().all())
 
-    recommended: list[RecommendedModule] = []
-    reason_text = LEVEL_REASON.get(level_str or "beginner", "Sigue avanzando")
-
+    mod_stats: list[tuple[Module, int, float]] = []  # (module, total, pct)
+    pairs: list[tuple[int, int]] = []
     for module in modules:
-        if len(recommended) >= 3:
-            break
         total_mod_q = await db.execute(
             select(func.count(Topic.id)).where(
                 Topic.module_id == module.id, Topic.is_active == True
             )
         )
         total_mod = total_mod_q.scalar() or 0
-        if total_mod == 0:
-            continue
 
         done_mod_q = await db.execute(
             select(func.count(UserTopicProgress.id))
@@ -139,9 +137,19 @@ async def _compute_dashboard(
         )
         done_mod = done_mod_q.scalar() or 0
         pct = round(done_mod / total_mod * 100, 1) if total_mod > 0 else 0.0
+        mod_stats.append((module, total_mod, pct))
+        pairs.append((total_mod, done_mod))
 
-        # Recommend only if not 100% completed
-        if pct >= 100:
+    locks = compute_locks(pairs)
+
+    recommended: list[RecommendedModule] = []
+    reason_text = LEVEL_REASON.get(level_str or "beginner", "Sigue avanzando")
+
+    for (module, total_mod, pct), is_locked in zip(mod_stats, locks):
+        if len(recommended) >= 3:
+            break
+        # Skip empty, locked, or already-finished modules.
+        if total_mod == 0 or is_locked or pct >= 100:
             continue
 
         recommended.append(RecommendedModule(
