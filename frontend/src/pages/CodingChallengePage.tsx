@@ -44,13 +44,14 @@ import { topicsApi } from '@/api/topics'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useThemeStore } from '@/store/themeStore'
 import { handleLevelChange } from '@/lib/levelChange'
+import { loadCodeDraft, saveCodeDraft } from '@/lib/codingPersistence'
 import TutorNudgeList from '@/components/tutor/TutorNudgeList'
 import type { CodingEvaluation } from '@/types/coding'
 
 const difficultyConfig = {
   easy:   { label: 'Fácil',      color: 'bg-success/15 text-success' },
   medium: { label: 'Intermedio', color: 'bg-warning/15 text-warning-foreground dark:text-warning' },
-  hard:   { label: 'Difícil',    color: 'bg-destructive/15 text-destructive' },
+  hard:   { label: 'Difícil',    color: 'bg-foreground/10 text-foreground dark:bg-foreground/15' },
 }
 
 export default function CodingChallengePage() {
@@ -63,12 +64,14 @@ export default function CodingChallengePage() {
   const [showHints, setShowHints] = useState(false)
   const [result, setResult] = useState<CodingEvaluation | null>(null)
   const [regenerateDialogOpen, setRegenerateDialogOpen] = useState(false)
+  const [resetDialogOpen, setResetDialogOpen] = useState(false)
+  const resultRef = useRef<HTMLDivElement>(null)
   const isLgUp = useMediaQuery('(min-width: 1024px)')
   const editorHeight = isLgUp ? '480px' : '320px'
   const isDark = useThemeStore((s) => s.isDark)
   const handleSubmitRef = useRef<() => void>(() => {})
 
-  const { data: challenge, isLoading, isError } = useQuery({
+  const { data: challenge, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['coding-challenge', cid],
     queryFn: async () => {
       const { data } = await codingApi.getChallenge(cid)
@@ -85,7 +88,8 @@ export default function CodingChallengePage() {
 
   useEffect(() => {
     if (challenge) {
-      setCode(challenge.initial_code || '')
+      // Rehydrate a saved draft for this challenge; fall back to the starter code.
+      setCode(loadCodeDraft(challenge.id) ?? challenge.initial_code ?? '')
       setResult(null)
     }
   }, [challenge?.id])
@@ -112,6 +116,7 @@ export default function CodingChallengePage() {
         toast.success('¡Buen intento! Revisa las sugerencias.')
       }
       handleLevelChange(data.level_change, queryClient)
+      queryClient.invalidateQueries({ queryKey: ['coding-best', cid] })
     },
     onError: (err: any) => {
       const detail = err?.response?.data?.detail
@@ -156,10 +161,21 @@ export default function CodingChallengePage() {
     handleSubmitRef.current = handleSubmit
   })
 
-  const handleRetry = () => {
+  const handleReset = () => {
+    const init = challenge?.initial_code || ''
     setResult(null)
-    setCode(challenge?.initial_code || '')
+    setCode(init)
+    if (challenge) saveCodeDraft(challenge.id, init)
+    setResetDialogOpen(false)
   }
+
+  // Bring the AI evaluation into view after submit (on mobile it renders above the editor).
+  useEffect(() => {
+    if (result && resultRef.current) {
+      resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      resultRef.current.focus({ preventScroll: true })
+    }
+  }, [result])
 
   const diff = challenge ? difficultyConfig[challenge.difficulty as keyof typeof difficultyConfig] : null
 
@@ -179,16 +195,25 @@ export default function CodingChallengePage() {
   }
 
   if (isError || !challenge) {
+    const status = (error as any)?.response?.status
+    const notFound = status === 404
     return (
       <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
         <ErrorState
-          variant="notFound"
-          title="Desafío no encontrado"
-          description="No pudimos cargar este desafío. Vuelve y selecciona otro."
+          variant={notFound ? 'notFound' : 'generic'}
+          title={notFound ? 'Desafío no encontrado' : 'No pudimos cargar el desafío'}
+          description={
+            notFound
+              ? 'Este desafío no existe o fue movido. Vuelve y selecciona otro.'
+              : 'Hubo un problema al cargar el desafío. Revisa tu conexión e inténtalo de nuevo.'
+          }
           action={
-            <Button variant="outline" onClick={() => navigate(-1)}>
-              Volver
-            </Button>
+            <>
+              <Button variant="outline" onClick={() => navigate('/modules')}>
+                Volver a módulos
+              </Button>
+              {!notFound && <Button onClick={() => refetch()}>Reintentar</Button>}
+            </>
           }
         />
       </div>
@@ -311,7 +336,11 @@ export default function CodingChallengePage() {
 
           {/* Evaluation results */}
           {result && (
-            <div className="bg-card rounded-xl border border-border p-5 space-y-4">
+            <div
+              ref={resultRef}
+              tabIndex={-1}
+              className="bg-card rounded-xl border border-border p-5 space-y-4 scroll-mt-24 focus:outline-none"
+            >
               <TutorNudgeList context="coding_result" score={result.score} />
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -321,7 +350,7 @@ export default function CodingChallengePage() {
                 <div
                   className={`text-2xl font-bold tabular-nums ${
                     result.score >= 80 ? 'text-success' :
-                    result.score >= 60 ? 'text-warning' : 'text-destructive'
+                    result.score >= 60 ? 'text-warning-foreground dark:text-warning' : 'text-destructive'
                   }`}
                 >
                   {result.score}/100
@@ -389,7 +418,11 @@ export default function CodingChallengePage() {
             <Suspense fallback={<EditorFallback />}>
               <Editor
                 value={code}
-                onChange={(value) => setCode(value ?? '')}
+                onChange={(value) => {
+                  const v = value ?? ''
+                  setCode(v)
+                  if (challenge) saveCodeDraft(challenge.id, v)
+                }}
                 language={challenge.language?.toLowerCase() === 'kotlin' ? 'kotlin' : 'plaintext'}
                 theme={isDark ? 'vs-dark' : 'light'}
                 height={editorHeight}
@@ -423,9 +456,9 @@ export default function CodingChallengePage() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {result ? (
               <>
-                <Button onClick={handleRetry} variant="outline" className="flex-1 gap-2 min-h-[44px]">
+                <Button onClick={() => setResetDialogOpen(true)} variant="outline" className="flex-1 gap-2 min-h-[44px]">
                   <RotateCcw className="w-4 h-4" />
-                  Intentar de nuevo
+                  Reiniciar a la plantilla
                 </Button>
                 <Button onClick={handleSubmit} disabled={submitMutation.isPending} className="flex-1 gap-2 min-h-[44px]">
                   <Play className="w-4 h-4" />
@@ -486,6 +519,27 @@ export default function CodingChallengePage() {
                   Regenerar
                 </>
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reset-to-template confirmation — discarding the student's code is deliberate */}
+      <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>¿Reiniciar a la plantilla?</DialogTitle>
+            <DialogDescription>
+              Se descartará el código que escribiste y volverás a la plantilla inicial.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancelar</Button>
+            </DialogClose>
+            <Button onClick={handleReset} className="gap-2">
+              <RotateCcw className="w-4 h-4" />
+              Reiniciar
             </Button>
           </DialogFooter>
         </DialogContent>
