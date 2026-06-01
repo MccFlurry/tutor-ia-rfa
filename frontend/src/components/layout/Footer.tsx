@@ -1,4 +1,12 @@
+import { useLocation } from 'react-router-dom'
+
+const DENSE_ROUTE_PREFIXES = ['/chat', '/coding']
+
 export default function Footer() {
+  const { pathname } = useLocation()
+  const isDenseRoute = DENSE_ROUTE_PREFIXES.some((prefix) => pathname.startsWith(prefix))
+  if (isDenseRoute) return null
+
   const year = new Date().getFullYear()
   return (
     <footer

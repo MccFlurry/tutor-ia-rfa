@@ -17,7 +17,7 @@ describe('<ThemeToggle />', () => {
   it('renders an accessible toggle button', () => {
     render(<ThemeToggle />)
     expect(
-      screen.getByRole('button', { name: /tema claro/i })
+      screen.getByRole('button', { name: /actual: claro/i })
     ).toBeInTheDocument()
   })
 

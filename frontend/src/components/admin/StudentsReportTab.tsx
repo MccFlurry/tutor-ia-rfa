@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Users2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronUp, Users2 } from 'lucide-react'
 
 import { adminReportsApi } from '@/api/adminReports'
 import type { StudentRow } from '@/types/adminReports'
@@ -118,61 +118,93 @@ export default function StudentsReportTab() {
           <table className="w-full text-sm min-w-[860px]">
             <thead className="bg-muted text-muted-foreground text-xs uppercase">
               <tr>
-                {COLUMNS.map((c) => (
-                  <th key={c.key} className="px-4 py-3 text-left">
-                    <button
-                      type="button"
-                      onClick={() => toggleSort(c.key)}
-                      className="font-semibold uppercase tracking-wide hover:text-foreground"
+                {COLUMNS.map((c) => {
+                  const isActive = sortKey === c.key
+                  const ariaSort = isActive
+                    ? sortDir === 1
+                      ? ('ascending' as const)
+                      : ('descending' as const)
+                    : ('none' as const)
+                  return (
+                    <th
+                      key={c.key}
+                      scope="col"
+                      aria-sort={ariaSort}
+                      className="px-4 py-3 text-left"
                     >
-                      {c.label}
-                      {sortKey === c.key ? (sortDir === 1 ? ' ▲' : ' ▼') : ''}
-                    </button>
-                  </th>
-                ))}
+                      <button
+                        type="button"
+                        onClick={() => toggleSort(c.key)}
+                        className="inline-flex items-center gap-1 font-semibold uppercase tracking-wide hover:text-foreground"
+                      >
+                        {c.label}
+                        {isActive ? (
+                          sortDir === 1 ? (
+                            <ChevronUp aria-hidden="true" className="w-3 h-3 shrink-0" />
+                          ) : (
+                            <ChevronDown aria-hidden="true" className="w-3 h-3 shrink-0" />
+                          )
+                        ) : null}
+                      </button>
+                    </th>
+                  )
+                })}
+                {/* trailing header for the chevron affordance column */}
+                <th scope="col" className="px-4 py-3 w-8" aria-hidden="true" />
               </tr>
             </thead>
             <tbody>
-              {filtered.map((r) => (
-                <tr
-                  key={r.user_id}
-                  onClick={() => navigate(`/admin/students/${r.user_id}`)}
-                  className={cn(
-                    'border-t border-border cursor-pointer hover:bg-muted/50',
-                    !r.is_active && 'opacity-60'
-                  )}
-                >
-                  <td className="px-4 py-3 font-medium text-foreground">{r.full_name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{r.email}</td>
-                  <td className="px-4 py-3">{r.level ?? '—'}</td>
-                  <td className="px-4 py-3">{r.overall_progress_pct.toFixed(0)}%</td>
-                  <td className="px-4 py-3">
-                    {r.avg_quiz_score !== null
-                      ? (r.avg_quiz_score * 100).toFixed(0) + '%'
-                      : '—'}
-                  </td>
-                  <td className="px-4 py-3">
-                    {r.avg_coding_score !== null
-                      ? r.avg_coding_score.toFixed(0)
-                      : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">
-                    {r.last_activity_at
-                      ? new Date(r.last_activity_at).toLocaleString('es-PE')
-                      : 'sin actividad'}
-                  </td>
-                </tr>
-              ))}
+              {filtered.map((r) => {
+                const dest = `/admin/students/${r.user_id}`
+                return (
+                  <tr
+                    key={r.user_id}
+                    onClick={() => navigate(dest)}
+                    className={cn(
+                      'border-t border-border cursor-pointer hover:bg-muted/50 focus-within:bg-muted/50',
+                      !r.is_active && 'opacity-60'
+                    )}
+                  >
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          navigate(dest)
+                        }}
+                        className="font-medium text-foreground text-left hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        aria-label={`Ver detalle de ${r.full_name}`}
+                      >
+                        {r.full_name}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{r.email}</td>
+                    <td className="px-4 py-3">{r.level ?? '—'}</td>
+                    <td className="px-4 py-3">{r.overall_progress_pct.toFixed(0)}%</td>
+                    <td className="px-4 py-3">
+                      {r.avg_quiz_score !== null ? (r.avg_quiz_score * 100).toFixed(0) + '%' : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      {r.avg_coding_score !== null ? r.avg_coding_score.toFixed(0) : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">
+                      {r.last_activity_at
+                        ? new Date(r.last_activity_at).toLocaleString('es-PE')
+                        : 'sin actividad'}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground" aria-hidden="true">
+                      <ChevronRight className="w-4 h-4" />
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         )}
       </div>
 
       {cohortOpen && (
-        <CohortReportModal
-          students={filtered}
-          onClose={() => setCohortOpen(false)}
-        />
+        <CohortReportModal students={filtered} onClose={() => setCohortOpen(false)} />
       )}
     </div>
   )

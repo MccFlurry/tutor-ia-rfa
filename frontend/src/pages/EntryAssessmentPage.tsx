@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Sparkles, ChevronLeft, ChevronRight, CheckCircle2, AlertTriangle, TrendingUp } from 'lucide-react'
+import { Sparkles, ChevronLeft, ChevronRight, CheckCircle2, AlertTriangle, TrendingUp, BookOpen } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { assessmentApi } from '@/api/assessment'
 import { usersApi } from '@/api/users'
@@ -299,6 +299,13 @@ export default function EntryAssessmentPage() {
           </div>
         </div>
 
+        {session.source === 'bank' && (
+          <div className="mb-4 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-muted/60 border border-border text-xs text-muted-foreground w-fit">
+            <BookOpen className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+            <span>Banco de preguntas del docente</span>
+          </div>
+        )}
+
         <div className="bg-card rounded-2xl shadow-brand-sm border border-border p-5 sm:p-8">
           <div className="flex gap-2 mb-4 flex-wrap">
             <span className="text-xs px-2 py-1 rounded bg-muted text-foreground font-medium">
@@ -364,11 +371,12 @@ export default function EntryAssessmentPage() {
           )}
         </div>
 
-        <p className="text-center text-xs text-muted-foreground mt-4 flex items-center gap-1 justify-center">
-          <Sparkles className="w-3 h-3" aria-hidden="true" />
-          Preguntas generadas por IA —{' '}
-          {session.source === 'ai' ? 'generadas en vivo' : 'banco de respaldo'}
-        </p>
+        {session.source === 'ai' && (
+          <p className="text-center text-xs text-muted-foreground mt-4 flex items-center gap-1 justify-center">
+            <Sparkles className="w-3 h-3" aria-hidden="true" />
+            Preguntas generadas por IA en vivo
+          </p>
+        )}
       </div>
     </div>
   )

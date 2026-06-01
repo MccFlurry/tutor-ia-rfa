@@ -152,7 +152,12 @@ export default function AdminStudentReportPage() {
                 </span>
                 <span className="font-medium">{h.level}</span>
                 <span className="text-muted-foreground">({h.score.toFixed(0)} pts)</span>
-                {h.reason && <span className="text-xs text-muted-foreground">— {h.reason}</span>}
+                {h.reason && (
+                  <span className="text-xs text-muted-foreground flex items-center">
+                    <span className="text-muted-foreground mx-1.5" aria-hidden="true">·</span>
+                    {h.reason}
+                  </span>
+                )}
               </li>
             ))}
           </ol>
@@ -233,7 +238,7 @@ function RecentList({
       ) : (
         <ul className="text-sm space-y-2">
           {items.map((it) => (
-            <li key={it.id} className="flex items-center justify-between border-b border-border pb-1">
+            <li key={it.id} className="flex items-center justify-between border-b border-border pb-1 last:border-b-0">
               <span className="truncate mr-2">{it.label}</span>
               <span className="font-semibold">{it.score}</span>
             </li>

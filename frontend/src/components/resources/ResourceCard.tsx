@@ -1,12 +1,12 @@
-import { Youtube, BookOpen, FileText, ExternalLink } from 'lucide-react'
+import { Youtube, BookOpen, FileText, Newspaper, Globe, ExternalLink } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { LearningResource, ResourceKind } from '@/types/resource'
 
 const KIND_ICON: Record<ResourceKind, LucideIcon> = {
   video: Youtube,
   book: BookOpen,
-  article: FileText,
-  doc: FileText,
+  article: Newspaper,
+  doc: Globe,
 }
 
 const KIND_LABEL: Record<ResourceKind, string> = {

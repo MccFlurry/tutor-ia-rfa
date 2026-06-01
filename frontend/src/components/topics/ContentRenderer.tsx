@@ -20,8 +20,10 @@ export default function ContentRenderer({ content }: ContentRendererProps) {
           h1: ({ children, ...props }) => <h2 {...props}>{children}</h2>,
           h2: ({ children, ...props }) => <h3 {...props}>{children}</h3>,
           h3: ({ children, ...props }) => <h4 {...props}>{children}</h4>,
-          h4: ({ children, ...props }) => <h5 {...props}>{children}</h5>,
-          h5: ({ children, ...props }) => <h6 {...props}>{children}</h6>,
+          // Cap deepest rendered heading at h4 — h5/h6 are near-invisible in
+          // most prose scales and carry weak semantic weight.
+          h4: ({ children, ...props }) => <h4 {...props}>{children}</h4>,
+          h5: ({ children, ...props }) => <h4 {...props}>{children}</h4>,
           code({ className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '')
             const codeString = String(children).replace(/\n$/, '')

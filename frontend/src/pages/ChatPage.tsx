@@ -83,8 +83,11 @@ export default function ChatPage() {
     : sessions
 
   useEffect(() => {
+    // Single-fire per message count change only. Excluding isPending prevents
+    // the double-jump where the optimistic bubble fires one scroll and then the
+    // isPending flag change fires a second before the server reply lands.
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages.length, sendMessage.isPending])
+  }, [messages.length])
 
   // Auto-resize textarea
   useEffect(() => {

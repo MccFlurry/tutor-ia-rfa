@@ -5,6 +5,13 @@ import toast from 'react-hot-toast'
 import { adminReportsApi } from '@/api/adminReports'
 import type { StudentRow, CohortAIReport } from '@/types/adminReports'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
 
 interface Props {
   students: StudentRow[]
@@ -17,9 +24,7 @@ export default function CohortReportModal({ students, onClose }: Props) {
 
   const mutation = useMutation({
     mutationFn: () =>
-      adminReportsApi
-        .generateCohortReport(Array.from(selected))
-        .then((r) => r.data),
+      adminReportsApi.generateCohortReport(Array.from(selected)).then((r) => r.data),
     onSuccess: (data) => setReport(data),
     onError: (e: any) =>
       toast.error(e?.response?.data?.detail || 'No se pudo generar el reporte'),
@@ -38,28 +43,12 @@ export default function CohortReportModal({ students, onClose }: Props) {
   const canGenerate = selected.size >= 2 && selected.size <= 15 && !mutation.isPending
 
   return (
-    <div
-      role="dialog"
-      aria-label="Reporte de grupo IA"
-      className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"
-    >
-      <div className="bg-card border border-border rounded-xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-bold text-foreground">Reporte de grupo IA</h2>
-            <p className="text-sm text-muted-foreground">
-              Selecciona entre 2 y 15 estudiantes.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-sm text-muted-foreground hover:text-foreground"
-            aria-label="Cerrar"
-          >
-            Cerrar
-          </button>
-        </div>
+    <Dialog open={true} onOpenChange={(o) => { if (!o) onClose() }}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Reporte de grupo IA</DialogTitle>
+          <DialogDescription>Selecciona entre 2 y 15 estudiantes.</DialogDescription>
+        </DialogHeader>
 
         {!report && (
           <>
@@ -81,16 +70,11 @@ export default function CohortReportModal({ students, onClose }: Props) {
               ))}
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={onClose} disabled={mutation.isPending}>
+              <Button variant="ghost" size="sm" onClick={onClose} disabled={mutation.isPending}>
                 Cancelar
               </Button>
-              <Button
-                onClick={() => mutation.mutate()}
-                disabled={!canGenerate}
-              >
-                {mutation.isPending
-                  ? 'La IA está analizando…'
-                  : 'Generar reporte'}
+              <Button onClick={() => mutation.mutate()} disabled={!canGenerate}>
+                {mutation.isPending ? 'La IA está analizando…' : 'Generar reporte'}
               </Button>
             </div>
           </>
@@ -118,14 +102,14 @@ export default function CohortReportModal({ students, onClose }: Props) {
             <ul>{report.recommendations.map((r) => <li key={r}>{r}</li>)}</ul>
 
             <div className="flex justify-end mt-4 gap-2">
-              <Button variant="ghost" onClick={() => setReport(null)}>
+              <Button variant="ghost" size="sm" onClick={() => setReport(null)}>
                 Nueva selección
               </Button>
-              <Button onClick={onClose}>Cerrar</Button>
+              <Button size="sm" onClick={onClose}>Cerrar</Button>
             </div>
           </article>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
