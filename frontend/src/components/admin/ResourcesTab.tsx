@@ -1,16 +1,23 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Trash2, Power, ExternalLink } from 'lucide-react'
+import { Plus, Trash2, Power, ExternalLink, CheckCircle2, MinusCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { adminApi } from '@/api/admin'
 import type { LearningResource, ResourceKind } from '@/types/resource'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import FormDialog from '@/components/admin/FormDialog'
+import ConfirmDialog from '@/components/common/ConfirmDialog'
 
 const KINDS: ResourceKind[] = ['video', 'book', 'article', 'doc']
+
+interface DeleteDlgState { open: boolean; id: number | null; label: string }
 
 export default function ResourcesTab() {
   const queryClient = useQueryClient()
   const [moduleFilter, setModuleFilter] = useState<number | undefined>(undefined)
+  const [createDlg, setCreateDlg] = useState(false)
+  const [deleteDlg, setDeleteDlg] = useState<DeleteDlgState>({ open: false, id: null, label: '' })
 
   const { data: modules } = useQuery({
     queryKey: ['admin', 'modules'],
@@ -28,7 +35,7 @@ export default function ResourcesTab() {
 
   const createItem = useMutation({
     mutationFn: adminApi.createResource,
-    onSuccess: () => { toast.success('Recurso agregado'); invalidate() },
+    onSuccess: () => { toast.success('Recurso agregado'); invalidate(); setCreateDlg(false) },
     onError: () => toast.error('Error al crear'),
   })
 
@@ -41,24 +48,56 @@ export default function ResourcesTab() {
 
   const deleteItem = useMutation({
     mutationFn: adminApi.deleteResource,
-    onSuccess: () => { toast.success('Eliminado'); invalidate() },
+    onSuccess: () => { toast.success('Eliminado'); invalidate(); setDeleteDlg({ open: false, id: null, label: '' }) },
     onError: () => toast.error('Error al eliminar'),
   })
 
-  const handleCreate = () => {
-    const kind = prompt('Tipo (video/book/article/doc):', 'video') as ResourceKind
-    if (!KINDS.includes(kind)) return toast.error('Tipo inválido')
-    const title = prompt('Título:')
-    if (!title) return
-    const url = prompt('URL (verifica que sea correcta):')
-    if (!url) return
-    const moduleStr = prompt(
-      'module_id (opcional, vacío = general):',
-      moduleFilter ? String(moduleFilter) : ''
-    )
-    const module_id = moduleStr ? Number(moduleStr) : undefined
-    const author = prompt('Autor (opcional):') || undefined
-    createItem.mutate({ kind, title, url, module_id, author })
+  const moduleOptions = (modules ?? []).map((m) => ({
+    value: String(m.id),
+    label: `${m.order_index}. ${m.title}`,
+  }))
+
+  const createFields = [
+    {
+      name: 'kind',
+      label: 'Tipo de recurso',
+      type: 'select' as const,
+      required: true,
+      defaultValue: 'video',
+      options: KINDS.map((k) => ({ value: k, label: k.charAt(0).toUpperCase() + k.slice(1) })),
+    },
+    { name: 'title', label: 'Título', type: 'text' as const, required: true },
+    {
+      name: 'url',
+      label: 'URL',
+      type: 'text' as const,
+      required: true,
+      placeholder: 'https://...',
+      helpText: 'Verifica que la URL sea correcta antes de guardar. El sistema no genera enlaces automáticamente.',
+    },
+    {
+      name: 'module_id',
+      label: 'Módulo (opcional)',
+      type: 'select' as const,
+      defaultValue: moduleOptions[0]?.value ?? '',
+      options: [
+        { value: '', label: '— General (sin módulo) —' },
+        ...moduleOptions,
+      ],
+    },
+    { name: 'author', label: 'Autor (opcional)', type: 'text' as const, placeholder: 'Nombre del autor o institución' },
+  ]
+
+  const handleCreate = (values: Record<string, string>) => {
+    const kind = values.kind as ResourceKind
+    const module_id = values.module_id ? Number(values.module_id) : undefined
+    createItem.mutate({
+      kind,
+      title: values.title,
+      url: values.url,
+      module_id,
+      author: values.author || undefined,
+    })
   }
 
   return (
@@ -76,7 +115,7 @@ export default function ResourcesTab() {
             </option>
           ))}
         </select>
-        <Button onClick={handleCreate}>
+        <Button onClick={() => setCreateDlg(true)}>
           <Plus className="w-4 h-4 mr-1" />
           Nuevo recurso
         </Button>
@@ -88,7 +127,11 @@ export default function ResourcesTab() {
 
       <div className="bg-card border border-border rounded-xl overflow-x-auto">
         {isLoading ? (
-          <div className="p-8 text-center text-muted-foreground">Cargando...</div>
+          <div className="p-6 space-y-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-10 bg-muted animate-pulse rounded" />
+            ))}
+          </div>
         ) : !items || items.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">
             Sin recursos. Agrega videos o libros para reforzar el aprendizaje.
@@ -123,7 +166,17 @@ export default function ResourcesTab() {
                     </a>
                   </td>
                   <td className="px-4 py-3 text-xs">
-                    <span className={item.is_active ? 'text-success' : 'text-muted-foreground'}>
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1',
+                        item.is_active ? 'text-success' : 'text-muted-foreground'
+                      )}
+                    >
+                      {item.is_active ? (
+                        <CheckCircle2 className="w-3 h-3 shrink-0" aria-hidden="true" />
+                      ) : (
+                        <MinusCircle className="w-3 h-3 shrink-0" aria-hidden="true" />
+                      )}
                       {item.is_active ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
@@ -132,6 +185,7 @@ export default function ResourcesTab() {
                       <Button
                         size="sm"
                         variant="ghost"
+                        aria-label={item.is_active ? 'Desactivar recurso' : 'Activar recurso'}
                         onClick={() =>
                           updateItem.mutate({ id: item.id, data: { is_active: !item.is_active } })
                         }
@@ -141,9 +195,8 @@ export default function ResourcesTab() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => {
-                          if (confirm('¿Eliminar?')) deleteItem.mutate(item.id)
-                        }}
+                        aria-label={`Eliminar recurso "${item.title}"`}
+                        onClick={() => setDeleteDlg({ open: true, id: item.id, label: item.title })}
                       >
                         <Trash2 className="w-3 h-3 text-destructive" />
                       </Button>
@@ -155,6 +208,28 @@ export default function ResourcesTab() {
           </table>
         )}
       </div>
+
+      {/* Create dialog */}
+      <FormDialog
+        open={createDlg}
+        onOpenChange={setCreateDlg}
+        title="Nuevo recurso de aprendizaje"
+        fields={createFields}
+        pending={createItem.isPending}
+        onSubmit={handleCreate}
+      />
+
+      {/* Delete confirm */}
+      <ConfirmDialog
+        open={deleteDlg.open}
+        onOpenChange={(o) => setDeleteDlg((s) => ({ ...s, open: o }))}
+        title={`¿Eliminar "${deleteDlg.label}"?`}
+        description="El recurso dejará de aparecer en el curso."
+        confirmLabel="Eliminar"
+        destructive
+        pending={deleteItem.isPending}
+        onConfirm={() => { if (deleteDlg.id !== null) deleteItem.mutate(deleteDlg.id) }}
+      />
     </div>
   )
 }

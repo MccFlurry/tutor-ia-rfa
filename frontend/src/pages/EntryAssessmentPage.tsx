@@ -28,7 +28,7 @@ const LEVEL_LABEL: Record<StudentLevel, string> = {
 const LEVEL_COLOR: Record<StudentLevel, string> = {
   beginner:     'bg-muted text-foreground border-border',
   intermediate: 'bg-primary-50 text-primary-800 border-primary-200 dark:bg-primary/15 dark:text-primary-200 dark:border-primary-700',
-  advanced:     'bg-heritage-50 text-heritage-700 border-heritage-200 dark:bg-heritage-700/20 dark:text-heritage-200 dark:border-heritage-700',
+  advanced:     'bg-success/10 text-success border-success/30',
 }
 
 const DIFFICULTY_LABEL: Record<string, string> = {
@@ -153,8 +153,7 @@ export default function EntryAssessmentPage() {
                 Tu nivel: {LEVEL_LABEL[result.level]}
               </div>
               <p className="text-sm text-muted-foreground mt-3 tabular-nums">
-                Puntaje: {result.score.toFixed(1)} / 100 · Confianza:{' '}
-                {Math.round(result.confidence * 100)}%
+                Puntaje: {result.score.toFixed(1)} / 100
               </p>
             </div>
 
@@ -162,7 +161,7 @@ export default function EntryAssessmentPage() {
 
             <p className="text-foreground leading-relaxed mb-6">{result.feedback}</p>
 
-            <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">
+            <h2 className="text-sm font-semibold text-muted-foreground mb-3">
               Desempeño por módulo
             </h2>
             <div className="space-y-3 mb-8">
@@ -287,9 +286,11 @@ export default function EntryAssessmentPage() {
           <div
             className="h-2 bg-muted rounded-full overflow-hidden"
             role="progressbar"
+            aria-label="Progreso de la evaluación"
             aria-valuenow={currentIdx + 1}
             aria-valuemin={1}
             aria-valuemax={total}
+            aria-valuetext={`Pregunta ${currentIdx + 1} de ${total}`}
           >
             <div
               className="h-full bg-primary-500 transition-all"

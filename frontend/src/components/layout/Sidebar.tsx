@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { NavLink, useMatch } from 'react-router-dom'
 import {
   LayoutDashboard,
   BookOpen,
@@ -25,6 +26,39 @@ const adminLinks = [
   { to: '/admin', icon: Settings, label: 'Administración' },
 ]
 
+/** Single nav item — uses useMatch so aria-current can be set imperatively. */
+function NavItem({
+  to,
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  to: string
+  icon: React.ElementType
+  label: string
+  onClick: () => void
+}) {
+  const match = useMatch({ path: to, end: to === '/dashboard' })
+  const isActive = Boolean(match)
+  return (
+    <NavLink
+      to={to}
+      onClick={onClick}
+      aria-current={isActive ? 'page' : undefined}
+      className={({ isActive: navActive }) =>
+        `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
+          navActive
+            ? 'bg-primary-50 text-primary-800 dark:bg-primary/15 dark:text-primary-200 shadow-brand-sm'
+            : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground'
+        }`
+      }
+    >
+      <Icon className="w-5 h-5 shrink-0" aria-hidden="true" />
+      <span>{label}</span>
+    </NavLink>
+  )
+}
+
 interface SidebarProps {
   open: boolean
   onClose: () => void
@@ -33,6 +67,28 @@ interface SidebarProps {
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const user = useAuthStore((s) => s.user)
   const links = user?.role === 'admin' ? [...studentLinks, ...adminLinks] : studentLinks
+  const firstLinkRef = useRef<HTMLElement | null>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+
+  // Mobile drawer: lock body scroll, handle Escape, move focus in.
+  // These effects only matter when open===true, which is only toggled on mobile.
+  useEffect(() => {
+    if (!open) return
+    // Lock scroll
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    // Escape key
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    // Focus close button (always present and labelled) when drawer opens
+    closeButtonRef.current?.focus()
+    return () => {
+      document.body.style.overflow = prev
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open, onClose])
 
   return (
     <>
@@ -57,6 +113,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <div className="flex items-center justify-between">
               <BrandLogo variant="stacked" />
               <button
+                ref={closeButtonRef}
                 type="button"
                 onClick={onClose}
                 aria-label="Cerrar menú"
@@ -72,26 +129,24 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         {/* Nav links */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav
+          className="flex-1 px-3 py-4 space-y-1 overflow-y-auto"
+          ref={(el) => {
+            // Capture first focusable link for potential programmatic focus if needed
+            firstLinkRef.current = el?.querySelector('a') ?? null
+          }}
+        >
           <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Plataforma
           </p>
           {links.map((link) => (
-            <NavLink
+            <NavItem
               key={link.to}
               to={link.to}
+              icon={link.icon}
+              label={link.label}
               onClick={onClose}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
-                  isActive
-                    ? 'bg-primary-50 text-primary-800 dark:bg-primary/15 dark:text-primary-200 shadow-brand-sm'
-                    : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground'
-                }`
-              }
-            >
-              <link.icon className="w-5 h-5 shrink-0" aria-hidden="true" />
-              <span>{link.label}</span>
-            </NavLink>
+            />
           ))}
         </nav>
 

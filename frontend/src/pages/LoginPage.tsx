@@ -144,7 +144,7 @@ export default function LoginPage() {
         aria-hidden="true"
       >
         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary-500/20 blur-3xl" />
-        <div className="absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-heritage-500/10 blur-3xl" />
+        <div className="absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-500/10 blur-3xl" />
 
         <div className="relative">
           <BrandLogo variant="stacked" onDark size={64} />
@@ -162,15 +162,15 @@ export default function LoginPage() {
 
           <ul className="mt-8 space-y-3 text-sm">
             <li className="flex items-center gap-3">
-              <GraduationCap className="w-5 h-5 text-heritage-400 shrink-0" />
-              <span>5 módulos · 22 temas · 7 desafíos de programación</span>
+              <GraduationCap className="w-5 h-5 text-primary-300 shrink-0" />
+              <span>5 módulos · 22 temas · 45 desafíos de programación</span>
             </li>
             <li className="flex items-center gap-3">
-              <Sparkles className="w-5 h-5 text-heritage-400 shrink-0" />
+              <Sparkles className="w-5 h-5 text-primary-300 shrink-0" />
               <span>IA generativa adaptada a tu nivel</span>
             </li>
             <li className="flex items-center gap-3">
-              <ShieldCheck className="w-5 h-5 text-heritage-400 shrink-0" />
+              <ShieldCheck className="w-5 h-5 text-primary-300 shrink-0" />
               <span>100% privado — datos institucionales protegidos</span>
             </li>
           </ul>
@@ -190,7 +190,7 @@ export default function LoginPage() {
 
           <div className="bg-card rounded-2xl shadow-brand-lg border border-border p-5 sm:p-8 animate-fade-in-up">
             <header className="mb-6">
-              <span className="chip bg-heritage-100 text-heritage-700 dark:bg-heritage-700/20 dark:text-heritage-200 mb-3">
+              <span className="chip bg-primary-100 text-primary-700 dark:bg-primary/20 dark:text-primary-200 mb-3">
                 {isRegister ? 'Nuevo estudiante' : 'Portal del estudiante'}
               </span>
               <h1 className="text-2xl font-extrabold text-institutional-700 dark:text-institutional-100">

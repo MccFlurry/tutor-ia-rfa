@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { CheckCircle2, Circle, Clock, FileQuestion, Code2 } from 'lucide-react'
+import { CheckCircle2, Circle, Clock, FileQuestion, Code2, ChevronRight } from 'lucide-react'
 import type { TopicBrief } from '@/types/module'
 
 interface TopicListItemProps {
@@ -9,11 +9,26 @@ interface TopicListItemProps {
 function getStatusIcon(status: string) {
   switch (status) {
     case 'completed':
-      return <CheckCircle2 className="w-5 h-5 text-success" />
+      return (
+        <>
+          <CheckCircle2 className="w-5 h-5 text-success" aria-hidden="true" />
+          <span className="sr-only">Completado</span>
+        </>
+      )
     case 'in_progress':
-      return <Circle className="w-5 h-5 text-info animate-pulse" />
+      return (
+        <>
+          <Circle className="w-5 h-5 text-info motion-safe:animate-pulse" aria-hidden="true" />
+          <span className="sr-only">En progreso</span>
+        </>
+      )
     default:
-      return <Circle className="w-5 h-5 text-muted-foreground" />
+      return (
+        <>
+          <Circle className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
+          <span className="sr-only">No iniciado</span>
+        </>
+      )
   }
 }
 
@@ -23,7 +38,7 @@ export default function TopicListItem({ topic }: TopicListItemProps) {
   return (
     <button
       onClick={() => navigate(`/topics/${topic.id}`)}
-      className="w-full min-h-[44px] flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-lg hover:bg-surface-hover transition text-left"
+      className="w-full min-h-[44px] flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-lg hover:bg-surface-hover transition-colors text-left"
     >
       {getStatusIcon(topic.status)}
 
@@ -49,7 +64,7 @@ export default function TopicListItem({ topic }: TopicListItemProps) {
         </div>
       </div>
 
-      <span className="text-muted-foreground text-sm">&rsaquo;</span>
+      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" aria-hidden="true" />
     </button>
   )
 }

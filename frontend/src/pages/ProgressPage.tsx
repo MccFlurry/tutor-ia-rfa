@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { BarChart3, Clock, BookOpen, Trophy, Activity, TrendingUp } from 'lucide-react'
+import { BarChart3, Clock, BookOpen, Trophy, Activity, TrendingUp, CheckCircle2, FileQuestion, HelpCircle } from 'lucide-react'
 import { progressApi } from '@/api/progress'
 import { achievementsApi } from '@/api/achievements'
 import { Progress } from '@/components/ui/progress'
@@ -110,7 +110,7 @@ export default function ProgressPage() {
               : '—'
           }
           icon={Trophy}
-          accent="heritage"
+          accent="info"
         />
         <StatCard
           label="Tiempo total"
@@ -142,7 +142,7 @@ export default function ProgressPage() {
                   {mod.completed}/{mod.total} — {Math.round(mod.pct)}%
                 </span>
               </div>
-              <Progress value={mod.pct} className="h-2.5" />
+              <Progress value={mod.pct} className="h-2.5" aria-label={mod.title} />
             </div>
           ))}
         </div>
@@ -180,16 +180,32 @@ export default function ProgressPage() {
           <div className="space-y-3">
             {activity.map((item, i) => (
               <div key={i} className="flex items-start gap-3">
-                <div
-                  className={`w-2 h-2 rounded-full mt-2 shrink-0 ${
-                    item.type === 'topic_completed'
-                      ? 'bg-success'
-                      : item.type === 'quiz_passed'
-                        ? 'bg-info'
-                        : 'bg-destructive'
-                  }`}
-                  aria-hidden="true"
-                />
+                <span className="mt-0.5 shrink-0">
+                  {item.type === 'topic_completed' && (
+                    <>
+                      <CheckCircle2 className="w-[14px] h-[14px] text-success" aria-hidden="true" />
+                      <span className="sr-only">Tema completado</span>
+                    </>
+                  )}
+                  {item.type === 'quiz_passed' && (
+                    <>
+                      <FileQuestion className="w-[14px] h-[14px] text-info" aria-hidden="true" />
+                      <span className="sr-only">Quiz aprobado</span>
+                    </>
+                  )}
+                  {item.type === 'achievement' && (
+                    <>
+                      <Trophy className="w-[14px] h-[14px] text-heritage-500" aria-hidden="true" />
+                      <span className="sr-only">Logro</span>
+                    </>
+                  )}
+                  {item.type !== 'topic_completed' && item.type !== 'quiz_passed' && item.type !== 'achievement' && (
+                    <>
+                      <HelpCircle className="w-[14px] h-[14px] text-muted-foreground" aria-hidden="true" />
+                      <span className="sr-only">Actividad</span>
+                    </>
+                  )}
+                </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-foreground">{item.description}</p>
                   <p className="text-xs text-muted-foreground">

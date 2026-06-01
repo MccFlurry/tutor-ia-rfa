@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { adminApi } from '@/api/admin'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { StudentLevel } from '@/types/assessment'
+import FormDialog from '@/components/admin/FormDialog'
 
 const LEVEL_COLOR: Record<string, string> = {
   beginner: 'bg-muted text-muted-foreground',
@@ -11,8 +13,38 @@ const LEVEL_COLOR: Record<string, string> = {
   advanced: 'bg-primary/10 text-primary',
 }
 
+interface OverrideDlg {
+  open: boolean
+  userId: string | null
+  userName: string
+}
+
+const overrideFields = [
+  {
+    name: 'level',
+    label: 'Nuevo nivel',
+    type: 'select' as const,
+    required: true,
+    defaultValue: 'intermediate',
+    options: [
+      { value: 'beginner', label: 'Principiante' },
+      { value: 'intermediate', label: 'Intermedio' },
+      { value: 'advanced', label: 'Avanzado' },
+    ],
+  },
+  {
+    name: 'reason',
+    label: 'Razón del cambio',
+    type: 'textarea' as const,
+    required: true,
+    placeholder: 'Motivo del ajuste manual (se registra en el historial)...',
+    helpText: 'Este texto quedará en el historial del estudiante.',
+  },
+]
+
 export default function LevelsTab() {
   const queryClient = useQueryClient()
+  const [overrideDlg, setOverrideDlg] = useState<OverrideDlg>({ open: false, userId: null, userName: '' })
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'user-levels'],
@@ -26,21 +58,18 @@ export default function LevelsTab() {
       toast.success('Nivel actualizado')
       queryClient.invalidateQueries({ queryKey: ['admin', 'user-levels'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
+      setOverrideDlg({ open: false, userId: null, userName: '' })
     },
     onError: () => toast.error('Error al sobreescribir'),
   })
 
-  const handleOverride = (userId: string, userName: string) => {
-    const level = prompt(
-      `Nuevo nivel para ${userName} (beginner/intermediate/advanced):`,
-      'intermediate'
-    ) as StudentLevel
-    if (!['beginner', 'intermediate', 'advanced'].includes(level)) {
-      return toast.error('Nivel inválido')
-    }
-    const reason = prompt('Razón del override (registro en historial):')
-    if (!reason) return
-    override.mutate({ id: userId, level, reason })
+  const handleOverrideSubmit = (values: Record<string, string>) => {
+    if (!overrideDlg.userId) return
+    override.mutate({
+      id: overrideDlg.userId,
+      level: values.level as StudentLevel,
+      reason: values.reason,
+    })
   }
 
   return (
@@ -52,7 +81,11 @@ export default function LevelsTab() {
 
       <div className="bg-card border border-border rounded-xl overflow-x-auto">
         {isLoading ? (
-          <div className="p-8 text-center text-muted-foreground">Cargando...</div>
+          <div className="p-6 space-y-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-10 bg-muted animate-pulse rounded" />
+            ))}
+          </div>
         ) : !data || data.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">Sin estudiantes</div>
         ) : (
@@ -98,9 +131,11 @@ export default function LevelsTab() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleOverride(row.user_id, row.full_name)}
+                      onClick={() =>
+                        setOverrideDlg({ open: true, userId: row.user_id, userName: row.full_name })
+                      }
                     >
-                      Override
+                      Sobrescribir nivel
                     </Button>
                   </td>
                 </tr>
@@ -109,6 +144,16 @@ export default function LevelsTab() {
           </table>
         )}
       </div>
+
+      <FormDialog
+        open={overrideDlg.open}
+        onOpenChange={(o) => setOverrideDlg((s) => ({ ...s, open: o }))}
+        title={`Sobrescribir nivel — ${overrideDlg.userName}`}
+        fields={overrideFields}
+        submitLabel="Guardar nivel"
+        pending={override.isPending}
+        onSubmit={handleOverrideSubmit}
+      />
     </div>
   )
 }

@@ -1,12 +1,21 @@
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ShieldCheck, ShieldOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { adminApi } from '@/api/admin'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import ConfirmDialog from '@/components/common/ConfirmDialog'
+
+interface PromoteDlg {
+  open: boolean
+  userId: string | null
+  userName: string
+}
 
 export default function UsersTab() {
   const queryClient = useQueryClient()
+  const [promoteDlg, setPromoteDlg] = useState<PromoteDlg>({ open: false, userId: null, userName: '' })
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['admin', 'users'],
@@ -22,12 +31,34 @@ export default function UsersTab() {
     onError: (e: any) => toast.error(e?.response?.data?.detail || 'Error'),
   })
 
+  const handleRoleChange = (userId: string, userName: string, newRole: string) => {
+    if (newRole === 'admin') {
+      // Show confirm before granting admin
+      setPromoteDlg({ open: true, userId, userName })
+    } else {
+      // Demoting back to student is immediate
+      update.mutate({ id: userId, data: { role: 'student' } })
+    }
+  }
+
+  const handleConfirmPromote = () => {
+    if (!promoteDlg.userId) return
+    update.mutate(
+      { id: promoteDlg.userId, data: { role: 'admin' } },
+      { onSettled: () => setPromoteDlg({ open: false, userId: null, userName: '' }) }
+    )
+  }
+
   return (
     <div>
       <h3 className="font-semibold text-foreground mb-4">Usuarios del sistema</h3>
       <div className="bg-card border border-border rounded-xl overflow-x-auto">
         {isLoading ? (
-          <div className="p-8 text-center text-muted-foreground">Cargando...</div>
+          <div className="p-6 space-y-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-10 bg-muted animate-pulse rounded" />
+            ))}
+          </div>
         ) : !users || users.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">Sin usuarios</div>
         ) : (
@@ -50,9 +81,7 @@ export default function UsersTab() {
                   <td className="px-4 py-3">
                     <select
                       value={u.role}
-                      onChange={(e) =>
-                        update.mutate({ id: u.id, data: { role: e.target.value } })
-                      }
+                      onChange={(e) => handleRoleChange(u.id, u.full_name, e.target.value)}
                       className="text-xs border border-border bg-background text-foreground rounded px-2 py-1"
                     >
                       <option value="student">student</option>
@@ -76,6 +105,7 @@ export default function UsersTab() {
                     <Button
                       size="sm"
                       variant="ghost"
+                      aria-label={u.is_active ? 'Desactivar usuario' : 'Activar usuario'}
                       onClick={() =>
                         update.mutate({ id: u.id, data: { is_active: !u.is_active } })
                       }
@@ -93,6 +123,17 @@ export default function UsersTab() {
           </table>
         )}
       </div>
+
+      <ConfirmDialog
+        open={promoteDlg.open}
+        onOpenChange={(o) => setPromoteDlg((s) => ({ ...s, open: o }))}
+        title={`¿Promover a "${promoteDlg.userName}" como administrador?`}
+        description="Este usuario tendrá acceso completo al panel de administración: corpus RAG, contenido, usuarios, banco de preguntas y niveles."
+        confirmLabel="Sí, promover"
+        destructive={false}
+        pending={update.isPending}
+        onConfirm={handleConfirmPromote}
+      />
     </div>
   )
 }

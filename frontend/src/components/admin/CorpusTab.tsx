@@ -1,10 +1,11 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Upload, RefreshCw, Trash2, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { adminApi, type DocumentAdmin } from '@/api/admin'
 import { Button } from '@/components/ui/button'
 import EmptyState from '@/components/common/EmptyState'
+import ConfirmDialog from '@/components/common/ConfirmDialog'
 
 const STATUS_STYLE: Record<DocumentAdmin['status'], { label: string; cls: string; icon: React.ComponentType<{ className?: string }> }> = {
   pending: { label: 'Pendiente', cls: 'bg-muted text-muted-foreground', icon: Loader2 },
@@ -13,9 +14,12 @@ const STATUS_STYLE: Record<DocumentAdmin['status'], { label: string; cls: string
   error: { label: 'Error', cls: 'bg-destructive/10 text-destructive', icon: AlertCircle },
 }
 
+interface DeleteDlg { open: boolean; id: string | null; label: string }
+
 export default function CorpusTab() {
   const queryClient = useQueryClient()
   const fileInput = useRef<HTMLInputElement>(null)
+  const [deleteDlg, setDeleteDlg] = useState<DeleteDlg>({ open: false, id: null, label: '' })
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'documents'],
@@ -47,6 +51,7 @@ export default function CorpusTab() {
     onSuccess: () => {
       toast.success('Documento eliminado')
       queryClient.invalidateQueries({ queryKey: ['admin', 'documents'] })
+      setDeleteDlg({ open: false, id: null, label: '' })
     },
     onError: () => toast.error('Error al eliminar'),
   })
@@ -81,7 +86,11 @@ export default function CorpusTab() {
 
       <div className="bg-card border border-border rounded-xl overflow-x-auto">
         {isLoading ? (
-          <div className="p-8 text-center text-muted-foreground">Cargando...</div>
+          <div className="p-6 space-y-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-10 bg-muted animate-pulse rounded" />
+            ))}
+          </div>
         ) : !data || data.length === 0 ? (
           <EmptyState
             icon={Upload}
@@ -161,11 +170,10 @@ export default function CorpusTab() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => {
-                            if (confirm(`¿Eliminar "${doc.original_filename}"?`)) {
-                              remove.mutate(doc.id)
-                            }
-                          }}
+                          aria-label={`Eliminar "${doc.original_filename}"`}
+                          onClick={() =>
+                            setDeleteDlg({ open: true, id: doc.id, label: doc.original_filename })
+                          }
                           disabled={remove.isPending}
                         >
                           <Trash2 className="w-3 h-3 text-destructive" />
@@ -179,6 +187,17 @@ export default function CorpusTab() {
           </table>
         )}
       </div>
+
+      <ConfirmDialog
+        open={deleteDlg.open}
+        onOpenChange={(o) => setDeleteDlg((s) => ({ ...s, open: o }))}
+        title={`¿Eliminar "${deleteDlg.label}"?`}
+        description="Se eliminarán también todos los chunks indexados de este documento. El RAG dejará de encontrar contenido en él."
+        confirmLabel="Eliminar"
+        destructive
+        pending={remove.isPending}
+        onConfirm={() => { if (deleteDlg.id !== null) remove.mutate(deleteDlg.id) }}
+      />
     </div>
   )
 }

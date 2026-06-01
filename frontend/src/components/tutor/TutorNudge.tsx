@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Compass, Rocket, Hand, Flag, Flame, Repeat, Sparkles, Trophy, CheckCircle2 } from 'lucide-react'
+import { Compass, Rocket, Hand, Flag, Flame, Repeat, Sparkles, Trophy, CheckCircle2, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { Nudge, NudgeTone } from '@/types/tutor'
 
@@ -17,13 +17,15 @@ const TONE: Record<NudgeTone, string> = {
   encourage: 'border-primary/30 bg-primary/5',
 }
 
-export default function TutorNudge({ nudge }: { nudge: Nudge }) {
+interface TutorNudgeProps {
+  nudge: Nudge
+  onDismiss?: (id: string) => void
+}
+
+export default function TutorNudge({ nudge, onDismiss }: TutorNudgeProps) {
   const Icon = ICONS[nudge.icon] ?? Sparkles
   return (
-    <div
-      className={`flex gap-3 rounded-lg border p-4 ${TONE[nudge.tone]}`}
-      role="status"
-    >
+    <div className={`flex gap-3 rounded-lg border p-4 ${TONE[nudge.tone]}`}>
       <Icon className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
       <div className="flex-1 space-y-1">
         <p className="font-semibold text-foreground">{nudge.title}</p>
@@ -37,6 +39,18 @@ export default function TutorNudge({ nudge }: { nudge: Nudge }) {
           </Link>
         )}
       </div>
+      {onDismiss && (
+        <button
+          type="button"
+          onClick={() => onDismiss(String(nudge.id))}
+          aria-label="Descartar mensaje"
+          className="-m-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg
+                     text-muted-foreground hover:text-foreground hover:bg-foreground/5
+                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <X className="h-4 w-4" aria-hidden="true" />
+        </button>
+      )}
     </div>
   )
 }

@@ -13,6 +13,7 @@ export default function AchievementCard({ achievement }: AchievementCardProps) {
 
   return (
     <div
+      aria-label={earned ? undefined : `${achievement.name} — bloqueado`}
       style={earned ? ({ '--badge-color': achievement.badge_color } as React.CSSProperties) : undefined}
       className={cn(
         'rounded-xl border p-4 text-center transition',
@@ -44,6 +45,9 @@ export default function AchievementCard({ achievement }: AchievementCardProps) {
         <p className="text-xs text-muted-foreground/70 mt-2">
           {new Date(achievement.earned_at).toLocaleDateString('es-PE')}
         </p>
+      )}
+      {!earned && (
+        <p className="text-[11px] font-medium text-muted-foreground mt-2">Bloqueado</p>
       )}
     </div>
   )

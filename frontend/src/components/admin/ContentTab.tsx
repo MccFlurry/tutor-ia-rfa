@@ -8,11 +8,36 @@ import { adminApi, type ModuleAdmin, type TopicAdmin, type GeneratedChallengePre
 import type { Difficulty, StudentLevel } from '@/types/assessment'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import FormDialog from '@/components/admin/FormDialog'
+import ConfirmDialog from '@/components/common/ConfirmDialog'
+
+// ---- Dialog state types ----
+
+interface ModuleDialogState {
+  open: boolean
+  mode: 'create' | 'edit'
+  target: ModuleAdmin | null
+}
+
+interface DeleteDialogState {
+  open: boolean
+  id: number | null
+  label: string
+}
+
+// ---- ContentTab ----
 
 export default function ContentTab() {
   const queryClient = useQueryClient()
   const [expandedModule, setExpandedModule] = useState<number | null>(null)
   const [expandedTopic, setExpandedTopic] = useState<number | null>(null)
+
+  const [moduleDlg, setModuleDlg] = useState<ModuleDialogState>({
+    open: false, mode: 'create', target: null,
+  })
+  const [deleteModuleDlg, setDeleteModuleDlg] = useState<DeleteDialogState>({
+    open: false, id: null, label: '',
+  })
 
   const { data: modules } = useQuery({
     queryKey: ['admin', 'modules'],
@@ -23,40 +48,46 @@ export default function ContentTab() {
     queryClient.invalidateQueries({ queryKey: ['admin'] })
   }
 
-  // Module mutations
   const createModule = useMutation({
     mutationFn: adminApi.createModule,
-    onSuccess: () => { toast.success('Módulo creado'); invalidate() },
+    onSuccess: () => { toast.success('Módulo creado'); invalidate(); setModuleDlg((s) => ({ ...s, open: false })) },
     onError: (e: any) => toast.error(e?.response?.data?.detail || 'Error'),
   })
   const updateModule = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) => adminApi.updateModule(id, data),
-    onSuccess: () => { toast.success('Módulo actualizado'); invalidate() },
+    onSuccess: () => { toast.success('Módulo actualizado'); invalidate(); setModuleDlg((s) => ({ ...s, open: false })) },
+    onError: (e: any) => toast.error(e?.response?.data?.detail || 'Error'),
   })
   const deleteModule = useMutation({
     mutationFn: adminApi.deleteModule,
-    onSuccess: () => { toast.success('Módulo eliminado'); invalidate() },
+    onSuccess: () => {
+      toast.success('Módulo eliminado')
+      invalidate()
+      setDeleteModuleDlg({ open: false, id: null, label: '' })
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.detail || 'Error'),
   })
 
-  const handleCreateModule = () => {
-    const title = prompt('Título del módulo:')
-    if (!title) return
-    const orderStr = prompt('Índice de orden (número):', String((modules?.length || 0) + 1))
-    const order_index = Number(orderStr)
-    if (!Number.isInteger(order_index) || order_index < 1) return toast.error('Índice inválido')
-    createModule.mutate({ title, order_index })
-  }
+  const moduleFields = moduleDlg.mode === 'create'
+    ? [
+        { name: 'title', label: 'Título del módulo', type: 'text' as const, required: true, placeholder: 'Ej. Fundamentos de Android' },
+        { name: 'order_index', label: 'Índice de orden', type: 'number' as const, required: true, defaultValue: String((modules?.length || 0) + 1), placeholder: '1' },
+      ]
+    : [
+        { name: 'title', label: 'Título del módulo', type: 'text' as const, required: true, defaultValue: moduleDlg.target?.title ?? '' },
+        { name: 'description', label: 'Descripción', type: 'textarea' as const, defaultValue: moduleDlg.target?.description ?? '', placeholder: 'Descripción opcional' },
+      ]
 
-  const handleEditModule = (m: ModuleAdmin) => {
-    const title = prompt('Título:', m.title)
-    if (title === null) return
-    const desc = prompt('Descripción:', m.description || '') || ''
-    updateModule.mutate({ id: m.id, data: { title, description: desc } })
-  }
-
-  const handleDeleteModule = (m: ModuleAdmin) => {
-    if (confirm(`¿Eliminar módulo "${m.title}" y todos sus temas?`)) {
-      deleteModule.mutate(m.id)
+  const handleModuleSubmit = (values: Record<string, string>) => {
+    if (moduleDlg.mode === 'create') {
+      const order_index = parseInt(values.order_index, 10)
+      if (!Number.isInteger(order_index) || order_index < 1) {
+        toast.error('Índice inválido')
+        return
+      }
+      createModule.mutate({ title: values.title, order_index })
+    } else if (moduleDlg.target) {
+      updateModule.mutate({ id: moduleDlg.target.id, data: { title: values.title, description: values.description || '' } })
     }
   }
 
@@ -64,7 +95,10 @@ export default function ContentTab() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="font-semibold text-foreground">Árbol del curso</h3>
-        <Button size="sm" onClick={handleCreateModule}>
+        <Button
+          size="sm"
+          onClick={() => setModuleDlg({ open: true, mode: 'create', target: null })}
+        >
           <Plus className="w-4 h-4 mr-1" /> Módulo nuevo
         </Button>
       </div>
@@ -96,10 +130,20 @@ export default function ContentTab() {
                   <span className="font-medium text-foreground truncate">{m.title}</span>
                 </button>
                 <div className="flex gap-1 shrink-0">
-                  <Button size="sm" variant="ghost" onClick={() => handleEditModule(m)}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setModuleDlg({ open: true, mode: 'edit', target: m })}
+                    aria-label={`Editar módulo ${m.title}`}
+                  >
                     <Pencil className="w-3 h-3" />
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => handleDeleteModule(m)}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setDeleteModuleDlg({ open: true, id: m.id, label: m.title })}
+                    aria-label={`Eliminar módulo ${m.title}`}
+                  >
                     <Trash2 className="w-3 h-3 text-destructive" />
                   </Button>
                 </div>
@@ -117,6 +161,28 @@ export default function ContentTab() {
           ))}
         </div>
       )}
+
+      {/* Module form dialog */}
+      <FormDialog
+        open={moduleDlg.open}
+        onOpenChange={(o) => setModuleDlg((s) => ({ ...s, open: o }))}
+        title={moduleDlg.mode === 'create' ? 'Nuevo módulo' : 'Editar módulo'}
+        fields={moduleFields}
+        pending={createModule.isPending || updateModule.isPending}
+        onSubmit={handleModuleSubmit}
+      />
+
+      {/* Delete module confirm */}
+      <ConfirmDialog
+        open={deleteModuleDlg.open}
+        onOpenChange={(o) => setDeleteModuleDlg((s) => ({ ...s, open: o }))}
+        title={`¿Eliminar módulo "${deleteModuleDlg.label}"?`}
+        description="Se eliminarán también todos sus temas, preguntas y desafíos. Esta acción no se puede deshacer."
+        confirmLabel="Eliminar"
+        destructive
+        pending={deleteModule.isPending}
+        onConfirm={() => { if (deleteModuleDlg.id !== null) deleteModule.mutate(deleteModuleDlg.id) }}
+      />
     </div>
   )
 }
@@ -134,6 +200,13 @@ function ModuleDetail({
   onToggleTopic: (id: number) => void
   onRefresh: () => void
 }) {
+  const [topicDlg, setTopicDlg] = useState<{ open: boolean; mode: 'create' | 'edit'; target: TopicAdmin | null }>({
+    open: false, mode: 'create', target: null,
+  })
+  const [deleteTopicDlg, setDeleteTopicDlg] = useState<{ open: boolean; id: number | null; label: string }>({
+    open: false, id: null, label: '',
+  })
+
   const { data: topics } = useQuery({
     queryKey: ['admin', 'topics', module.id],
     queryFn: () => adminApi.listTopics(module.id).then((r) => r.data),
@@ -141,53 +214,75 @@ function ModuleDetail({
 
   const createTopic = useMutation({
     mutationFn: adminApi.createTopic,
-    onSuccess: () => { toast.success('Tema creado'); onRefresh() },
+    onSuccess: () => { toast.success('Tema creado'); onRefresh(); setTopicDlg((s) => ({ ...s, open: false })) },
     onError: () => toast.error('Error al crear tema'),
   })
 
   const updateTopic = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) => adminApi.updateTopic(id, data),
-    onSuccess: () => { toast.success('Tema actualizado'); onRefresh() },
+    onSuccess: () => { toast.success('Tema actualizado'); onRefresh(); setTopicDlg((s) => ({ ...s, open: false })) },
+    onError: (e: any) => toast.error(e?.response?.data?.detail || 'Error'),
   })
 
   const deleteTopic = useMutation({
     mutationFn: adminApi.deleteTopic,
-    onSuccess: () => { toast.success('Tema eliminado'); onRefresh() },
+    onSuccess: () => {
+      toast.success('Tema eliminado')
+      onRefresh()
+      setDeleteTopicDlg({ open: false, id: null, label: '' })
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.detail || 'Error'),
   })
 
-  const handleCreate = () => {
-    const title = prompt('Título del tema:')
-    if (!title) return
-    const orderStr = prompt('Orden:', String((topics?.length || 0) + 1))
-    const order_index = Number(orderStr)
-    if (!Number.isInteger(order_index) || order_index < 1) return toast.error('Orden inválido')
-    const content = prompt('Contenido inicial (Markdown):', '# ' + title) || ''
-    const hasQuizStr = confirm('¿Este tema tiene autoevaluación?')
-    createTopic.mutate({
-      module_id: module.id,
-      title,
-      content,
-      order_index,
-      estimated_minutes: 15,
-      has_quiz: hasQuizStr,
-    })
-  }
+  const topicFields = topicDlg.mode === 'create'
+    ? [
+        { name: 'title', label: 'Título del tema', type: 'text' as const, required: true, placeholder: 'Ej. Introducción a Kotlin' },
+        { name: 'order_index', label: 'Orden', type: 'number' as const, required: true, defaultValue: String((topics?.length || 0) + 1) },
+        { name: 'content', label: 'Contenido inicial (Markdown)', type: 'textarea' as const, placeholder: '# Título\n\nContenido...' },
+        {
+          name: 'has_quiz',
+          label: '¿Este tema tiene autoevaluación?',
+          type: 'select' as const,
+          defaultValue: 'false',
+          options: [
+            { value: 'true', label: 'Sí' },
+            { value: 'false', label: 'No' },
+          ],
+        },
+      ]
+    : [
+        { name: 'title', label: 'Título del tema', type: 'text' as const, required: true, defaultValue: topicDlg.target?.title ?? '' },
+      ]
 
-  const handleEdit = (t: TopicAdmin) => {
-    const title = prompt('Título:', t.title)
-    if (title === null) return
-    updateTopic.mutate({ id: t.id, data: { title } })
-  }
-
-  const handleDelete = (t: TopicAdmin) => {
-    if (confirm(`¿Eliminar tema "${t.title}"?`)) deleteTopic.mutate(t.id)
+  const handleTopicSubmit = (values: Record<string, string>) => {
+    if (topicDlg.mode === 'create') {
+      const order_index = parseInt(values.order_index, 10)
+      if (!Number.isInteger(order_index) || order_index < 1) {
+        toast.error('Orden inválido')
+        return
+      }
+      createTopic.mutate({
+        module_id: module.id,
+        title: values.title,
+        content: values.content || '',
+        order_index,
+        estimated_minutes: 15,
+        has_quiz: values.has_quiz === 'true',
+      })
+    } else if (topicDlg.target) {
+      updateTopic.mutate({ id: topicDlg.target.id, data: { title: values.title } })
+    }
   }
 
   return (
     <div className="bg-muted px-4 py-3 border-t border-border">
       <div className="flex justify-between items-center mb-3">
         <span className="text-xs font-semibold uppercase text-muted-foreground">Temas</span>
-        <Button size="sm" variant="outline" onClick={handleCreate}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setTopicDlg({ open: true, mode: 'create', target: null })}
+        >
           <Plus className="w-3 h-3 mr-1" /> Tema
         </Button>
       </div>
@@ -217,10 +312,20 @@ function ModuleDetail({
                     </span>
                   )}
                 </button>
-                <Button size="sm" variant="ghost" onClick={() => handleEdit(t)}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setTopicDlg({ open: true, mode: 'edit', target: t })}
+                  aria-label={`Editar tema ${t.title}`}
+                >
                   <Pencil className="w-3 h-3" />
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => handleDelete(t)}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setDeleteTopicDlg({ open: true, id: t.id, label: t.title })}
+                  aria-label={`Eliminar tema ${t.title}`}
+                >
                   <Trash2 className="w-3 h-3 text-destructive" />
                 </Button>
               </div>
@@ -229,6 +334,28 @@ function ModuleDetail({
           ))}
         </div>
       )}
+
+      {/* Topic form dialog */}
+      <FormDialog
+        open={topicDlg.open}
+        onOpenChange={(o) => setTopicDlg((s) => ({ ...s, open: o }))}
+        title={topicDlg.mode === 'create' ? 'Nuevo tema' : 'Editar tema'}
+        fields={topicFields}
+        pending={createTopic.isPending || updateTopic.isPending}
+        onSubmit={handleTopicSubmit}
+      />
+
+      {/* Delete topic confirm */}
+      <ConfirmDialog
+        open={deleteTopicDlg.open}
+        onOpenChange={(o) => setDeleteTopicDlg((s) => ({ ...s, open: o }))}
+        title={`¿Eliminar tema "${deleteTopicDlg.label}"?`}
+        description="Se eliminarán también las preguntas y desafíos asociados."
+        confirmLabel="Eliminar"
+        destructive
+        pending={deleteTopic.isPending}
+        onConfirm={() => { if (deleteTopicDlg.id !== null) deleteTopic.mutate(deleteTopicDlg.id) }}
+      />
     </div>
   )
 }
@@ -237,6 +364,10 @@ function ModuleDetail({
 
 function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () => void }) {
   const [genPreview, setGenPreview] = useState<GeneratedChallengePreview | null>(null)
+  const [questionDlg, setQuestionDlg] = useState(false)
+  const [generateDlg, setGenerateDlg] = useState(false)
+  const [deleteQDlg, setDeleteQDlg] = useState<{ open: boolean; id: number | null }>({ open: false, id: null })
+  const [deleteCDlg, setDeleteCDlg] = useState<{ open: boolean; id: number | null; label: string }>({ open: false, id: null, label: '' })
 
   const { data: questions } = useQuery({
     queryKey: ['admin', 'quiz-questions', topic.id],
@@ -250,19 +381,23 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
 
   const createQ = useMutation({
     mutationFn: adminApi.createQuizQuestion,
-    onSuccess: () => { toast.success('Pregunta creada'); onRefresh() },
+    onSuccess: () => { toast.success('Pregunta creada'); onRefresh(); setQuestionDlg(false) },
+    onError: (e: any) => toast.error(e?.response?.data?.detail || 'Error'),
   })
   const deleteQ = useMutation({
     mutationFn: adminApi.deleteQuizQuestion,
-    onSuccess: () => { toast.success('Pregunta eliminada'); onRefresh() },
+    onSuccess: () => { toast.success('Pregunta eliminada'); onRefresh(); setDeleteQDlg({ open: false, id: null }) },
+    onError: (e: any) => toast.error(e?.response?.data?.detail || 'Error'),
   })
   const createC = useMutation({
     mutationFn: adminApi.createChallenge,
     onSuccess: () => { toast.success('Desafío creado'); onRefresh(); setGenPreview(null) },
+    onError: (e: any) => toast.error(e?.response?.data?.detail || 'Error'),
   })
   const deleteC = useMutation({
     mutationFn: adminApi.deleteChallenge,
-    onSuccess: () => { toast.success('Desafío eliminado'); onRefresh() },
+    onSuccess: () => { toast.success('Desafío eliminado'); onRefresh(); setDeleteCDlg({ open: false, id: null, label: '' }) },
+    onError: (e: any) => toast.error(e?.response?.data?.detail || 'Error'),
   })
 
   const generate = useMutation({
@@ -271,39 +406,31 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
     onSuccess: (preview) => {
       setGenPreview(preview)
       toast.success('Desafío generado — revisa y aprueba')
+      setGenerateDlg(false)
     },
     onError: (e: any) =>
       toast.error(e?.response?.data?.detail || 'Error al generar'),
   })
 
-  const handleCreateQuestion = () => {
-    const text = prompt('Texto de la pregunta:')
-    if (!text) return
-    const opts: string[] = []
-    for (let i = 0; i < 4; i++) {
-      const o = prompt(`Opción ${i + 1}:`)
-      if (o === null) return
-      opts.push(o)
+  const handleQuestionSubmit = (values: Record<string, string>) => {
+    const correct = parseInt(values.correct_option_index, 10)
+    if (![0, 1, 2, 3].includes(correct)) {
+      toast.error('Índice inválido')
+      return
     }
-    const correctStr = prompt('Índice correcto (0-3):')
-    const correct = Number(correctStr)
-    if (![0, 1, 2, 3].includes(correct)) return toast.error('Índice inválido')
-    const explanation = prompt('Explicación:') || ''
     createQ.mutate({
       topic_id: topic.id,
-      question_text: text,
-      options: opts,
+      question_text: values.question_text,
+      options: [values.option_0, values.option_1, values.option_2, values.option_3],
       correct_option_index: correct,
-      explanation,
-      order_index: (questions?.length || 0),
+      explanation: values.explanation || '',
+      order_index: questions?.length || 0,
     })
   }
 
-  const handleGenerate = () => {
-    const diff = prompt('Dificultad (easy/medium/hard):', 'medium') as Difficulty
-    if (!['easy', 'medium', 'hard'].includes(diff)) return toast.error('Dificultad inválida')
-    const lvl = prompt('Nivel objetivo (beginner/intermediate/advanced):', 'intermediate') as StudentLevel
-    if (!['beginner', 'intermediate', 'advanced'].includes(lvl)) return toast.error('Nivel inválido')
+  const handleGenerateSubmit = (values: Record<string, string>) => {
+    const diff = values.difficulty as Difficulty
+    const lvl = values.level as StudentLevel
     generate.mutate({ difficulty: diff, level: lvl })
   }
 
@@ -317,9 +444,58 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
       difficulty: genPreview.difficulty,
       hints: genPreview.hints,
       solution_code: genPreview.solution_code,
-      order_index: (challenges?.length || 0),
+      order_index: challenges?.length || 0,
     })
   }
+
+  const questionFields = [
+    { name: 'question_text', label: 'Texto de la pregunta', type: 'textarea' as const, required: true, placeholder: '¿Cuál es la salida de este código?' },
+    { name: 'option_0', label: 'Opción 1', type: 'text' as const, required: true },
+    { name: 'option_1', label: 'Opción 2', type: 'text' as const, required: true },
+    { name: 'option_2', label: 'Opción 3', type: 'text' as const, required: true },
+    { name: 'option_3', label: 'Opción 4', type: 'text' as const, required: true },
+    {
+      name: 'correct_option_index',
+      label: 'Respuesta correcta',
+      type: 'select' as const,
+      required: true,
+      defaultValue: '0',
+      options: [
+        { value: '0', label: 'Opción 1' },
+        { value: '1', label: 'Opción 2' },
+        { value: '2', label: 'Opción 3' },
+        { value: '3', label: 'Opción 4' },
+      ],
+    },
+    { name: 'explanation', label: 'Explicación', type: 'textarea' as const, placeholder: 'Explica por qué esta es la respuesta correcta...' },
+  ]
+
+  const generateFields = [
+    {
+      name: 'difficulty',
+      label: 'Dificultad',
+      type: 'select' as const,
+      required: true,
+      defaultValue: 'medium',
+      options: [
+        { value: 'easy', label: 'Fácil' },
+        { value: 'medium', label: 'Media' },
+        { value: 'hard', label: 'Difícil' },
+      ],
+    },
+    {
+      name: 'level',
+      label: 'Nivel objetivo',
+      type: 'select' as const,
+      required: true,
+      defaultValue: 'intermediate',
+      options: [
+        { value: 'beginner', label: 'Principiante' },
+        { value: 'intermediate', label: 'Intermedio' },
+        { value: 'advanced', label: 'Avanzado' },
+      ],
+    },
+  ]
 
   return (
     <div className="px-4 py-3 border-t border-border bg-muted space-y-4">
@@ -329,7 +505,7 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
           <span className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1">
             <HelpCircle className="w-3 h-3" /> Preguntas quiz (BD fallback)
           </span>
-          <Button size="sm" variant="outline" onClick={handleCreateQuestion}>
+          <Button size="sm" variant="outline" onClick={() => setQuestionDlg(true)}>
             <Plus className="w-3 h-3 mr-1" /> Pregunta
           </Button>
         </div>
@@ -340,9 +516,12 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
             {questions.map((q) => (
               <li key={q.id} className="flex items-center justify-between text-xs bg-card px-3 py-2 rounded border border-border">
                 <span className="truncate flex-1 text-foreground">{q.question_text}</span>
-                <Button size="sm" variant="ghost" onClick={() => {
-                  if (confirm('¿Eliminar pregunta?')) deleteQ.mutate(q.id)
-                }}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setDeleteQDlg({ open: true, id: q.id })}
+                  aria-label="Eliminar pregunta"
+                >
                   <Trash2 className="w-3 h-3 text-destructive" />
                 </Button>
               </li>
@@ -360,7 +539,7 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
           <Button
             size="sm"
             variant="outline"
-            onClick={handleGenerate}
+            onClick={() => setGenerateDlg(true)}
             disabled={generate.isPending}
           >
             <Sparkles className="w-3 h-3 mr-1" />
@@ -386,9 +565,12 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
                   </span>
                   <span className="text-foreground truncate">{c.title}</span>
                 </span>
-                <Button size="sm" variant="ghost" onClick={() => {
-                  if (confirm('¿Eliminar desafío?')) deleteC.mutate(c.id)
-                }}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setDeleteCDlg({ open: true, id: c.id, label: c.title })}
+                  aria-label={`Eliminar desafío ${c.title}`}
+                >
                   <Trash2 className="w-3 h-3 text-destructive" />
                 </Button>
               </li>
@@ -421,6 +603,49 @@ function TopicDetail({ topic, onRefresh }: { topic: TopicAdmin; onRefresh: () =>
           </div>
         )}
       </div>
+
+      {/* Question form dialog */}
+      <FormDialog
+        open={questionDlg}
+        onOpenChange={setQuestionDlg}
+        title="Nueva pregunta de quiz"
+        fields={questionFields}
+        pending={createQ.isPending}
+        onSubmit={handleQuestionSubmit}
+      />
+
+      {/* Generate challenge dialog */}
+      <FormDialog
+        open={generateDlg}
+        onOpenChange={setGenerateDlg}
+        title="Generar desafío con IA"
+        fields={generateFields}
+        submitLabel="Generar"
+        pending={generate.isPending}
+        onSubmit={handleGenerateSubmit}
+      />
+
+      {/* Delete question confirm */}
+      <ConfirmDialog
+        open={deleteQDlg.open}
+        onOpenChange={(o) => setDeleteQDlg((s) => ({ ...s, open: o }))}
+        title="¿Eliminar esta pregunta?"
+        confirmLabel="Eliminar"
+        destructive
+        pending={deleteQ.isPending}
+        onConfirm={() => { if (deleteQDlg.id !== null) deleteQ.mutate(deleteQDlg.id) }}
+      />
+
+      {/* Delete challenge confirm */}
+      <ConfirmDialog
+        open={deleteCDlg.open}
+        onOpenChange={(o) => setDeleteCDlg((s) => ({ ...s, open: o }))}
+        title={`¿Eliminar desafío "${deleteCDlg.label}"?`}
+        confirmLabel="Eliminar"
+        destructive
+        pending={deleteC.isPending}
+        onConfirm={() => { if (deleteCDlg.id !== null) deleteC.mutate(deleteCDlg.id) }}
+      />
     </div>
   )
 }

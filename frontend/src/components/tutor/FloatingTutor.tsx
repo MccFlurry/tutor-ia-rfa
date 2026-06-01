@@ -19,6 +19,7 @@ export default function FloatingTutor() {
   const [input, setInput] = useState('')
   const [optimistic, setOptimistic] = useState<ChatMessage[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const location = useLocation()
 
   const createSession = useCreateSession()
@@ -52,6 +53,16 @@ export default function FloatingTutor() {
     return () => document.removeEventListener('keydown', onKey)
   }, [open])
 
+  // Move focus into the panel textarea when the panel opens and the session is ready.
+  useEffect(() => {
+    if (!open) return
+    // Use a minimal delay so the panel has painted before we focus.
+    const timer = setTimeout(() => {
+      textareaRef.current?.focus()
+    }, 50)
+    return () => clearTimeout(timer)
+  }, [open, sessionId])
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages.length, sendMessage.isPending])
@@ -70,8 +81,12 @@ export default function FloatingTutor() {
     setInput('')
     try {
       await sendMessage.mutateAsync(trimmed)
-    } finally {
       setOptimistic([])
+    } catch {
+      // Restore the question so the student doesn't lose their work.
+      setOptimistic([])
+      setInput(trimmed)
+      textareaRef.current?.focus()
     }
   }, [input, sessionId, sendMessage])
 
@@ -114,7 +129,9 @@ export default function FloatingTutor() {
             <span className="font-semibold text-foreground">Tutor IA</span>
             {remaining && (
               <span
-                className="ml-auto text-xs text-muted-foreground tabular-nums"
+                className={`ml-auto text-xs tabular-nums ${
+                  remaining.remaining <= 3 ? 'text-warning font-medium' : 'text-muted-foreground'
+                }`}
                 aria-label={`${remaining.remaining} de ${remaining.limit} consultas disponibles`}
               >
                 {remaining.remaining}/{remaining.limit}
@@ -156,6 +173,7 @@ export default function FloatingTutor() {
             )}
             <div className="flex items-end gap-2">
               <Textarea
+                ref={textareaRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}

@@ -36,7 +36,7 @@ const LEVEL_LABEL: Record<StudentLevel, string> = {
 const LEVEL_STYLE: Record<StudentLevel, string> = {
   beginner:     'bg-muted text-foreground border-border',
   intermediate: 'bg-primary-50 text-primary-800 border-primary-200 dark:bg-primary/15 dark:text-primary-200 dark:border-primary-700',
-  advanced:     'bg-heritage-50 text-heritage-700 border-heritage-200 dark:bg-heritage-700/20 dark:text-heritage-200 dark:border-heritage-700',
+  advanced:     'bg-success/10 text-success border-success/30',
 }
 
 export default function DashboardPage() {

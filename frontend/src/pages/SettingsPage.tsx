@@ -108,7 +108,7 @@ function PasswordTab() {
   })
 
   const passwordsMatch = newPassword === confirmPassword
-  const isValid = currentPassword.length >= 6 && newPassword.length >= 6 && passwordsMatch
+  const isValid = currentPassword.length >= 8 && newPassword.length >= 8 && passwordsMatch
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -116,7 +116,7 @@ function PasswordTab() {
       toast.error(
         !passwordsMatch
           ? 'Las contraseñas nuevas no coinciden'
-          : 'Las contraseñas deben tener al menos 6 caracteres'
+          : 'Las contraseñas deben tener al menos 8 caracteres'
       )
       return
     }
@@ -142,7 +142,7 @@ function PasswordTab() {
         <Input
           id="new-password"
           type="password"
-          minLength={6}
+          minLength={8}
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           required
@@ -150,7 +150,7 @@ function PasswordTab() {
           aria-describedby="new-password-help"
         />
         <p id="new-password-help" className="text-xs text-muted-foreground">
-          Mínimo 6 caracteres.
+          Mínimo 8 caracteres.
         </p>
       </div>
 
@@ -163,7 +163,7 @@ function PasswordTab() {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
           autoComplete="new-password"
-          aria-invalid={confirmPassword.length > 0 && !passwordsMatch || undefined}
+          aria-invalid={confirmPassword.length > 0 && !passwordsMatch ? true : undefined}
         />
         {confirmPassword.length > 0 && !passwordsMatch && (
           <p className="text-xs text-destructive" role="alert">

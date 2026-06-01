@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { ChevronDown, FileText } from 'lucide-react'
 import type { ChatSource } from '@/types/chat'
 
@@ -8,13 +8,18 @@ interface ChatSourcesProps {
 
 export default function ChatSources({ sources }: ChatSourcesProps) {
   const [open, setOpen] = useState(false)
+  const id = useId()
+  const listId = `chat-sources-${id}`
 
   if (!sources.length) return null
 
   return (
     <div className="mt-2">
       <button
+        type="button"
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls={listId}
         className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
       >
         <FileText className="w-3 h-3" />
@@ -25,7 +30,11 @@ export default function ChatSources({ sources }: ChatSourcesProps) {
       </button>
 
       {open && (
-        <div className="mt-2 space-y-2">
+        <div
+          id={listId}
+          className="mt-2 space-y-2 opacity-0 animate-in fade-in slide-in-from-top-1 duration-150 fill-mode-forwards"
+          style={{ animationFillMode: 'forwards' }}
+        >
           {sources.map((source, i) => (
             <div
               key={i}

@@ -18,13 +18,19 @@ export default function CodeBlock({ language, children }: CodeBlockProps) {
   }
 
   return (
-    <div className="relative group my-4 rounded-lg overflow-hidden">
+    <div className="relative my-4 rounded-lg overflow-hidden">
       {/* Language label + copy button */}
       <div className="flex items-center justify-between bg-gray-800 px-4 py-1.5">
         <span className="text-xs text-gray-400 uppercase">{language}</span>
+        {/* sr-only live region so screen readers announce the state change */}
+        <span aria-live="polite" className="sr-only">
+          {copied ? 'Código copiado' : ''}
+        </span>
         <button
+          type="button"
           onClick={handleCopy}
-          className="text-gray-400 hover:text-white transition text-xs flex items-center gap-1"
+          aria-label={copied ? 'Código copiado' : 'Copiar código'}
+          className="text-gray-400 hover:text-white transition text-xs flex items-center gap-1 min-h-[36px] px-2 py-1"
         >
           {copied ? (
             <>

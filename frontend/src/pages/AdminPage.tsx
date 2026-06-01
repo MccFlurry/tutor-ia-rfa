@@ -27,7 +27,7 @@ export default function AdminPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6">
       <header className="mb-6">
-        <span className="chip bg-heritage-100 text-heritage-700 dark:bg-heritage-700/20 dark:text-heritage-200 mb-2">Acceso admin</span>
+        <span className="chip bg-muted text-muted-foreground mb-2">Acceso admin</span>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 dark:text-institutional-100">
           Panel de Administración
         </h1>

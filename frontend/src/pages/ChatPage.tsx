@@ -223,6 +223,13 @@ export default function ChatPage() {
       <p className="sr-only" role="status" aria-live="polite">
         {sendMessage.isPending ? 'El tutor está escribiendo una respuesta.' : ''}
       </p>
+      {/* Announce the latest assistant reply to screen readers without duplicating visible content */}
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {(() => {
+          const lastAssistant = [...messages].reverse().find((m) => m.role === 'assistant')
+          return lastAssistant && !sendMessage.isPending ? lastAssistant.content : ''
+        })()}
+      </p>
 
       {/* Mobile backdrop when sidebar is open (<lg only) */}
       {sidebarOpen && (
