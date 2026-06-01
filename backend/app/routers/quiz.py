@@ -214,6 +214,7 @@ async def submit_quiz(
         feedback.append(QuizFeedbackItem(
             question_id=qid,
             question_text=q_data["question_text"],
+            options=q_data["options"],
             selected_index=selected,
             correct_index=correct_idx,
             is_correct=is_correct,

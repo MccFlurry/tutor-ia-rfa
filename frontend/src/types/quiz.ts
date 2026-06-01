@@ -12,6 +12,7 @@ export interface QuizGenerateResponse {
 export interface QuizFeedbackItem {
   question_id: string
   question_text: string
+  options: string[]
   selected_index: number
   correct_index: number
   is_correct: boolean

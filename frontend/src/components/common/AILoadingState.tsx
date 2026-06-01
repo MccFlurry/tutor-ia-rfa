@@ -31,16 +31,16 @@ export default function AILoadingState({
       <p className="text-sm text-muted-foreground max-w-md">{subtitle}</p>
       <div className="mt-6 flex gap-1" aria-hidden="true">
         <span
-          className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
+          className="w-2 h-2 bg-primary-400 rounded-full animate-typing-dot"
           style={{ animationDelay: '0ms' }}
         />
         <span
-          className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
-          style={{ animationDelay: '150ms' }}
+          className="w-2 h-2 bg-primary-400 rounded-full animate-typing-dot"
+          style={{ animationDelay: '200ms' }}
         />
         <span
-          className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
-          style={{ animationDelay: '300ms' }}
+          className="w-2 h-2 bg-primary-400 rounded-full animate-typing-dot"
+          style={{ animationDelay: '400ms' }}
         />
       </div>
     </div>

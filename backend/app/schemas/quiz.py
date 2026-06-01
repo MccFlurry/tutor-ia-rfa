@@ -23,6 +23,7 @@ class QuizSubmitRequest(BaseModel):
 class QuizFeedbackItem(BaseModel):
     question_id: str
     question_text: str
+    options: list[str]
     selected_index: int
     correct_index: int
     is_correct: bool

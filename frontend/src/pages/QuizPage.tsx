@@ -40,6 +40,7 @@ export default function QuizPage() {
   )
   const [result, setResult] = useState<QuizSubmitResponse | null>(null)
   const [generationKey, setGenerationKey] = useState(0)
+  const [revealUnanswered, setRevealUnanswered] = useState(false)
 
   const { data: topic } = useQuery({
     queryKey: ['topic', tid],
@@ -92,6 +93,7 @@ export default function QuizPage() {
     setAnswers({})
     setResult(null)
     setPersistedQuiz(null)
+    setRevealUnanswered(false)
     setGenerationKey((k) => k + 1)
   }, [tid])
 
@@ -133,7 +135,13 @@ export default function QuizPage() {
     if (!questions.length) return
     const unanswered = questions.filter((q) => answers[q.id] === undefined)
     if (unanswered.length > 0) {
+      setRevealUnanswered(true)
       toast.error(`Tienes ${unanswered.length} pregunta(s) sin responder`)
+      const first = document.getElementById(`quiz-q-${unanswered[0].id}`)
+      if (first) {
+        first.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        first.focus({ preventScroll: true })
+      }
       return
     }
     submitMutation.mutate()
@@ -242,6 +250,7 @@ export default function QuizPage() {
                 selectedIndex={answers[q.id] ?? null}
                 onSelect={(optIdx) => handleSelect(q.id, optIdx)}
                 disabled={submitMutation.isPending}
+                invalid={revealUnanswered && answers[q.id] === undefined}
               />
             ))}
           </div>
