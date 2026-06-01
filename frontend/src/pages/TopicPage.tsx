@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ChevronRight, ChevronLeft, ArrowRight, CheckCircle2, FileQuestion, Code2, Sparkles, AlertTriangle, RefreshCw } from 'lucide-react'
+import { ChevronRight, ChevronLeft, ArrowRight, CheckCircle2, FileQuestion, Code2, Sparkles, AlertTriangle, RefreshCw, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { topicsApi } from '@/api/topics'
 import { codingApi } from '@/api/coding'
@@ -22,10 +22,13 @@ export default function TopicPage() {
 
   const topicId = Number(id)
 
-  const { data: topic, isLoading, isError, refetch } = useQuery({
+  const { data: topic, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['topic', topicId],
     queryFn: () => topicsApi.get(topicId).then((r) => r.data),
     enabled: !!id,
+    retry: (count, err) =>
+      // Don't retry a deliberate lock (403) — it won't change on retry.
+      (err as any)?.response?.status === 403 ? false : count < 3,
   })
 
   // On-demand AI challenge fetch for this topic (only when user clicks button)
@@ -97,6 +100,27 @@ export default function TopicPage() {
         <SkeletonLine />
         <SkeletonLine />
         <SkeletonLine width="90%" />
+      </div>
+    )
+  }
+
+  // Locked module: the backend refuses topic content (403). Explain, don't error.
+  if ((error as any)?.response?.status === 403) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6">
+        <EmptyState
+          icon={Lock}
+          title="Tema bloqueado"
+          description="Este tema pertenece a un módulo que aún no has desbloqueado. Completa el módulo anterior para acceder."
+          action={
+            <Link
+              to="/modules"
+              className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+            >
+              Volver a módulos
+            </Link>
+          }
+        />
       </div>
     )
   }

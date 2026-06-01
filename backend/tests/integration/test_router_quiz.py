@@ -10,16 +10,37 @@ import pytest
 from tests.integration.conftest import (
     result_scalar_one_or_none,
     result_scalars_all,
+    result_rows,
 )
 
 
-def _topic(has_quiz=True):
+def _topic(has_quiz=True, module_id=1):
     return SimpleNamespace(
-        id=1, title="x", module_id=1, order_index=1,
+        id=1, title="x", module_id=module_id, order_index=1,
         estimated_minutes=30, has_quiz=has_quiz, is_active=True,
         content="contenido extenso del tema sobre Kotlin " * 10,
         video_url=None,
     )
+
+
+# --- lock-gate query sequences (see app/services/module_service.get_module_locks) ---
+
+def _unlocked_locks_seq(module_id=1):
+    """3 queries where the module is the first → always unlocked."""
+    return [
+        result_scalars_all([SimpleNamespace(id=module_id)]),  # modules ordered
+        result_rows([(module_id, 4)]),                        # totals
+        result_rows([]),                                      # done
+    ]
+
+
+def _locked_module_seq():
+    """3 queries where M2 is locked because M1 (4 topics) is only 50% done."""
+    return [
+        result_scalars_all([SimpleNamespace(id=1), SimpleNamespace(id=2)]),  # modules
+        result_rows([(1, 4), (2, 4)]),  # totals
+        result_rows([(1, 2)]),          # done: M1 50% → M2 locked
+    ]
 
 
 def _ai_session(submitted=False):
@@ -66,6 +87,7 @@ async def test_get_quiz_reuses_active_session(client, mock_db):
     existing = _ai_session()
     mock_db.execute.side_effect = [
         result_scalar_one_or_none(t),         # topic lookup
+        *_unlocked_locks_seq(),               # lock gate (unlocked)
         result_scalar_one_or_none(existing),  # _get_active_session
     ]
     r = await client.get("/api/v1/quiz/topic/1")
@@ -90,6 +112,7 @@ async def test_get_quiz_falls_back_to_catalogue_when_llm_fails(client, mock_db, 
     ]
     mock_db.execute.side_effect = [
         result_scalar_one_or_none(t),    # topic
+        *_unlocked_locks_seq(),          # lock gate (unlocked)
         result_scalar_one_or_none(None), # no active session
         result_scalars_all(catalogue),   # catalogue rows
     ]
@@ -108,6 +131,7 @@ async def test_get_quiz_503_when_no_llm_and_no_catalogue(client, mock_db):
     t = _topic()
     mock_db.execute.side_effect = [
         result_scalar_one_or_none(t),
+        *_unlocked_locks_seq(),          # lock gate (unlocked)
         result_scalar_one_or_none(None),
         result_scalars_all([]),  # empty catalogue
     ]
@@ -125,6 +149,8 @@ async def test_submit_quiz_grades_correctly(client, mock_db, fake_user):
     session.user_id = fake_user.id
 
     mock_db.execute.side_effect = [
+        result_scalar_one_or_none(1),        # assert_topic_unlocked: topic→module_id
+        *_unlocked_locks_seq(),              # lock gate (unlocked)
         result_scalar_one_or_none(session),  # session lookup
     ]
     # Router instantiates QuizAttempt; populate its id on add() so the
@@ -155,7 +181,11 @@ async def test_submit_quiz_returns_level_change_when_auto_applied(client, mock_d
     session = _ai_session()
     session.user_id = fake_user.id
 
-    mock_db.execute.side_effect = [result_scalar_one_or_none(session)]
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(1),        # assert_topic_unlocked: topic→module_id
+        *_unlocked_locks_seq(),              # lock gate (unlocked)
+        result_scalar_one_or_none(session),  # session lookup
+    ]
     def _attach_id(s):
         if not hasattr(s, "id") or s.id is None:
             s.id = 778
@@ -182,7 +212,11 @@ async def test_submit_quiz_returns_level_change_when_auto_applied(client, mock_d
 async def test_submit_quiz_410_when_already_submitted(client, mock_db, fake_user):
     session = _ai_session(submitted=True)
     session.user_id = fake_user.id
-    mock_db.execute.return_value = result_scalar_one_or_none(session)
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(1),        # assert_topic_unlocked: topic→module_id
+        *_unlocked_locks_seq(),              # lock gate (unlocked)
+        result_scalar_one_or_none(session),  # session lookup
+    ]
     r = await client.post(
         f"/api/v1/quiz/topic/1/submit",
         json={"session_id": str(session.id), "answers": {"q0": 0}},
@@ -207,6 +241,32 @@ async def test_submit_quiz_404_unknown_session(client, mock_db):
         json={"session_id": str(uuid.uuid4()), "answers": {}},
     )
     assert r.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_get_quiz_forbidden_when_module_locked(client, mock_db):
+    """No se genera/recupera quiz para un tema de módulo bloqueado (403)."""
+    t = _topic(module_id=2)
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(t),  # topic lookup
+        *_locked_module_seq(),         # lock gate → M2 locked
+    ]
+    r = await client.get("/api/v1/quiz/topic/1")
+    assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_submit_quiz_forbidden_when_module_locked(client, mock_db, fake_user):
+    """No se puede enviar quiz de un módulo bloqueado → cierra el atajo de desbloqueo (403)."""
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(2),  # assert_topic_unlocked: topic→module_id
+        *_locked_module_seq(),         # lock gate → M2 locked
+    ]
+    r = await client.post(
+        "/api/v1/quiz/topic/1/submit",
+        json={"session_id": str(uuid.uuid4()), "answers": {"q0": 0}},
+    )
+    assert r.status_code == 403
 
 
 @pytest.mark.asyncio

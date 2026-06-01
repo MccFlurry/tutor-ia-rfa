@@ -31,5 +31,6 @@ export interface ModuleDetail {
   total_topics: number
   completed_topics: number
   progress_pct: number
+  is_locked: boolean
   topics: TopicBrief[]
 }

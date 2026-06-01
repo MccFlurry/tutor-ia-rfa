@@ -64,3 +64,30 @@ async def test_dashboard_with_progress(client, mock_db, fake_user):
     assert body["overall_progress_pct"] == 30.0
     assert len(body["recommended_modules"]) == 1
     assert body["recommended_modules"][0]["progress_pct"] == 50.0
+
+
+@pytest.mark.asyncio
+async def test_dashboard_excludes_locked_modules(client, mock_db, fake_user):
+    """Las recomendaciones nunca incluyen módulos bloqueados.
+
+    M1 100% (completo → no se recomienda), M2 desbloqueado al 0% (se recomienda),
+    M3 bloqueado porque M2 no está completo (no se recomienda).
+    """
+    level = SimpleNamespace(level="beginner")
+    m1, m2, m3 = _module(1, 1), _module(2, 2), _module(3, 3)
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(level),   # user level
+        result_scalar(12),                  # total topics
+        result_scalar(4),                   # completed
+        result_rows([]),                    # last accessed
+        result_scalars_all([m1, m2, m3]),   # modules
+        result_scalar(4), result_scalar(4),  # M1 total/done → 100% (skip, complete)
+        result_scalar(4), result_scalar(0),  # M2 total/done → 0% (unlocked, recommend)
+        result_scalar(4), result_scalar(0),  # M3 total/done → 0% (locked, skip)
+        result_rows([]),                    # achievements
+    ]
+    r = await client.get("/api/v1/dashboard")
+    assert r.status_code == 200
+    body = r.json()
+    ids = [m["id"] for m in body["recommended_modules"]]
+    assert ids == [2]  # solo M2: M1 completo, M3 bloqueado

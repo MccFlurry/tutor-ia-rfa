@@ -39,6 +39,7 @@ class ModuleDetailResponse(BaseModel):
     total_topics: int = 0
     completed_topics: int = 0
     progress_pct: float = 0.0
+    is_locked: bool = False
     topics: list[TopicBrief] = []
 
     model_config = {"from_attributes": True}

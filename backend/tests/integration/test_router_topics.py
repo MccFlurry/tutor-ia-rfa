@@ -10,6 +10,8 @@ from tests.integration.conftest import (
     result_scalar,
     result_scalar_one,
     result_scalar_one_or_none,
+    result_scalars_all,
+    result_rows,
 )
 
 
@@ -57,6 +59,9 @@ async def test_get_topic_returns_payload(client, mock_db):
     )
     mock_db.execute.side_effect = [
         result_scalar_one_or_none(t),  # _get_topic_or_404
+        result_scalars_all([m]),       # lock check: modules ordered (M1 first → unlocked)
+        result_rows([(1, 1)]),         # lock check: totals
+        result_rows([]),               # lock check: done
         result_scalar_one(m),          # module lookup
         result_scalar_one_or_none(progress),  # progress lookup
         result_scalar(1),              # coding count
@@ -68,6 +73,40 @@ async def test_get_topic_returns_payload(client, mock_db):
     assert body["has_coding_challenge"] is True
     assert body["module"]["id"] == 1
     assert body["progress_info"]["time_spent_seconds"] == 120
+
+
+@pytest.mark.asyncio
+async def test_get_topic_locked_module_forbidden(client, mock_db):
+    """No se puede leer un tema cuyo módulo está bloqueado (403)."""
+    t = _topic(2, module_id=2)
+    m1 = _module(1)
+    m2 = SimpleNamespace(id=2, title="M2", description="d", order_index=2,
+                         icon_name="book", color_hex="#fff")
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(t),     # _get_topic_or_404
+        result_scalars_all([m1, m2]),     # lock check: modules ordered
+        result_rows([(1, 4), (2, 4)]),    # totals
+        result_rows([(1, 2)]),            # done: M1 50% → M2 bloqueado
+    ]
+    r = await client.get("/api/v1/topics/2")
+    assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_complete_topic_locked_module_forbidden(client, mock_db):
+    """No se puede completar un tema de un módulo bloqueado (cierra el atajo de desbloqueo)."""
+    t = _topic(2, module_id=2)
+    m1 = _module(1)
+    m2 = SimpleNamespace(id=2, title="M2", description="d", order_index=2,
+                         icon_name="book", color_hex="#fff")
+    mock_db.execute.side_effect = [
+        result_scalar_one_or_none(t),     # _get_topic_or_404
+        result_scalars_all([m1, m2]),     # lock check: modules ordered
+        result_rows([(1, 4), (2, 4)]),    # totals
+        result_rows([(1, 2)]),            # done: M1 50% → M2 bloqueado
+    ]
+    r = await client.post("/api/v1/topics/2/complete")
+    assert r.status_code == 403
 
 
 @pytest.mark.asyncio
@@ -95,8 +134,11 @@ async def test_complete_topic_marks_existing_progress(client, mock_db):
         time_spent_seconds=0,
     )
     mock_db.execute.side_effect = [
-        result_scalar_one_or_none(t),
-        result_scalar_one_or_none(progress),
+        result_scalar_one_or_none(t),          # _get_topic_or_404
+        result_scalars_all([_module(1)]),      # lock check: modules ordered (M1 → unlocked)
+        result_rows([(1, 1)]),                 # lock check: totals
+        result_rows([]),                       # lock check: done
+        result_scalar_one_or_none(progress),   # _get_or_create_progress
     ]
     r = await client.post("/api/v1/topics/1/complete")
     assert r.status_code == 200

@@ -10,6 +10,7 @@ from app.models.topic import Topic
 from app.models.progress import UserTopicProgress
 from app.models.coding import CodingChallenge
 from app.schemas.module import ModuleResponse, ModuleDetailResponse, TopicBrief
+from app.services.module_service import compute_locks, get_module_locks
 from app.utils.cache import cached_json
 
 router = APIRouter(prefix="/modules", tags=["modules"])
@@ -43,20 +44,18 @@ async def _compute_modules_list(
     result = await db.execute(
         select(Module).where(Module.is_active == True).order_by(Module.order_index)
     )
-    modules = result.scalars().all()
+    modules = list(result.scalars().all())
 
-    response = []
-    prev_completed = True  # First module is always unlocked
-
+    # Gather per-module progress in order, then apply the shared unlock rule.
+    stats: list[tuple[Module, int, int]] = []  # (module, total, completed)
+    pairs: list[tuple[int, int]] = []
     for module in modules:
-        # Count total topics
         total_q = await db.execute(
             select(func.count(Topic.id))
             .where(Topic.module_id == module.id, Topic.is_active == True)
         )
         total_topics = total_q.scalar() or 0
 
-        # Count completed topics for this user
         completed_q = await db.execute(
             select(func.count(UserTopicProgress.id))
             .join(Topic, Topic.id == UserTopicProgress.topic_id)
@@ -68,10 +67,14 @@ async def _compute_modules_list(
             )
         )
         completed_topics = completed_q.scalar() or 0
+        stats.append((module, total_topics, completed_topics))
+        pairs.append((total_topics, completed_topics))
 
+    locks = compute_locks(pairs)
+
+    response = []
+    for (module, total_topics, completed_topics), is_locked in zip(stats, locks):
         progress_pct = (completed_topics / total_topics * 100) if total_topics > 0 else 0.0
-        is_locked = not prev_completed
-
         response.append(ModuleResponse(
             id=module.id,
             title=module.title,
@@ -84,12 +87,6 @@ async def _compute_modules_list(
             progress_pct=round(progress_pct, 1),
             is_locked=is_locked,
         ))
-
-        # A module is "completed" for unlock purposes if all topics are done
-        if total_topics > 0 and completed_topics >= total_topics:
-            prev_completed = True
-        else:
-            prev_completed = False
 
     return response
 
@@ -107,6 +104,24 @@ async def get_module(
     module = result.scalar_one_or_none()
     if not module:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Módulo no encontrado")
+
+    # Sequential-unlock gate: a locked module exposes its metadata but withholds
+    # its topics, so the student can't enter content before earning access.
+    locks = await get_module_locks(current_user.id, db)
+    if locks.get(module_id, False):
+        return ModuleDetailResponse(
+            id=module.id,
+            title=module.title,
+            description=module.description,
+            order_index=module.order_index,
+            icon_name=module.icon_name,
+            color_hex=module.color_hex,
+            total_topics=0,
+            completed_topics=0,
+            progress_pct=0.0,
+            is_locked=True,
+            topics=[],
+        )
 
     # Get topics
     topics_result = await db.execute(
@@ -172,5 +187,6 @@ async def get_module(
         total_topics=total_topics,
         completed_topics=completed_count,
         progress_pct=round(progress_pct, 1),
+        is_locked=False,
         topics=topic_briefs,
     )

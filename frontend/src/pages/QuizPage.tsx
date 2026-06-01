@@ -149,6 +149,7 @@ export default function QuizPage() {
 
   const errorStatus = (error as any)?.response?.status
   const isServiceUnavailable = errorStatus === 503
+  const isLocked = errorStatus === 403
 
   if (isGenerating && !quizData) {
     return (
@@ -165,22 +166,34 @@ export default function QuizPage() {
     return (
       <div className="max-w-3xl mx-auto px-4 py-8 sm:px-6">
         <ErrorState
-          variant={isServiceUnavailable ? 'serviceUnavailable' : 'generic'}
+          variant={isServiceUnavailable ? 'serviceUnavailable' : isLocked ? 'notFound' : 'generic'}
           title={
-            isServiceUnavailable ? 'Servicio no disponible' : 'Error al generar preguntas'
+            isServiceUnavailable
+              ? 'Servicio no disponible'
+              : isLocked
+                ? 'Tema bloqueado'
+                : 'Error al generar preguntas'
           }
           description={
             isServiceUnavailable
               ? 'El servicio de generación de preguntas no está disponible en este momento.'
-              : 'Ocurrió un error al generar las preguntas. Intenta de nuevo.'
+              : isLocked
+                ? 'Este tema pertenece a un módulo que aún no has desbloqueado. Completa el módulo anterior para acceder.'
+                : 'Ocurrió un error al generar las preguntas. Intenta de nuevo.'
           }
           action={
-            <>
-              <Button variant="outline" onClick={() => navigate(`/topics/${tid}`)}>
-                Volver al tema
+            isLocked ? (
+              <Button variant="outline" onClick={() => navigate('/modules')}>
+                Volver a módulos
               </Button>
-              <Button onClick={handleRetry}>Reintentar</Button>
-            </>
+            ) : (
+              <>
+                <Button variant="outline" onClick={() => navigate(`/topics/${tid}`)}>
+                  Volver al tema
+                </Button>
+                <Button onClick={handleRetry}>Reintentar</Button>
+              </>
+            )
           }
         />
       </div>

@@ -27,6 +27,7 @@ from app.services.coding_generator_service import (
     get_or_generate_for_student,
     regenerate_for_student,
 )
+from app.services.module_service import assert_module_unlocked, assert_topic_unlocked
 from app.utils.logger import logger
 
 router = APIRouter(prefix="/coding", tags=["coding"])
@@ -50,6 +51,9 @@ async def get_or_generate_challenge_for_topic(
     topic = topic_result.scalar_one_or_none()
     if not topic:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tema no encontrado")
+
+    # Sequential-unlock gate: don't generate a challenge for a locked module.
+    await assert_module_unlocked(topic.module_id, current_user.id, db)
 
     # Ensure the topic has at least a fallback catalogue OR content worth generating from
     fallback_result = await db.execute(
@@ -97,6 +101,9 @@ async def regenerate_challenge_for_topic(
     topic = topic_result.scalar_one_or_none()
     if not topic:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tema no encontrado")
+
+    # Sequential-unlock gate: don't regenerate a challenge for a locked module.
+    await assert_module_unlocked(topic.module_id, current_user.id, db)
 
     student_level = await get_user_level(db, current_user.id)
 
@@ -149,6 +156,10 @@ async def submit_code(
     challenge = result.scalar_one_or_none()
     if not challenge:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Desafío no encontrado")
+
+    # Sequential-unlock gate: a passing submission completes the topic, which feeds
+    # the unlock rule — refuse so a locked module can't be unlocked by the back door.
+    await assert_topic_unlocked(challenge.topic_id, current_user.id, db)
 
     # Evaluate code with LLM (adapted to student level)
     student_level = await get_user_level(db, current_user.id)
