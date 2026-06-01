@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Sparkles, ChevronLeft, ChevronRight, CheckCircle2, AlertTriangle, TrendingUp, BookOpen } from 'lucide-react'
+import { Sparkles, ChevronLeft, ChevronRight, CheckCircle2, AlertTriangle, TrendingUp, BookOpen, HelpCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { assessmentApi } from '@/api/assessment'
 import { usersApi } from '@/api/users'
@@ -118,6 +118,23 @@ export default function EntryAssessmentPage() {
   }
 
   const handleGoDashboard = () => navigate('/dashboard', { replace: true })
+
+  // Enter advances the wizard (next question, or submit on the last) for keyboard efficiency.
+  useEffect(() => {
+    if (!session || result || submitMutation.isPending) return
+    const last = currentIdx === session.questions.length - 1
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter') return
+      const el = document.activeElement
+      if (el instanceof HTMLButtonElement || el instanceof HTMLTextAreaElement) return
+      e.preventDefault()
+      if (last) handleSubmit()
+      else handleNext()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session, result, submitMutation.isPending, currentIdx, answers])
 
   if (isLoadingLevel) {
     return (
@@ -298,6 +315,17 @@ export default function EntryAssessmentPage() {
             />
           </div>
         </div>
+
+        <details className="mb-4 text-xs text-muted-foreground">
+          <summary className="cursor-pointer select-none inline-flex items-center gap-1 rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <HelpCircle className="w-3.5 h-3.5" aria-hidden="true" />
+            ¿Para qué sirve esta evaluación?
+          </summary>
+          <p className="mt-2 leading-relaxed">
+            Mide tu nivel inicial para personalizar la dificultad de quizzes y desafíos.
+            No afecta tu nota; responde con sinceridad y, si no sabes una pregunta, continúa.
+          </p>
+        </details>
 
         {session.source === 'bank' && (
           <div className="mb-4 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-muted/60 border border-border text-xs text-muted-foreground w-fit">

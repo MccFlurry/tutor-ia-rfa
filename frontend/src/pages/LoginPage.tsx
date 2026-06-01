@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 const MAX_ATTEMPTS = 3
 const LOCKOUT_MS = 5 * 60 * 1000
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const PASSWORD_MIN = 6
+const PASSWORD_MIN = 8
 
 type FieldKey = 'fullName' | 'email' | 'password'
 
@@ -26,7 +26,7 @@ function validateField(key: FieldKey, value: string, isRegister: boolean): strin
       return null
     case 'password':
       if (!value) return 'Ingresa tu contraseña.'
-      if (value.length < PASSWORD_MIN) return `Mínimo ${PASSWORD_MIN} caracteres.`
+      if (isRegister && value.length < PASSWORD_MIN) return `Mínimo ${PASSWORD_MIN} caracteres.`
       return null
   }
 }
@@ -297,13 +297,13 @@ export default function LoginPage() {
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     required
-                    minLength={PASSWORD_MIN}
+                    minLength={isRegister ? PASSWORD_MIN : undefined}
                     autoComplete={isRegister ? 'new-password' : 'current-password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={`Mínimo ${PASSWORD_MIN} caracteres`}
+                    placeholder={isRegister ? `Mínimo ${PASSWORD_MIN} caracteres` : 'Tu contraseña'}
                     disabled={isLocked}
-                    {...fieldProps('password', !!passwordError, 'password-help')}
+                    {...fieldProps('password', !!passwordError, isRegister ? 'password-help' : undefined)}
                     className={cn(
                       fieldProps('password', !!passwordError).className,
                       'pr-12'
@@ -329,11 +329,11 @@ export default function LoginPage() {
                   <p id="password-error" className="text-xs text-destructive" role="alert">
                     {passwordError}
                   </p>
-                ) : (
+                ) : isRegister ? (
                   <p id="password-help" className="text-xs text-muted-foreground">
                     Mínimo {PASSWORD_MIN} caracteres.
                   </p>
-                )}
+                ) : null}
               </div>
 
               <button
