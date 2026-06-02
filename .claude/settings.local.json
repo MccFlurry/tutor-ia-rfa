@@ -184,7 +184,10 @@
       "PowerShell(gcloud compute scp *)",
       "PowerShell(gcloud compute ssh tutor-vm *)",
       "PowerShell(curl.exe -s -m 20 -o NUL -w \"login status=%{http_code}\" -X POST https://api.tutoriesrfa.lat/api/v1/auth/login -H \"Content-Type: application/json\" -d $body)",
-      "PowerShell($body = '{\"email\":\"jose.alejandria@iestprfa.edu.pe\",\"password\":\"Iestp2026!\"}')"
+      "PowerShell($body = '{\"email\":\"jose.alejandria@iestprfa.edu.pe\",\"password\":\"Iestp2026!\"}')",
+      "PowerShell(gcloud compute instances stop tutor-vm *)",
+      "PowerShell(python backend/scripts/gen_exam_sheets.py)",
+      "PowerShell(python backend/scripts/gen_answer_key.py)"
     ]
   }
 }
