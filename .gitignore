@@ -52,3 +52,8 @@ corpus/*
 !corpus/.gitignore
 
 .ollama.log
+
+# Padron de matricula + credenciales generadas (PII: nombres/DNI reales +
+# passwords). NUNCA commitear. Viven solo en la maquina del tesista.
+ATI-V-*.xlsx
+students_credentials.csv
