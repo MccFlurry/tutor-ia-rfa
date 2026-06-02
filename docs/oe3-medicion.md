@@ -79,3 +79,36 @@ sudo systemctl disable --now tutor-health-poller
 
 Consolidar los JSON de `oe3_results/` en `docs/reporte-OE3-despliegue.docx` junto
 con la evidencia de despliegue (uptime de la VM, capturas de Caddy/cert, etc.).
+
+---
+
+## 5. Resultados de medición — 02-jun-2026 (VM CPU `e2-standard-4`)
+
+**Despliegue (cualitativo) — cumple:** sistema operativo en producción · 4 contenedores (postgres+pgvector, redis, backend FastAPI, Caddy) · TLS Let's Encrypt en `api.tutoriesrfa.lat` · frontend en Firebase (`tutor-ia-rfa.web.app`) · 3388 chunks indexados (IVFFlat) · logs JSON + respuestas RAG con citas.
+
+### 5.1 Rendimiento (harness `oe3_perf.py`, 15 reqs, concurrencia 3, `num_predict=128`)
+
+| Indicador | Umbral | Medido | ¿Cumple? |
+|-----------|--------|--------|----------|
+| TTFT P95 | ≤ 2.5 s | **99.40 s** | ❌ |
+| ITL P95 | ≤ 250 ms | **362.6 ms** | ❌ |
+| throughput (conc 3) | ≥ 8 tok/s | **2.69 tok/s** | ❌ |
+| e2e P95 | ≤ 8 s | no medido (`--e2e` omitido) | — |
+
+**Lectura honesta.** Los umbrales fueron calibrados para aceleración **GPU**; la VM del piloto es **CPU-only**. A concurrencia 3, un único modelo 7B sobre CPU **no paraleliza**: las peticiones se encolan, por lo que el TTFT P95 (99 s) refleja la **saturación por encolamiento**, no la latencia de una sola consulta. La condición real del piloto (10–15 estudiantes con uso esporádico) se aproxima a **1 usuario concurrente**, sustancialmente más rápida (sin cola). La medición formal a concurrencia 3 evidencia, por tanto, la **necesidad de una instancia con GPU** para alcanzar los umbrales.
+
+> Re-encuadre consistente con OE1/OE2 (aprobado por la asesora): se reportan los valores reales y se documenta "sub-2.5 s / ≥8 tok/s requiere GPU" como **recomendación de infraestructura / trabajo futuro**. La **calidad** del RAG ya está validada offline por RAGAS (OE2, 5/5); el rendimiento es un asunto de hardware, no del pipeline.
+
+### 5.2 Disponibilidad — pendiente ventana de observación
+
+Requiere ≥ **48 h** de `tutor-health-poller` corriendo (para MTBF ≥ 48 h). Arrancar el poller al inicio del piloto y medir con `oe3_availability.py` sobre los logs de Caddy + poller. No medido en esta corrida.
+
+### 5.3 Trazabilidad — cumple
+
+- Cobertura RF = **1.0** (33/33, matriz ISO/OE5).
+- Exactitud de citación apoyada en RAGAS `context_precision` = **0.876** (OE2).
+
+### 5.4 Conclusión OE3
+
+Despliegue, arquitectura de disponibilidad (healthchecks, `restart: unless-stopped`, backup, poller) y trazabilidad **logrados**. La latencia de generación queda por debajo de los umbrales sobre **CPU**; alcanzarlos exige **GPU** (recomendación de infraestructura documentada). Medición de disponibilidad sobre ventana ≥48 h y, opcionalmente, latencia a concurrencia 1, quedan como mediciones complementarias.
+
