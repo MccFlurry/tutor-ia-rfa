@@ -175,7 +175,9 @@
       "Bash(IMPECCABLE_CRITIQUE_META='{\"target\":\"frontend/src/pages/DashboardPage.tsx\",\"total_score\":35,\"p0_count\":0,\"p1_count\":0}' node .claude/skills/impeccable/scripts/critique-storage.mjs write frontend-src-pages-dashboardpage-tsx .impeccable/critique/.tmp-dashboard-body.md)",
       "Bash(IMPECCABLE_CRITIQUE_META='{\"target\":\"frontend/src/pages/DashboardPage.tsx\",\"total_score\":36,\"p0_count\":0,\"p1_count\":0}' node .claude/skills/impeccable/scripts/critique-storage.mjs write frontend-src-pages-dashboardpage-tsx .impeccable/critique/.tmp-dashboard-body.md)",
       "Bash(IMPECCABLE_CRITIQUE_META='{\"target\":\"frontend/src/pages/ModulesPage.tsx\",\"total_score\":29,\"p0_count\":0,\"p1_count\":1}' node .claude/skills/impeccable/scripts/critique-storage.mjs write frontend-src-pages-modulespage-tsx .impeccable/critique/.tmp-modules-body.md)",
-      "Bash(IMPECCABLE_CRITIQUE_META='{\"target\":\"frontend/src/pages/ModulesPage.tsx\",\"total_score\":37,\"p0_count\":0,\"p1_count\":0}' node .claude/skills/impeccable/scripts/critique-storage.mjs write frontend-src-pages-modulespage-tsx .impeccable/critique/.tmp-modules-body.md)"
+      "Bash(IMPECCABLE_CRITIQUE_META='{\"target\":\"frontend/src/pages/ModulesPage.tsx\",\"total_score\":37,\"p0_count\":0,\"p1_count\":0}' node .claude/skills/impeccable/scripts/critique-storage.mjs write frontend-src-pages-modulespage-tsx .impeccable/critique/.tmp-modules-body.md)",
+      "PowerShell(gcloud config *)",
+      "PowerShell($p = \"$env:LOCALAPPDATA\\\\Google\\\\Cloud SDK\\\\google-cloud-sdk\\\\bin\\\\gcloud.cmd\"; if \\(Test-Path $p\\) { \"FOUND: $p\" } else { \"NOT at default; searching...\"; Get-ChildItem -Path \"$env:LOCALAPPDATA\\\\Google\" -Recurse -Filter gcloud.cmd -ErrorAction SilentlyContinue | Select-Object -First 3 -ExpandProperty FullName })"
     ]
   }
 }
