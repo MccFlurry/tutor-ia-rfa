@@ -146,7 +146,8 @@ async def main(max_students: int | None, reset: bool) -> None:
             assessed = COURSE_START + timedelta(days=rng.randint(0, 3), hours=rng.randint(0, 8))
             db.add(UserLevel(
                 user_id=s.id, level=lvl, entry_score=entry, assessed_at=assessed,
-                history=[{"level": lvl, "score": entry, "at": assessed.isoformat()}],
+                history=[{"level": lvl, "score": entry,
+                          "changed_at": assessed.isoformat(), "reason": "entry"}],
             ))
 
             # --- progreso por tema (prefijo secuencial) ---

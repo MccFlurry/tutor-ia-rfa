@@ -57,3 +57,5 @@ corpus/*
 # passwords). NUNCA commitear. Viven solo en la maquina del tesista.
 ATI-V-*.xlsx
 students_credentials.csv
+docs/roster-codigos.csv
+docs/examen-pretest-postest-hojas.*
