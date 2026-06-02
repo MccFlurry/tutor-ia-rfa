@@ -1,0 +1,26 @@
+# tutor-health-poller.service — Sonda de disponibilidad OE3 como servicio systemd.
+# Instalacion (en la VM, ajustar User/rutas si tu usuario no es 'meenc'):
+#   sudo cp infra/scripts/tutor-health-poller.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now tutor-health-poller
+#   systemctl status tutor-health-poller
+# Detener al cerrar la ventana de medicion:
+#   sudo systemctl disable --now tutor-health-poller
+
+[Unit]
+Description=Tutor IA RFA - health poller (OE3 uptime/MTBF)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=meenc
+Environment=HEALTH_URL=https://api.tutoriesrfa.lat/api/v1/health
+Environment=HEALTH_LOG=/var/log/tutor/health.log
+Environment=HEALTH_INTERVAL=60
+ExecStart=/home/meenc/tutor-ia-rfa/infra/scripts/health-poller.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
