@@ -187,7 +187,8 @@
       "PowerShell($body = '{\"email\":\"jose.alejandria@iestprfa.edu.pe\",\"password\":\"Iestp2026!\"}')",
       "PowerShell(gcloud compute instances stop tutor-vm *)",
       "PowerShell(python backend/scripts/gen_exam_sheets.py)",
-      "PowerShell(python backend/scripts/gen_answer_key.py)"
+      "PowerShell(python backend/scripts/gen_answer_key.py)",
+      "PowerShell(\"unit:        \" + \\(python -m pytest tests/unit --collect-only -q -p no:cacheprovider 2>&1 | Select-String \"tests collected|test collected\" | Select-Object -Last 1\\); \"integration: \" + \\(python -m pytest tests/integration --collect-only -q -p no:cacheprovider 2>&1 | Select-String \"tests collected|test collected\" | Select-Object -Last 1\\))"
     ]
   }
 }
