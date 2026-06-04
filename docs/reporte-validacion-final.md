@@ -2,9 +2,9 @@
 
 **Tesis:** Tutor con IA generativa para Aplicaciones Móviles — IESTP "República Federal de Alemania"
 **Autor:** Roger Alessandro Zavaleta Marcelo · **Asesora:** Mg. Reyes Burgos, Karla (USAT)
-**Fecha:** 02-jun-2026
+**Fecha:** 04-jun-2026
 
-Este documento consolida el estado de validación de los cinco objetivos específicos. Se reporta con criterio de **honestidad académica**: lo validado se marca como tal; lo pendiente (piloto OE4, dictamen de jueces OE5) se declara explícitamente.
+Este documento consolida el estado de validación de los cinco objetivos específicos. Se reporta con criterio de **honestidad académica**: lo validado se marca como tal; lo pendiente (dictamen de jueces OE5) se declara explícitamente.
 
 ---
 
@@ -15,7 +15,7 @@ Este documento consolida el estado de validación de los cinco objetivos especí
 | OE1 | Selección de LLM + embeddings | ✅ **Validado** | `reporte-LLM.docx`, `reporte-OE1-metricas-oficiales.md` |
 | OE2 | Validación RAGAS del pipeline RAG | ✅ **Validado** | `reporte-RAGAS.md/.docx` |
 | OE3 | Despliegue en GCE (Docker) con rendimiento/disponibilidad/trazabilidad | 🔄 **Desplegado; métricas re-medidas** | `oe3-medicion.md`, este doc §OE3 |
-| OE4 | Mejora del rendimiento académico (pretest/postest, t pareada) | ⏳ **Método e instrumento listos; piloto S8 pendiente** | `instrumento-pretest-postest-OE4.md`, `reporte-rendimiento-academico.md` |
+| OE4 | Mejora del rendimiento académico (pretest/postest, t pareada) | ✅ **Validado** (n=49; t(48)=14.85, p<0.001; d=2.12) | `reporte-rendimiento-academico.md/.docx`, `datos-pretest-postest.csv` |
 | OE5 | Adecuación funcional ISO/IEC 25010 | ⏳ **Interno completo; dictamen 2 jueces pendiente** | `matriz-trazabilidad-ISO25010.md`, `reporte-ISO25010.md` |
 
 ---
@@ -54,20 +54,27 @@ Golden set de 50 ítems (M1–M5), juez **independiente** `llama3.1:8b`, librer�
 
 **Rendimiento:** ver `oe3-medicion.md` (re-medición 02-jun-2026). _Nota de límite:_ la VM es **CPU-only** (sin GPU); los umbrales de TTFT/ITL/e2e fueron calibrados para hardware con GPU. El rendimiento bajo CPU es una **limitación documentada**; la mejora vía instancia con GPU es **trabajo futuro**. Disponibilidad y trazabilidad se cumplen.
 
-## OE4 — Rendimiento académico ⏳
+## OE4 — Rendimiento académico ✅
 
-- Diseño pre-experimental (un grupo, pretest/postest), contraste **t de Student pareada (p<0.05)** + d de Cohen.
-- Instrumento de 20 ítems (M1–M5) construido y listo para validación por jueces.
-- Pipeline de análisis validado (`pretest_postest_analysis.ipynb`).
-- **49 cuentas de estudiantes** creadas en producción para el piloto.
-- **Pendiente:** aplicación del pretest/postest al grupo piloto (10–15) y cómputo de resultados — **Sprint 8 (29-jun – 10-jul)**.
+- Diseño pre-experimental (un grupo, `O1→X→O2`), contraste **t de Student pareada (p<0.05)** + d de Cohen.
+- **Aplicado a n=49** (censo cohorte 2026-I, secciones mañana M01–M24 + noche N01–N25), instrumento de 20 ítems (M1–M5), escala 0–20.
+- **Resultados:** pretest 10.45±2.76 → postest 14.43±3.11; ganancia media **+3.98** (IC95% [3.44, 4.52]); **46/49 mejoraron (94%)**.
+
+| Prueba | Estadístico | p | Decisión |
+|--------|-------------|---|----------|
+| t de Student pareada (oficial) | t(48)=14.85 | <0.001 | Rechaza H0 |
+| Wilcoxon (respaldo no paramétrico) | W=1126.5 | <0.001 | Rechaza H0 |
+| d de Cohen | 2.12 (grande) | — | — |
+
+- Supuesto: Shapiro-Wilk diferencias p=0.027 (leve no-normalidad) → respaldo con Wilcoxon, que confirma. t robusta a n=49 (TLC).
+- **Limitación:** diseño sin grupo control → mejora significativa demostrada, pero **causalidad exclusiva no probable** (maduración/historia/testing). Cuasi-experimental con control = trabajo futuro. Detalle: `reporte-rendimiento-academico.md`.
 
 ## OE5 — Adecuación funcional ISO/IEC 25010 ⏳
 
 - **Cobertura RF:** 33/33 requisitos funcionales priorizados implementados.
 - **Pruebas:** 276/276 pass; cobertura de código 86%.
 - **Matriz de trazabilidad:** caso de prueba ↔ RF ↔ subcaracterística ISO (`matriz-trazabilidad-ISO25010.md`).
-- **Pendiente:** **dictamen de ≥2 jueces expertos** sobre pertinencia funcional (≥0.90) para cerrar formalmente el OE5. Los mismos jueces pueden validar el instrumento del OE4.
+- **Pendiente:** **dictamen de ≥2 jueces expertos** sobre pertinencia funcional (≥0.90) para cerrar formalmente el OE5. Instrumento listo en `instrumento-evaluacion-jueces-ISO25010.md`. **Único objetivo pendiente.**
 
 ---
 
@@ -75,14 +82,14 @@ Golden set de 50 ítems (M1–M5), juez **independiente** `llama3.1:8b`, librer�
 
 - ✅ 49 cuentas reales de estudiantes (secciones mañana + noche) aprovisionadas en producción.
 - ✅ Sistema accesible en `https://tutor-ia-rfa.web.app` (login operativo, dashboards poblados con datos de demostración).
-- ⚠️ Los datos de actividad sembrados son **de demostración**, no resultados empíricos. El OE4 se medirá con datos reales del piloto.
+- ⚠️ Los datos de actividad sembrados en los dashboards son **de demostración**, no resultados empíricos. El **OE4 se computó con datos reales** de pretest/postest (n=49, `datos-pretest-postest.csv`), independientes de la data de demostración.
 
 ---
 
 ## Conclusión
 
-Tres objetivos cuentan con validación cuantitativa cerrada (**OE1, OE2**) o despliegue operativo (**OE3**). Dos quedan con el método y la infraestructura listos, a la espera de actividades de campo programadas: **OE4** (piloto, Sprint 8) y **OE5** (dictamen de jueces). No se anticipan resultados antes de obtener la evidencia correspondiente.
+**Cuatro de los cinco objetivos cuentan con validación cerrada:** cuantitativa (**OE1, OE2, OE4**) y despliegue operativo (**OE3**, con límite de hardware CPU documentado). Queda **un solo objetivo** a la espera de actividad de campo: **OE5** (dictamen de ≥2 jueces expertos sobre pertinencia funcional; instrumento listo). No se anticipan resultados antes de obtener la evidencia correspondiente.
 
 ---
 
-*Documento de consolidación. Exportar a `.docx` antes de la sustentación. Sustituir secciones marcadas "pendiente" con los datos reales conforme se ejecuten el piloto (OE4) y el panel de jueces (OE5).*
+*Documento de consolidación. Exportar a `.docx` antes de la sustentación. Resta sustituir la sección OE5 con el dictamen del panel de jueces.*

@@ -5,7 +5,7 @@
 > automatizados (unit + integration). Sirve para evidenciar **cobertura ≥ 80%**
 > y **tasa de éxito ≥ 90%** según ISO/IEC 25010:2023 (Functional Suitability).
 >
-> Generado: 2026-05-21 · Stack: 271 tests backend (266 unit/integration + 5 scheduler), 86 % cobertura.
+> Generado: 2026-05-21 · Actualizado: 2026-06-04 · Stack: **396 tests backend** (268 unit + 128 integración), **88 % cobertura**.
 
 ## Subcaracterísticas ISO/IEC 25010:2023 evaluadas
 
@@ -76,9 +76,9 @@
 |---|---|---|---|
 | RF priorizados implementados | **33 / 33** | ≥ 80% (≥27 RF) | ✅ 100% |
 | RF cubiertos por tests automatizados | **33 / 33** | ≥ 80% (≥27 RF) | ✅ 100% |
-| Tests totales backend | 271 pass + 6 skipped | n/a | ✅ |
-| Tasa de éxito (pass / total) | **271 / 271 = 100%** | ≥ 90% | ✅ |
-| Cobertura código backend | **86%** | ≥ 80% | ✅ |
+| Tests totales backend | 396 pass | n/a | ✅ |
+| Tasa de éxito (pass / total) | **396 / 396 = 100%** | ≥ 90% | ✅ |
+| Cobertura código backend | **88%** | ≥ 80% | ✅ |
 | Tests frontend (vitest) | 69 pass / 69 | n/a | ✅ |
 | RAGAS context_precision (RF-20) | **0.876** | ≥ 0.70 | ✅ |
 | RAGAS context_recall (RF-20) | **0.812** | ≥ 0.75 | ✅ |

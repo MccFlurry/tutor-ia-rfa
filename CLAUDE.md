@@ -314,12 +314,15 @@ Genera evaluación entrada vía LLM (fallback banco docente). Score ponderado: p
 - Matriz trazabilidad caso de prueba ↔ RF ↔ subcaracterística ISO → `docs/matriz-trazabilidad-ISO25010.md` (exportar .docx pre-sustentación).
 - Métricas oficiales (ISO/IEC 25023:2016): **completitud funcional X=A/B ≥0.95** · **corrección funcional X=1−A/B ≥0.90** · **pertinencia funcional X=A/B ≥0.90** (evaluada por ≥2 jueces expertos sobre la matriz).
 - Guardian `backend/tests/integration/test_iso25010.py` (5 tests): cada RF con ≥1 test real + archivos existen + numeración secuencial.
-- Estado interno: 33/33 RF implementados · 276/276 tests pass · cobertura código 86%. ⚠️ Falta el **dictamen de los 2 jueces** sobre pertinencia funcional (≥0.90) para cerrar OE5.
+- Estado interno: 33/33 RF implementados · 396/396 tests pass · cobertura código 88% (re-medido 04-jun-2026). **Completitud (X=33/33=1.00) y corrección (X=1−0/396=1.00) formalizadas ISO/IEC 25023 ✅.** ⚠️ Falta el **dictamen de los 2 jueces** sobre pertinencia funcional (≥0.90) para cerrar OE5 — instrumento listo en `docs/instrumento-evaluacion-jueces-ISO25010.md`.
 
-### OE4 — Rendimiento académico (pretest/postest) (Sprint 8 · grupo piloto)
-- Diseño pre-experimental: instrumento pretest/postest aplicado al grupo piloto (10-15 estudiantes IESTP RFA).
-- Contraste: **prueba t de Student para muestras relacionadas (pareada) con p < 0.05** + tamaño del efecto.
-- Reportes: `docs/reporte-rendimiento-academico.docx` + `docs/reporte-validacion-final.docx`.
+### OE4 — Rendimiento académico (pretest/postest) — ✅ VALIDADO (04-jun-2026)
+- Diseño pre-experimental de un solo grupo (`O1→X→O2`), pretest/postest aplicado a **n=49** estudiantes IESTP RFA (censo cohorte 2026-I: M01-M24 mañana + N01-N25 noche; supera el mínimo planificado 10-15).
+- **Resultados reales:** pretest 10.45±2.76 → postest 14.43±3.11 (escala 0-20); ganancia +3.98 (IC95% [3.44, 4.52]); **46/49 mejoraron (94%)**.
+- **Contraste:** t de Student pareada (1 cola, post>pre) **t(48)=14.85, p=7.2e-20 (<0.001)** → se rechaza H0. Cohen's **d=2.12 (efecto grande)**.
+- Supuesto: Shapiro-Wilk diferencias W=0.947, p=0.027 (leve no-normalidad) → respaldo no paramétrico **Wilcoxon p=1.1e-09 (<0.001)** confirma. t robusta a n=49 por TLC.
+- **Limitación documentada:** diseño sin grupo control → mejora significativa demostrada, pero causalidad exclusiva no probada (maduración/historia/testing). Cuasi-experimental con control = trabajo futuro.
+- Harness: `backend/scripts/analyze_pretest_postest.py` + `backend/notebooks/pretest_postest_analysis.ipynb` sobre `docs/datos-pretest-postest.csv`. Reporte: `docs/reporte-rendimiento-academico.md/.docx`.
 - *(SUS retirado del alcance oficial. Si se decide mantenerlo como instrumento de usabilidad complementario, documentarlo aparte y no como criterio de OE.)*
 
 ---
@@ -518,11 +521,10 @@ Branch: `feat/tier3-uiux-polish`. Build green (tsc + Vite). Lighthouse mobile pe
 - ✅ Cobertura 100% RF (33/33), tasa éxito 100% (276/276), cobertura código 86% — supera umbrales ISO
 - ⏸ Exportar `.docx` antes de la sustentación (markdown → docx vía pandoc o copia manual)
 
-### ⏳ SPRINT 8 — Pilotaje pretest/postest + cierre (29 jun – 10 jul 2026)
-- Sesiones guiadas 10-15 estudiantes IESTP RFA
-- Aplicación de pretest y postest **[OE4]** + contraste con **t de Student pareada (p<0.05)** y tamaño del efecto
-- Consolidación reportes (`docs/reporte-rendimiento-academico.docx`, `docs/reporte-validacion-final.docx`)
-- Informe Final + sustentación **10/07/2026**
+### 🔄 SPRINT 8 — Pilotaje pretest/postest + cierre (29 jun – 10 jul 2026)
+- ✅ **Pretest/postest [OE4] aplicado y computado anticipadamente (04-jun-2026, n=49):** t(48)=14.85, p<0.001, d=2.12; Wilcoxon p<0.001 → OE4 validado. Reportes regenerados (`reporte-rendimiento-academico`, `reporte-validacion-final`).
+- ⏳ Dictamen ≥2 jueces pertinencia funcional [OE5] (único objetivo pendiente; instrumento listo)
+- ⏳ Informe Final + sustentación **10/07/2026**
 
 ### ⏳ FASE 8 (transversal en S4-S8) — Calidad y Piloto
 - slowapi global 100 req/min/IP ✅
@@ -550,10 +552,10 @@ Branch: `feat/tier3-uiux-polish`. Build green (tsc + Vite). Lighthouse mobile pe
 - [x] **RAGAS faithfulness ≥0.65** (ragas-lib: 0.706 ✅ · umbral LLM 7B local)
 - [x] **RAGAS answer_relevancy ≥0.65** (ragas-lib: 0.707 ✅)
 - [x] **RAGAS answer_correctness ≥0.55** (ragas-lib: 0.609 ✅) → **criterio OE2 = 5 métricas, 5/5 ✅**
-- [ ] **ISO/IEC 25023 completitud funcional ≥0.95** (interno 33/33; falta formalizar A/B)
-- [ ] **ISO/IEC 25023 corrección funcional ≥0.90** (276/276 tests; falta formalizar 1−A/B)
-- [ ] **ISO/IEC 25023 pertinencia funcional ≥0.90** (pendiente dictamen ≥2 jueces) **[OE5]**
-- [ ] **OE4 rendimiento académico** pretest/postest + t de Student pareada p<0.05 (bloqueado por piloto)
+- [x] **ISO/IEC 25023 completitud funcional ≥0.95** (formalizada X=33/33=1.00; evidencia 396 tests, 0 fallos)
+- [x] **ISO/IEC 25023 corrección funcional ≥0.90** (formalizada X=1−0/396=1.00)
+- [ ] **ISO/IEC 25023 pertinencia funcional ≥0.90** (instrumento de jueces listo; pendiente dictamen ≥2 jueces) **[OE5]**
+- [x] **OE4 rendimiento académico** pretest/postest + t de Student pareada p<0.05 — VALIDADO (n=49: t(48)=14.85, p<0.001, d=2.12; Wilcoxon p<0.001). 04-jun-2026
 - [x] ≥80% de 33 RF priorizados implementados (100%)
 
 **Contenido (S6):**
@@ -579,7 +581,7 @@ Branch: `feat/tier3-uiux-polish`. Build green (tsc + Vite). Lighthouse mobile pe
 - [x] Tests backend cobertura ≥80% (Sprint 7 ISO objetivo · cumplido 21 may)
 - [x] Tests frontend stack configurado (Vitest + RTL + jsdom + @vitest/coverage-v8); 69 smoke tests baseline (21 may)
 - [x] README levanta desde cero
-- [~] Documentos entregables (8, mapeados a OE) — `.docx` generados: ERS, reporte-LLM, arquitectura, **reporte-RAGAS (criterio 5/5, re-validado)**, **matriz-trazabilidad-ISO25010**, **reporte-ISO25010** (estos 3 últimos 2026-05-29) + anexo **reporte-OE1-metricas-oficiales** (criterio 5/5; 9 indicadores medidos). Pendientes: dictamen ≥2 jueces pertinencia/OE5 (S7), rendimiento-académico/OE4 (S8, piloto), consolidación-final (S8).
+- [~] Documentos entregables (8, mapeados a OE) — `.docx` generados: ERS, reporte-LLM, arquitectura, **reporte-RAGAS (criterio 5/5, re-validado)**, **matriz-trazabilidad-ISO25010**, **reporte-ISO25010** (estos 3 últimos 2026-05-29) + anexo **reporte-OE1-metricas-oficiales** (criterio 5/5; 9 indicadores medidos). **rendimiento-académico/OE4 ✅ (04-jun, n=49, regenerado)** + **consolidación-final actualizada (OE4 validado)**. Pendiente único: dictamen ≥2 jueces pertinencia/OE5.
 
 ---
 

@@ -4,8 +4,8 @@
 **Tesista:** Roger Alessandro Zavaleta Marcelo · USAT — Escuela Ingeniería Sistemas y Computación
 **Asesora:** Mg. Reyes Burgos, Karla
 **Sprint:** 7 — Validación funcional
-**Fecha de corte:** 2026-05-21
-**Versión:** 1.0
+**Fecha de corte:** 2026-05-21 · **Actualizado:** 2026-06-04
+**Versión:** 1.1 — formalización ISO/IEC 25023:2016 (X=A/B) + instrumento de jueces; cifras de tests re-medidas (396 pass, 88 % cobertura)
 
 ---
 
@@ -22,8 +22,8 @@ DE REQUISITOS DEL SOFTWARE.docx`).
 |---|---|---|---|
 | Cobertura funcional (RF implementados) | **33 / 33 (100%)** | ≥ 80% | ✅ Cumple |
 | Cobertura por tests automatizados | **33 / 33 (100%)** | ≥ 80% | ✅ Cumple |
-| Tasa de éxito (test pass / total) | **276 / 276 (100%)** | ≥ 90% | ✅ Cumple |
-| Cobertura código backend | **86%** | ≥ 80% | ✅ Cumple |
+| Tasa de éxito (test pass / total) | **396 / 396 (100%)** | ≥ 90% | ✅ Cumple |
+| Cobertura código backend | **88%** | ≥ 80% | ✅ Cumple |
 | RAGAS faithfulness (RF-20 RAG) | **0.706** | ≥ 0.65 | ✅ Cumple |
 | RAGAS answer_relevancy (RF-20 RAG) | **0.707** | ≥ 0.65 | ✅ Cumple |
 
@@ -32,8 +32,44 @@ DE REQUISITOS DEL SOFTWARE.docx`).
 > generación recalibrados para LLM 7B local (asesora aprobó). Detalle completo en
 > `docs/reporte-RAGAS.docx`.
 
-**Veredicto global:** ✅ El sistema **APRUEBA** los criterios de Adecuación
-funcional ISO/IEC 25010:2023 para el alcance del piloto del Sprint 8 (pretest/postest).
+**Veredicto global:** **Completitud** y **corrección** funcionales formalizadas y
+**cumplidas** con evidencia automatizada objetiva (ver §1.1). **Pertinencia** funcional
+con evidencia de respaldo favorable, **pendiente del dictamen formal de ≥2 jueces
+expertos** (instrumento listo en `docs/instrumento-evaluacion-jueces-ISO25010.md`).
+El sistema queda **autorizado** para el piloto del Sprint 8.
+
+---
+
+## 1.1 Formalización ISO/IEC 25023:2016 (métricas X = A/B)
+
+La norma **ISO/IEC 25023:2016** operacionaliza la *adecuación funcional* en tres
+métricas. Sobre el conjunto de **33 RF priorizados** (B = 33):
+
+| Métrica | Fórmula | A (observado) | Cálculo | Umbral OE5 | Resultado | Fuente |
+|---|---|---|---|---|---|---|
+| **Completitud funcional** | X = A/B | A = 33 RF presentes | 33 / 33 | ≥ 0.95 | **1.00** ✅ | medida objetiva (matriz + tests) |
+| **Corrección funcional** | X = 1 − A/B | A = 0 casos incorrectos (de 396) | 1 − 0/396 | ≥ 0.90 | **1.00** ✅ | medida objetiva (396 tests, 0 fallos) |
+| **Pertinencia funcional** | X = A/B | A = RF pertinentes (juicio experto) | ⏳ | ≥ 0.90 | **pendiente** ⏳ | dictamen ≥2 jueces |
+
+**Lectura honesta del estado (04-jun-2026):**
+
+1. **Completitud (X = 1.00 ≥ 0.95) ✅** y **corrección (X = 1.00 ≥ 0.90) ✅** son
+   medidas **objetivas, reproducibles y verificables** desde el propio sistema: los 33
+   RF están implementados, cada uno con caso(s) de prueba, y la suite completa
+   (**396 casos, 0 fallos**) se ejecuta con `pytest`. No dependen de opinión.
+2. **Pertinencia (≥ 0.90)** es, por definición ISO, una medida de **juicio sobre la
+   adecuación a la tarea**: requiere el dictamen de **≥2 jueces expertos** sobre la
+   matriz. El instrumento de recolección está construido y en blanco
+   (`docs/instrumento-evaluacion-jueces-ISO25010.md`); **los valores se consolidan solo
+   con los dictámenes reales** — no se simulan.
+3. A diferencia del piloto OE4 (que exige datos longitudinales de estudiantes durante
+   el curso), el cierre de pertinencia **no está bloqueado por el cronograma**: el
+   sistema ya está terminado, por lo que dos expertos (p. ej. la asesora + un ingeniero
+   de software / docente del área) pueden evaluarlo y firmar en el corto plazo.
+
+> **Integridad académica:** las cifras de completitud y corrección reflejan ejecuciones
+> reales de la suite; la pertinencia queda explícitamente *pendiente* hasta recibir los
+> dictámenes. No se reportan resultados de jueces inexistentes.
 
 ---
 
@@ -57,22 +93,22 @@ Según **ISO/IEC 25010:2023 § 4.1 Functional suitability**:
 
 | Subcaracterística | Definición (ISO) | RF asociados |
 |---|---|---|
-| **Completitud funcional** | Grado en que el conjunto de funciones cubre todas las tareas y objetivos especificados | 22 RF (cobertura) |
+| **Completitud funcional** | Grado en que el conjunto de funciones cubre todas las tareas y objetivos especificados | 19 RF (cobertura) |
 | **Corrección funcional** | Grado en que el sistema entrega los resultados correctos con la precisión necesaria | 8 RF (lógica) |
-| **Pertinencia funcional** | Grado en que las funciones facilitan la realización de tareas y objetivos especificados | 3 RF (UX/personalización) |
+| **Pertinencia funcional** | Grado en que las funciones facilitan la realización de tareas y objetivos especificados | 6 RF (UX/personalización) |
 
 ### 2.3 Instrumentos de medición
 
 | Capa | Framework | Cantidad |
 |---|---|---|
-| Tests unitarios backend | pytest 8.4 + pytest-asyncio + mocks `AsyncMock` | 173 tests |
-| Tests integración backend | pytest + httpx ASGITransport + dependency overrides | 73 tests (12 routers + 5 ISO + 6 health) |
-| Tests scheduler | pytest + AsyncIOScheduler | 5 tests |
-| Tests frontend | Vitest 4.1 + React Testing Library + jsdom | 69 tests (lib + store + componentes) |
-| Cobertura código | pytest-cov 7.1 (line + branch) | 86% backend |
+| Tests unitarios backend (incl. scheduler) | pytest + pytest-asyncio + mocks `AsyncMock` | 268 tests |
+| Tests integración backend | pytest + httpx ASGITransport + dependency overrides | 128 tests (routers + ISO guardian + health) |
+| Tests frontend | Vitest + React Testing Library + jsdom | 69 tests (lib + store + componentes) |
+| Cobertura código | pytest-cov (line + branch) | 88% backend |
 | Calidad RAG | Librería `ragas==0.2.6` oficial + juez independiente `llama3.1:8b`, golden set 50 preguntas | ✅ |
 
-**Total: 320 casos de prueba ejecutados, 100% pass.**
+**Total: 396 casos backend (100% pass) + 69 frontend = 465 casos de prueba.**
+*(Re-medido 04-jun-2026; creció desde los 320 del corte original por las fases de acompañamiento proactivo del tutor y los reportes de estudiantes del panel admin.)*
 
 ### 2.4 Trazabilidad
 
@@ -110,7 +146,7 @@ La trazabilidad bidireccional **RF ↔ test** se mantiene en:
 | RF-32 Gestión usuarios | `*/admin/users*` | ✅ |
 | RF-33 Gestión contenido | `*/admin/{modules,topics,quiz-questions,coding-challenges,bank}` | ✅ |
 
-**Cobertura completitud: 22/22 (100%) ✅**
+**Cobertura completitud: 19/19 (100%) ✅**
 
 ### 3.2 Corrección funcional
 
@@ -138,7 +174,8 @@ La trazabilidad bidireccional **RF ↔ test** se mantiene en:
 | RF-21 Contexto chat | RAG usa últimas 5 rondas de conversación | ✅ test_rag_service_internals.test_build_history |
 | RF-23 Indicador "escribiendo" | Frontend renderiza TypingIndicator durante request | ✅ componente existe, validación visual en piloto |
 
-**Cobertura pertinencia: 3/3 RF críticos cubiertos + 3 UX validados visualmente. ✅**
+**Cobertura pertinencia: 6/6 RF cubiertos (3 de control/lógica + 3 de UX validados visualmente). ✅**
+*Nota: la métrica ISO de pertinencia (X≥0.90) la determinan los ≥2 jueces sobre los 33 RF (ver §1.1 e instrumento de jueces); esta sección evidencia la cobertura de prueba interna de los 6 RF clasificados como pertinencia.*
 
 ---
 
@@ -163,8 +200,8 @@ al usuario, conserva la sesión y permite reintento.
 ## 5. Cobertura de código (complementario)
 
 ```
-TOTAL                                          2803    402    86%
-241 passed, 6 skipped → 276 passed
+TOTAL                                          3655    445    88%
+396 passed in 9.05s
 ```
 
 **Servicios al 100%:** `auth_service`, `progress_service`, `rag_service`,
@@ -196,14 +233,21 @@ Ningún defecto abierto al cierre del Sprint 7.
 
 ## 7. Conclusiones
 
-1. **Adecuación funcional CUMPLIDA.** Los 33 RF priorizados están
-   implementados, automáticamente probados y verificados al 100%.
+1. **Completitud (X=1.00 ≥0.95) y corrección (X=1.00 ≥0.90) CUMPLIDAS** con medida
+   objetiva: los 33 RF priorizados están implementados, automáticamente probados y
+   verificados al 100% (396 casos, 0 fallos).
 2. **Tasa de éxito 100%** supera ampliamente el umbral del 90% solicitado.
-3. **Cobertura de código 86%** supera el 80% objetivo, con concentración
+3. **Cobertura de código 88%** supera el 80% objetivo, con concentración
    en los servicios críticos (autenticación, RAG, progreso, completitud).
 4. **Degradación elegante validada** ante fallos de Ollama (LLM y embeddings).
 5. **Trazabilidad bidireccional** garantizada por el test guardian
    `test_iso25010.py`, que protege la matriz contra deriva futura.
+6. **Pertinencia funcional (X≥0.90): PENDIENTE del dictamen de ≥2 jueces expertos.**
+   El instrumento de evaluación está construido y listo
+   (`docs/instrumento-evaluacion-jueces-ISO25010.md`); la evidencia de respaldo es
+   favorable, pero el valor formal se consolida únicamente con los dictámenes reales.
+   Es el último paso para cerrar OE5 y **no depende del cronograma del piloto** (el
+   sistema ya está terminado).
 
 El sistema queda **autorizado para iniciar el piloto del Sprint 8** (29 jun –
 10 jul 2026) con 10–15 estudiantes del IESTP RFA: aplicación de **pretest/postest
@@ -213,6 +257,7 @@ El sistema queda **autorizado para iniciar el piloto del Sprint 8** (29 jun –
 
 ## 8. Anexos
 
+- `docs/instrumento-evaluacion-jueces-ISO25010.md` — **instrumento de juicio de expertos** (pertinencia funcional, ≥2 jueces) — pendiente de aplicación
 - `docs/matriz-trazabilidad-ISO25010.md` — matriz completa RF → endpoint → test
 - `backend/tests/integration/test_iso25010.py` — guardian automatizado
 - `docs/reporte-RAGAS.docx` — validación RAGAS [OE2] (instrumento oficial, faithfulness 0.706, criterio 5 primarias → 5/5 cumplen)
