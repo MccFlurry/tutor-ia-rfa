@@ -1,0 +1,3 @@
+# Los scripts de shell corren en Linux (VM GCE, pod RunPod) → forzar LF
+# para que core.autocrlf=true no les inserte CRLF al hacer checkout en Windows.
+*.sh text eol=lf
