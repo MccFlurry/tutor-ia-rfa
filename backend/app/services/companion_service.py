@@ -13,6 +13,7 @@ from app.models.module import Module
 from app.models.progress import UserTopicProgress
 from app.models.quiz import QuizAttempt
 from app.models.topic import Topic
+from app.models.user import User
 from app.models.user_level import UserLevel
 from app.schemas.companion import (
     CompanionPosition,
@@ -132,7 +133,7 @@ def build_greeting(position: CompanionPosition, diagnostic: ModuleDiagnostic) ->
     )
 
 
-async def _gather_topic_stats(user, module_id: int, db: AsyncSession) -> list[TopicStat]:
+async def _gather_topic_stats(user: User, module_id: int, db: AsyncSession) -> list[TopicStat]:
     """Stats por tema del módulo actual: quiz, progreso y coding pendiente."""
     topics = (
         await db.execute(
@@ -169,7 +170,7 @@ async def _gather_topic_stats(user, module_id: int, db: AsyncSession) -> list[To
             .group_by(QuizAttempt.topic_id)
         )
     ).all()
-    quiz = {row[0]: row for row in quiz_rows}
+    quiz = {row.topic_id: row for row in quiz_rows}
 
     # Desafíos de catálogo (no AI per-usuario) y cuáles ya aprobó (≥60)
     chal_rows = (
@@ -208,18 +209,20 @@ async def _gather_topic_stats(user, module_id: int, db: AsyncSession) -> list[To
             order_index=order_index,
             visited=tid in progress,
             completed=bool(progress.get(tid)),
-            best_score=float(q[1]) if q else None,
-            attempts=int(q[2]) if q else 0,
-            failed_attempts=int(q[3]) if q else 0,
+            best_score=float(q.best) if q else None,
+            attempts=int(q.attempts) if q else 0,
+            failed_attempts=int(q.failed) if q else 0,
             has_coding_pending=any(c not in passed_challenge_ids for c in cids),
         ))
     return stats
 
 
-async def gather_companion(user, db: AsyncSession) -> CompanionResponse:
+async def gather_companion(user: User, db: AsyncSession) -> CompanionResponse:
     """Resuelve posición + diagnóstico + recursos desde BD (sin LLM)."""
     # 0. Sin evaluación de entrada → respuesta mínima (consistente con regla R1)
-    level_row = await db.execute(select(UserLevel).where(UserLevel.user_id == user.id))
+    level_row = await db.execute(
+        select(UserLevel.user_id).where(UserLevel.user_id == user.id)
+    )
     if level_row.scalar_one_or_none() is None:
         return CompanionResponse(
             needs_assessment=True, position=None, diagnostic=None,
@@ -281,7 +284,9 @@ async def gather_companion(user, db: AsyncSession) -> CompanionResponse:
     stats = await _gather_topic_stats(user, current.id, db)
     diagnostic = build_diagnostic(stats, current.id)
 
-    # 3. Recursos curados del módulo actual (máx 3)
+    # 3. Recursos curados del módulo actual (máx 3). Solo nivel módulo a
+    # propósito: los recursos por tema ya se muestran en TopicPage (Fase 3)
+    # y el seed siempre asigna module_id.
     res_rows = await db.execute(
         select(LearningResource)
         .where(
