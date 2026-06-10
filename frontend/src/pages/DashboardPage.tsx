@@ -26,6 +26,8 @@ import { cn } from '@/lib/utils'
 import type { StudentLevel } from '@/types/assessment'
 import TutorNudgeList from '@/components/tutor/TutorNudgeList'
 import ResourceList from '@/components/resources/ResourceList'
+import CompanionPanel from '@/components/tutor/CompanionPanel'
+import { useCompanion } from '@/hooks/useCompanion'
 
 const LEVEL_LABEL: Record<StudentLevel, string> = {
   beginner: 'Principiante',
@@ -52,6 +54,10 @@ export default function DashboardPage() {
     queryFn: () => progressApi.getStreak().then((r) => r.data),
     staleTime: 60 * 1000,
   })
+
+  const { data: companion } = useCompanion()
+  const showCompanion =
+    !!companion && !companion.needs_assessment && !!companion.position && !!companion.diagnostic
 
   // Initial load: skeletons that match the real layout (hero + 3-up stats + 3-up recs).
   if (isLoading) {
@@ -173,37 +179,41 @@ export default function DashboardPage() {
 
       <TutorNudgeList context="dashboard" />
 
-      {/* Hero: the single next step on the path (always present) */}
-      <section
-        aria-labelledby="hero-resume"
-        className="relative bg-brand-hero text-white rounded-2xl p-6 sm:p-7 mb-6 shadow-brand-lg overflow-hidden"
-      >
-        <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-heritage-500/15 blur-3xl" aria-hidden="true" />
-        <div className="absolute bottom-0 left-0 h-1 w-full bg-heritage-accent" aria-hidden="true" />
-        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-primary-200 mb-1 flex items-center gap-1 uppercase tracking-wider font-semibold">
-              <HeroIcon className="w-4 h-4" aria-hidden="true" />
-              {heroEyebrow}
-            </p>
-            <h2 id="hero-resume" className="font-extrabold text-lg sm:text-xl break-words line-clamp-2">
-              {heroTitle}
-            </h2>
-            <p className="text-sm text-primary-100 mt-1 break-words">
-              {heroSubtitle}
-            </p>
+      {/* Hero: companion «Tu ruta» (Fase 5); hero clásico como fallback */}
+      {showCompanion ? (
+        <CompanionPanel data={companion} />
+      ) : (
+        <section
+          aria-labelledby="hero-resume"
+          className="relative bg-brand-hero text-white rounded-2xl p-6 sm:p-7 mb-6 shadow-brand-lg overflow-hidden"
+        >
+          <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-heritage-500/15 blur-3xl" aria-hidden="true" />
+          <div className="absolute bottom-0 left-0 h-1 w-full bg-heritage-accent" aria-hidden="true" />
+          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-primary-200 mb-1 flex items-center gap-1 uppercase tracking-wider font-semibold">
+                <HeroIcon className="w-4 h-4" aria-hidden="true" />
+                {heroEyebrow}
+              </p>
+              <h2 id="hero-resume" className="font-extrabold text-lg sm:text-xl break-words line-clamp-2">
+                {heroTitle}
+              </h2>
+              <p className="text-sm text-primary-100 mt-1 break-words">
+                {heroSubtitle}
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              size="lg"
+              className="bg-white text-institutional-700 hover:bg-heritage-50 dark:bg-white dark:text-institutional-700 dark:hover:bg-heritage-50 shadow-brand-md w-full sm:w-auto shrink-0"
+              onClick={goHero}
+            >
+              {heroCta}
+              <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
+            </Button>
           </div>
-          <Button
-            variant="secondary"
-            size="lg"
-            className="bg-white text-institutional-700 hover:bg-heritage-50 dark:bg-white dark:text-institutional-700 dark:hover:bg-heritage-50 shadow-brand-md w-full sm:w-auto shrink-0"
-            onClick={goHero}
-          >
-            {heroCta}
-            <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
-          </Button>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Help pointer: ties the dashboard to the tutor, for students unsure how to continue */}
       <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-sm text-muted-foreground mb-8">
@@ -339,8 +349,8 @@ export default function DashboardPage() {
         </section>
       )}
 
-      {/* Resources for first recommended module */}
-      {data?.recommended_modules?.[0] && (
+      {/* Resources fallback: solo cuando el companion no está visible */}
+      {!showCompanion && data?.recommended_modules?.[0] && (
         <ResourceList moduleId={data.recommended_modules[0].id} title="Recursos recomendados" />
       )}
 
