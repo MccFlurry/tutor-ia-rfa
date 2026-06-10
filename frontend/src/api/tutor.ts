@@ -1,5 +1,6 @@
 import apiClient from './client'
 import type { NudgeResponse, NudgeContext } from '@/types/tutor'
+import type { CompanionResponse } from '@/types/companion'
 
 export interface NudgeParams {
   context: NudgeContext
@@ -18,4 +19,5 @@ export const tutorApi = {
         score: p.score,
       },
     }),
+  getCompanion: () => apiClient.get<CompanionResponse>('/tutor/companion'),
 }
