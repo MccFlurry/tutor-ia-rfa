@@ -14,7 +14,7 @@ from app.services.companion_service import (
 
 def _stat(**over):
     base = dict(
-        topic_id=1, title="Tema", order_index=0, visited=True, completed=False,
+        topic_id=1, title="Tema", order_index=0, completed=False,
         best_score=None, attempts=0, failed_attempts=0, has_coding_pending=False,
     )
     base.update(over)
@@ -71,7 +71,7 @@ def test_unvisited_topic_is_next_action():
     d = build_diagnostic(
         [
             _stat(topic_id=1, best_score=85, completed=True),
-            _stat(topic_id=2, title="Intents", order_index=1, visited=False),
+            _stat(topic_id=2, title="Intents", order_index=1),
         ],
         module_id=3,
     )
@@ -83,7 +83,7 @@ def test_weak_beats_pending_in_priority():
     d = build_diagnostic(
         [
             _stat(topic_id=1, best_score=40, failed_attempts=1),
-            _stat(topic_id=2, order_index=1, visited=False),
+            _stat(topic_id=2, order_index=1),
         ],
         module_id=3,
     )
@@ -118,9 +118,9 @@ def test_boundary_60_with_two_failed_attempts_is_weak():
 
 
 def test_visited_incomplete_topic_is_pending_next_action():
-    # visitado pero no completado y sin quiz → sigue siendo el siguiente paso
+    # incompleto y sin quiz → sigue siendo el siguiente paso
     d = build_diagnostic(
-        [_stat(topic_id=7, title="Fragments", visited=True, completed=False)],
+        [_stat(topic_id=7, title="Fragments", completed=False)],
         module_id=3,
     )
     assert d.next_action.kind == "next_topic"
@@ -153,7 +153,7 @@ def test_greeting_mentions_weak_topic():
 
 
 def test_greeting_fresh_module():
-    d = build_diagnostic([_stat(visited=False)], module_id=3)
+    d = build_diagnostic([_stat()], module_id=3)
     assert d.weak == []  # precondición: la rama débil no debe activarse
     g = build_greeting(_pos(topics_done=0, progress_pct=0.0), d)
     assert "comenzando" in g.lower()

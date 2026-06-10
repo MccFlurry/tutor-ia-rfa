@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_redis
 from app.models.user import User
 from app.models.user_level import UserLevel
 from app.models.module import Module
@@ -25,6 +25,7 @@ from app.services.entry_assessment_service import (
     AssessmentGenerationError,
 )
 from app.services.leveling_service import compute_level, upsert_user_level
+from app.utils.cache import invalidate
 from app.utils.logger import logger
 
 router = APIRouter(prefix="/assessment", tags=["assessment"])
@@ -89,6 +90,7 @@ async def submit_assessment(
     body: AssessmentSubmitRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    redis_client=Depends(get_redis),
 ):
     """Grade entry assessment, compute level, persist UserLevel."""
     result = await db.execute(
@@ -155,6 +157,9 @@ async def submit_assessment(
     }
 
     await db.commit()
+
+    # El companion depende del nivel: invalidar para que aparezca de inmediato
+    await invalidate(redis_client, f"companion:{current_user.id}")
 
     logger.info(
         f"Usuario {current_user.id} evaluado: nivel={computation.level}, "

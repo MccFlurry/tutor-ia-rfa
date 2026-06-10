@@ -17,7 +17,7 @@ from sqlalchemy import select, func, desc
 
 from app.database import get_db
 from app.config import settings
-from app.dependencies import require_admin
+from app.dependencies import require_admin, get_redis
 from app.models.user import User
 from app.models.user_level import UserLevel
 from app.models.module import Module
@@ -51,6 +51,7 @@ from app.schemas.admin import (
 from app.schemas.user_level import UserLevelResponse
 from app.services.leveling_service import upsert_user_level
 from app.services.ingest_service import process_document
+from app.utils.cache import invalidate
 from app.services.challenge_generator_service import (
     generate_challenge, ChallengeGenerationError,
 )
@@ -270,6 +271,7 @@ async def override_user_level(
     data: AdminUserLevelOverride,
     admin: User = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
+    redis_client=Depends(get_redis),
 ):
     user_result = await db.execute(select(User).where(User.id == user_id))
     target = user_result.scalar_one_or_none()
@@ -284,6 +286,8 @@ async def override_user_level(
         db, user_id, data.level, score, reason=f"admin_override: {data.reason}"
     )
     await db.commit()
+    # El companion depende del nivel: invalidar para que aparezca de inmediato
+    await invalidate(redis_client, f"companion:{user_id}")
     logger.info(f"Admin {admin.email} overrode user {user_id} level → {data.level}")
     return UserLevelResponse.model_validate(record)
 

@@ -4,7 +4,7 @@ El sistema «sigue» al estudiante: pick_current_index/build_diagnostic/build_gr
 son funciones puras (sin BD ni LLM). gather_companion resuelve el estado desde BD
 reutilizando el invariante de desbloqueo secuencial de module_service.compute_locks.
 """
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.coding import CodingChallenge, CodingSubmission
@@ -172,12 +172,16 @@ async def _gather_topic_stats(user: User, module_id: int, db: AsyncSession) -> l
     ).all()
     quiz = {row.topic_id: row for row in quiz_rows}
 
-    # Desafíos de catálogo (no AI per-usuario) y cuáles ya aprobó (≥60)
+    # Desafíos que cuentan para este estudiante: catálogo + sus variantes IA
+    # (mismo criterio que topic_completion_service._has_passed_any_coding)
     chal_rows = (
         await db.execute(
             select(CodingChallenge.topic_id, CodingChallenge.id).where(
                 CodingChallenge.topic_id.in_(topic_ids),
-                CodingChallenge.is_ai_generated == False,  # noqa: E712
+                or_(
+                    CodingChallenge.is_ai_generated == False,  # noqa: E712
+                    CodingChallenge.generated_for_user_id == user.id,
+                ),
             )
         )
     ).all()
@@ -207,7 +211,6 @@ async def _gather_topic_stats(user: User, module_id: int, db: AsyncSession) -> l
             topic_id=tid,
             title=title,
             order_index=order_index,
-            visited=tid in progress,
             completed=bool(progress.get(tid)),
             # QuizAttempt.score se persiste como fracción 0-1 (ver
             # leveling_service); las bandas del diagnóstico son 0-100.

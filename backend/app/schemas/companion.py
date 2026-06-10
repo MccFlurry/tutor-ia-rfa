@@ -51,7 +51,6 @@ class TopicStat:
     topic_id: int
     title: str
     order_index: int
-    visited: bool
     completed: bool
     best_score: float | None   # mejor score de quiz (0-100), None si nunca intentó
     attempts: int

@@ -81,4 +81,10 @@ describe('FloatingTutor greeting bubble', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Cerrar saludo del tutor' }))
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
+
+  it('does not show the bubble when needs_assessment', () => {
+    companionData = { ...companionData!, needs_assessment: true }
+    renderTutor()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  })
 })

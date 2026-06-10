@@ -17,6 +17,8 @@ _NO_CACHE = {"quiz_result", "coding_result", "assessment_result"}
 NUDGE_CACHE_TTL = 30  # seconds
 # Hasta 60s de desfase tras mutaciones; los endpoints de quiz/topic/coding
 # invalidan companion:{user_id} al mutar, así el panel se refresca al volver.
+# Race cache-aside posible (GET concurrente re-escribe dato pre-commit tras
+# la invalidación); el TTL de 60s lo auto-corrige — aceptado.
 COMPANION_CACHE_TTL = 60  # seconds
 
 

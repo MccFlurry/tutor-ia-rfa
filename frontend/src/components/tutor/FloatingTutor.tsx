@@ -38,7 +38,9 @@ export default function FloatingTutor() {
   // Decisión de mostrar separada del timer: idempotente bajo StrictMode
   // (el doble-invoke de dev consumiría el flag sin re-armar el auto-ocultado).
   useEffect(() => {
-    if (open || !companion?.greeting) return
+    // needs_assessment: dentro del layout solo lo ven admins (LevelGuard
+    // redirige a estudiantes) — no mostrarles el saludo de evaluación.
+    if (open || !companion?.greeting || companion.needs_assessment) return
     if (sessionStorage.getItem(GREETING_SESSION_KEY)) return
     sessionStorage.setItem(GREETING_SESSION_KEY, '1')
     setShowGreeting(true)
