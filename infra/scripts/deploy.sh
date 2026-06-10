@@ -21,22 +21,25 @@ echo "==> 3. Build imágenes y levantar stack"
 docker compose -f docker-compose.yml -f docker-compose.vm.yml build --pull
 docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d
 
-echo "==> 4. Aplicar migraciones Alembic"
-docker compose exec -T backend alembic upgrade head
-
-echo "==> 5. Seed idempotente"
-docker compose exec -T backend python scripts/seed_db.py || true
-docker compose exec -T backend python scripts/seed_assessment_bank.py || true
-
-echo "==> 6. Healthcheck"
-sleep 5
-if curl -fsS http://localhost:8000/health >/dev/null; then
-    echo "✓ Backend OK"
-else
-    echo "✗ Backend no responde" >&2
-    docker compose logs --tail=50 backend
+echo "==> 4. Esperar backend saludable"
+# El comando del contenedor (docker-compose.vm.yml) ya ejecuta alembic upgrade
+# + seeds antes de uvicorn. Duplicarlos aquí con `exec` creaba una carrera de
+# migraciones contra el arranque del contenedor (rc=1 y el script abortaba por
+# set -e antes del healthcheck). Solo esperamos a que el arranque termine.
+ok=0
+for i in $(seq 1 45); do
+    if curl -fsS http://localhost:8000/health >/dev/null 2>&1; then
+        ok=1
+        break
+    fi
+    sleep 2
+done
+if [ "$ok" != "1" ]; then
+    echo "✗ Backend no responde tras 90s" >&2
+    docker compose -f docker-compose.yml -f docker-compose.vm.yml logs --tail=50 backend
     exit 1
 fi
+echo "✓ Backend OK"
 
 echo ""
 echo "=============================================="

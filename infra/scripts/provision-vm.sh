@@ -32,8 +32,17 @@ if ! command -v ollama >/dev/null 2>&1; then
     curl -fsSL https://ollama.com/install.sh | sh
 fi
 
+echo "==> 4b. Ollama accesible desde contenedores Docker"
+# Por defecto Ollama escucha solo en 127.0.0.1 → el backend en Docker no lo
+# alcanza vía host.docker.internal. Override systemd + regla UFW para la red
+# bridge de compose. (Fix aplicado a mano en la VM el 2026-06-02; consolidado.)
+sudo mkdir -p /etc/systemd/system/ollama.service.d
+printf '[Service]\nEnvironment="OLLAMA_HOST=0.0.0.0:11434"\n' | sudo tee /etc/systemd/system/ollama.service.d/override.conf >/dev/null
+sudo systemctl daemon-reload
+
 echo "==> 5. Descargar modelos LLM + embeddings"
 sudo systemctl enable --now ollama
+sudo systemctl restart ollama
 ollama pull qwen2.5:7b-instruct-q4_K_M
 ollama pull mxbai-embed-large
 
@@ -45,6 +54,8 @@ echo "==> 7. Configurar firewall UFW"
 sudo ufw allow OpenSSH
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
+# Red bridge de docker compose → Ollama nativo del host (no expuesto a internet)
+sudo ufw allow from 172.18.0.0/16 to any port 11434 proto tcp
 sudo ufw --force enable
 
 echo "==> 8. Clonar repositorio (si aún no existe)"
