@@ -12,5 +12,6 @@ export function useCompanion() {
     // coding, así cada montaje trae el diagnóstico fresco (la request es liviana,
     // Redis absorbe el costo).
     staleTime: 0,
+    refetchOnWindowFocus: false,
   })
 }

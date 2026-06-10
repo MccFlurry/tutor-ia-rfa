@@ -14,6 +14,7 @@ export interface CompanionPosition {
 export interface TopicDiagnostic {
   topic_id: number
   title: string
+  /** 0-100, null si nunca intentó el quiz */
   best_score: number | null
   attempts: number
 }
