@@ -60,10 +60,10 @@ export default function CompanionPanel({ data }: { data: CompanionResponse }) {
 
       {resources.length > 0 && (
         <section aria-label="Recursos de tu módulo actual" className="space-y-2 mb-8">
-          <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <BookOpen className="h-4 w-4 text-primary" aria-hidden="true" />
             Recursos de tu módulo actual
-          </h2>
+          </h3>
           <div className="grid gap-2 sm:grid-cols-2">
             {resources.map((r) => (
               <ResourceCard key={r.id} resource={r} />
