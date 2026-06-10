@@ -1,6 +1,10 @@
 """Unit tests del motor companion (puro, sin BD ni LLM)."""
 from app.schemas.companion import CompanionPosition, TopicStat
-from app.services.companion_service import build_diagnostic, pick_current_index
+from app.services.companion_service import (
+    build_diagnostic,
+    build_greeting,
+    pick_current_index,
+)
 
 
 def _stat(**over):
@@ -119,8 +123,6 @@ def test_visited_incomplete_topic_is_pending_next_action():
 
 
 # --- build_greeting: plantillas por estado ---
-from app.services.companion_service import build_greeting
-
 
 def _pos(**over):
     base = dict(
@@ -147,6 +149,7 @@ def test_greeting_mentions_weak_topic():
 
 def test_greeting_fresh_module():
     d = build_diagnostic([_stat(visited=False)], module_id=3)
+    assert d.weak == []  # precondición: la rama débil no debe activarse
     g = build_greeting(_pos(topics_done=0, progress_pct=0.0), d)
     assert "comenzando" in g.lower()
 
@@ -155,3 +158,4 @@ def test_greeting_default_mentions_next_step():
     d = build_diagnostic([_stat(best_score=85, completed=True)], module_id=3)
     g = build_greeting(_pos(), d)
     assert "siguiente paso" in g.lower()
+    assert d.next_action.label in g  # «Ver el módulo» interpolado
