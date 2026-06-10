@@ -35,14 +35,20 @@ export default function FloatingTutor() {
   const { data: companion } = useCompanion()
 
   // Burbuja preview (Fase 5): saludo contextual, 1 vez por sesión de navegador.
+  // Decisión de mostrar separada del timer: idempotente bajo StrictMode
+  // (el doble-invoke de dev consumiría el flag sin re-armar el auto-ocultado).
   useEffect(() => {
     if (open || !companion?.greeting) return
     if (sessionStorage.getItem(GREETING_SESSION_KEY)) return
     sessionStorage.setItem(GREETING_SESSION_KEY, '1')
     setShowGreeting(true)
+  }, [companion?.greeting, open])
+
+  useEffect(() => {
+    if (!showGreeting) return
     const timer = setTimeout(() => setShowGreeting(false), GREETING_AUTOHIDE_MS)
     return () => clearTimeout(timer)
-  }, [companion?.greeting, open])
+  }, [showGreeting])
 
   useEffect(() => {
     if (!showGreeting) return
