@@ -1,6 +1,11 @@
 """Unit tests del motor companion (puro, sin BD ni LLM)."""
+import pytest
+from unittest.mock import AsyncMock, MagicMock
+from types import SimpleNamespace
+
 from app.schemas.companion import CompanionPosition, TopicStat
 from app.services.companion_service import (
+    _gather_topic_stats,
     build_diagnostic,
     build_greeting,
     pick_current_index,
@@ -159,3 +164,29 @@ def test_greeting_default_mentions_next_step():
     g = build_greeting(_pos(), d)
     assert "siguiente paso" in g.lower()
     assert d.next_action.label in g  # «Ver el módulo» interpolado
+
+
+# --- _gather_topic_stats: escala de score (regresión) ---
+
+def _rows(rows):
+    r = MagicMock()
+    r.all = MagicMock(return_value=rows)
+    return r
+
+
+@pytest.mark.asyncio
+async def test_gather_topic_stats_converts_fraction_score_to_0_100():
+    # QuizAttempt.score se guarda 0-1; el diagnóstico trabaja 0-100.
+    db = MagicMock()
+    quiz_row = SimpleNamespace(topic_id=9, best=0.45, attempts=2, failed=2)
+    db.execute = AsyncMock(side_effect=[
+        _rows([(9, "Layouts", 0)]),        # topics del módulo
+        _rows([(9, False)]),               # progreso (visitado, no completado)
+        _rows([quiz_row]),                 # agregado de quiz (fracción 0-1)
+        _rows([]),                         # desafíos de catálogo → ninguno
+    ])
+    user = SimpleNamespace(id="00000000-0000-0000-0000-000000000001")
+    stats = await _gather_topic_stats(user, module_id=3, db=db)
+    assert len(stats) == 1
+    assert stats[0].best_score == 45.0  # 0.45 → 45.0, cae en banda «repasar»
+    assert stats[0].failed_attempts == 2

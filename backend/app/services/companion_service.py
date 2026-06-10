@@ -209,7 +209,9 @@ async def _gather_topic_stats(user: User, module_id: int, db: AsyncSession) -> l
             order_index=order_index,
             visited=tid in progress,
             completed=bool(progress.get(tid)),
-            best_score=float(q.best) if q else None,
+            # QuizAttempt.score se persiste como fracción 0-1 (ver
+            # leveling_service); las bandas del diagnóstico son 0-100.
+            best_score=float(q.best) * 100 if q else None,
             attempts=int(q.attempts) if q else 0,
             failed_attempts=int(q.failed) if q else 0,
             has_coding_pending=any(c not in passed_challenge_ids for c in cids),
