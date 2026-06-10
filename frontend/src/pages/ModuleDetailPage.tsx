@@ -6,6 +6,8 @@ import { modulesApi } from '@/api/modules'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 import TopicListItem from '@/components/modules/TopicListItem'
+import DiagnosticChips from '@/components/tutor/DiagnosticChips'
+import { useCompanion } from '@/hooks/useCompanion'
 
 function getIcon(iconName: string | null) {
   if (!iconName) return LucideIcons.BookOpen
@@ -24,6 +26,8 @@ export default function ModuleDetailPage() {
     queryFn: () => modulesApi.get(Number(id)).then((r) => r.data),
     enabled: !!id,
   })
+
+  const { data: companion } = useCompanion()
 
   if (isLoading) {
     return (
@@ -112,6 +116,16 @@ export default function ModuleDetailPage() {
           <Progress value={module.progress_pct} className="h-2.5" />
         </div>
       </div>
+
+      {/* Diagnóstico del companion: solo en el módulo actual del estudiante */}
+      {companion?.position?.module_id === module.id && companion.diagnostic && (
+        <section aria-label="Diagnóstico de tu avance" className="mb-6">
+          <h2 className="text-sm font-semibold text-foreground mb-2">
+            Tu diagnóstico en este módulo
+          </h2>
+          <DiagnosticChips diagnostic={companion.diagnostic} />
+        </section>
+      )}
 
       {/* Topics list */}
       <div className="bg-card rounded-xl border border-border divide-y divide-border">
