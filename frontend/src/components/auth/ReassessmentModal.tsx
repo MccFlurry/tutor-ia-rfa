@@ -52,6 +52,7 @@ export default function ReassessmentModal() {
       }
       queryClient.invalidateQueries({ queryKey: ['my-level'] })
       queryClient.invalidateQueries({ queryKey: ['reassessment-proposal'] })
+      queryClient.invalidateQueries({ queryKey: ['tutor-companion'] })
       setOpen(false)
     },
     onError: () => toast.error('No se pudo actualizar el nivel'),

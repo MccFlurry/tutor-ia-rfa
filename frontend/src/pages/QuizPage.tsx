@@ -115,6 +115,7 @@ export default function QuizPage() {
       queryClient.invalidateQueries({ queryKey: ['modules'] })
       queryClient.invalidateQueries({ queryKey: ['progress'] })
       queryClient.invalidateQueries({ queryKey: ['achievements'] })
+      queryClient.invalidateQueries({ queryKey: ['tutor-companion'] })
     },
     onError: (err: any) => {
       const status = err?.response?.status

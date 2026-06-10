@@ -28,4 +28,5 @@ export function handleLevelChange(
   queryClient.invalidateQueries({ queryKey: ['my-level'] })
   queryClient.invalidateQueries({ queryKey: ['reassessment-proposal'] })
   queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+  queryClient.invalidateQueries({ queryKey: ['tutor-companion'] })
 }

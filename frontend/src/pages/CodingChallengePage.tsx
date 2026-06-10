@@ -117,6 +117,7 @@ export default function CodingChallengePage() {
       }
       handleLevelChange(data.level_change, queryClient)
       queryClient.invalidateQueries({ queryKey: ['coding-best', cid] })
+      queryClient.invalidateQueries({ queryKey: ['tutor-companion'] })
     },
     onError: (err: any) => {
       const detail = err?.response?.data?.detail

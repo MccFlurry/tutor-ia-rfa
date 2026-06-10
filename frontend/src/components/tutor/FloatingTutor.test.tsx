@@ -57,7 +57,11 @@ describe('FloatingTutor greeting bubble', () => {
     sessionStorage.clear()
     companionData = {
       needs_assessment: false,
-      position: null,
+      position: {
+        module_id: 3, module_title: 'Interfaces de Usuario', icon_name: null,
+        color_hex: null, progress_pct: 60, topics_done: 3, topics_total: 5,
+        course_completed: false,
+      },
       greeting: 'Estás en «Interfaces de Usuario» — 60% completado.',
       diagnostic: null,
       resources: [],
@@ -84,6 +88,12 @@ describe('FloatingTutor greeting bubble', () => {
 
   it('does not show the bubble when needs_assessment', () => {
     companionData = { ...companionData!, needs_assessment: true }
+    renderTutor()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  })
+
+  it('does not show the bubble without a student position', () => {
+    companionData = { ...companionData!, position: null }
     renderTutor()
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })

@@ -162,9 +162,9 @@ export default function DashboardPage() {
     navigate('/modules')
   }
 
-  // When the hero points at a recommended module (just-completed / no-resume path),
-  // drop that module from the grid below so it isn't shown twice.
-  const heroModuleId = !resumeActive && nextModule ? nextModule.id : undefined
+  // El dedupe solo aplica cuando el hero clásico muestra ese módulo;
+  // con el companion visible la tarjeta debe permanecer en la grilla.
+  const heroModuleId = !showCompanion && !resumeActive && nextModule ? nextModule.id : undefined
   const recommendations = heroModuleId
     ? data.recommended_modules.filter((m) => m.id !== heroModuleId)
     : data.recommended_modules

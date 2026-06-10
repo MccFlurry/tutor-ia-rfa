@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, BookOpen, MapPin } from 'lucide-react'
+import { ArrowRight, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import DiagnosticChips from './DiagnosticChips'
-import ResourceCard from '@/components/resources/ResourceCard'
+import ResourceList from '@/components/resources/ResourceList'
 import type { CompanionResponse } from '@/types/companion'
 
 /**
@@ -59,17 +59,11 @@ export default function CompanionPanel({ data }: { data: CompanionResponse }) {
       <DiagnosticChips diagnostic={diagnostic} className="mb-6" />
 
       {resources.length > 0 && (
-        <section aria-label="Recursos de tu módulo actual" className="space-y-2 mb-8">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <BookOpen className="h-4 w-4 text-primary" aria-hidden="true" />
-            Recursos de tu módulo actual
-          </h3>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {resources.map((r) => (
-              <ResourceCard key={r.id} resource={r} />
-            ))}
-          </div>
-        </section>
+        <ResourceList
+          resources={resources}
+          title="Recursos de tu módulo actual"
+          headingLevel={3}
+        />
       )}
     </>
   )

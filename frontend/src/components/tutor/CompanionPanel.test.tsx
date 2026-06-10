@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import CompanionPanel from './CompanionPanel'
 import type { CompanionResponse } from '@/types/companion'
 
@@ -30,10 +31,13 @@ function makeData(over: Partial<CompanionResponse> = {}): CompanionResponse {
 }
 
 function renderPanel(data = makeData()) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
-    <MemoryRouter>
-      <CompanionPanel data={data} />
-    </MemoryRouter>
+    <QueryClientProvider client={client}>
+      <MemoryRouter>
+        <CompanionPanel data={data} />
+      </MemoryRouter>
+    </QueryClientProvider>
   )
 }
 

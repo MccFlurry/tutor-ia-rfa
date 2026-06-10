@@ -8,10 +8,10 @@ export function useCompanion() {
       const { data } = await tutorApi.getCompanion()
       return data
     },
-    // staleTime 0: el backend invalida su caché Redis al completar tema/quiz/
-    // coding, así cada montaje trae el diagnóstico fresco (la request es liviana,
-    // Redis absorbe el costo).
-    staleTime: 0,
+    // 60s alineado con el TTL Redis del backend. La frescura inmediata tras
+    // acciones del estudiante viene de invalidateQueries(['tutor-companion'])
+    // en las mutaciones (quiz/topic/coding/nivel), no de staleTime 0.
+    staleTime: 60_000,
     refetchOnWindowFocus: false,
   })
 }

@@ -88,6 +88,7 @@ export default function TopicPage() {
       queryClient.invalidateQueries({ queryKey: ['topic', topicId] })
       queryClient.invalidateQueries({ queryKey: ['module'] })
       queryClient.invalidateQueries({ queryKey: ['modules'] })
+      queryClient.invalidateQueries({ queryKey: ['tutor-companion'] })
     },
   })
 
