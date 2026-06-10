@@ -11,7 +11,11 @@ import {
   useSendMessage,
   useChatRemaining,
 } from '@/hooks/useChat'
+import { useCompanion } from '@/hooks/useCompanion'
 import type { ChatMessage } from '@/types/chat'
+
+const GREETING_SESSION_KEY = 'tutor_greeting_shown'
+const GREETING_AUTOHIDE_MS = 12_000
 
 export default function FloatingTutor() {
   const [open, setOpen] = useState(false)
@@ -27,9 +31,32 @@ export default function FloatingTutor() {
   const { data: remaining } = useChatRemaining()
   const sendMessage = useSendMessage(sessionId)
 
+  const [showGreeting, setShowGreeting] = useState(false)
+  const { data: companion } = useCompanion()
+
+  // Burbuja preview (Fase 5): saludo contextual, 1 vez por sesión de navegador.
+  useEffect(() => {
+    if (open || !companion?.greeting) return
+    if (sessionStorage.getItem(GREETING_SESSION_KEY)) return
+    sessionStorage.setItem(GREETING_SESSION_KEY, '1')
+    setShowGreeting(true)
+    const timer = setTimeout(() => setShowGreeting(false), GREETING_AUTOHIDE_MS)
+    return () => clearTimeout(timer)
+  }, [companion?.greeting, open])
+
+  useEffect(() => {
+    if (!showGreeting) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowGreeting(false)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [showGreeting])
+
   const messages = [...serverMessages, ...optimistic]
 
   const handleOpen = useCallback(async () => {
+    setShowGreeting(false)
     setOpen(true)
     if (!input && location.pathname.startsWith('/topics/')) {
       setInput('Sobre el tema actual, ')
@@ -102,17 +129,44 @@ export default function FloatingTutor() {
   return (
     <>
       {!open && (
-        <button
-          type="button"
-          onClick={handleOpen}
-          aria-label="Abrir tutor IA"
-          className="fixed bottom-4 right-4 z-40 inline-flex items-center justify-center
-                     h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg
-                     hover:bg-primary/90 transition-colors
-                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <Sparkles className="h-6 w-6" aria-hidden="true" />
-        </button>
+        <>
+          {showGreeting && companion?.greeting && (
+            <div
+              role="status"
+              className="fixed bottom-20 right-4 z-40 max-w-[280px] rounded-xl border border-border
+                         bg-card p-3 shadow-xl
+                         motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2"
+            >
+              <p className="text-sm text-foreground">{companion.greeting}</p>
+              <div className="mt-2 flex items-center gap-2">
+                <Button size="sm" onClick={handleOpen}>
+                  Abrir tutor
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setShowGreeting(false)}
+                  aria-label="Cerrar saludo del tutor"
+                  className="inline-flex items-center justify-center min-h-[44px] min-w-[44px]
+                             rounded-lg text-muted-foreground hover:text-foreground transition-colors
+                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={handleOpen}
+            aria-label="Abrir tutor IA"
+            className="fixed bottom-4 right-4 z-40 inline-flex items-center justify-center
+                       h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg
+                       hover:bg-primary/90 transition-colors
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Sparkles className="h-6 w-6" aria-hidden="true" />
+          </button>
+        </>
       )}
 
       {open && (
