@@ -7,8 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 from app.database import get_db
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_redis
 from app.models.user import User
+from app.utils.cache import invalidate
 from app.models.coding import CodingChallenge, CodingSubmission
 from app.models.topic import Topic
 from app.schemas.coding import (
@@ -147,6 +148,7 @@ async def submit_code(
     body: CodingSubmitRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    redis_client=Depends(get_redis),
 ):
     """Submit code for evaluation by the LLM."""
     # Get challenge
@@ -211,6 +213,9 @@ async def submit_code(
         logger.warning(f"Error aplicando re-asignación automática: {e}")
 
     await db.commit()
+
+    # El diagnóstico del companion cambia tras una entrega de código
+    await invalidate(redis_client, f"companion:{current_user.id}")
 
     return CodingEvaluationResponse(
         submission_id=submission.id,

@@ -67,11 +67,33 @@ async def test_companion_served_from_cache_skips_service(client, mock_redis_pipe
     mock_redis_pipe.get = AsyncMock(return_value=json.dumps(cached))
     with patch("app.routers.tutor.gather_companion", new=AsyncMock()) as svc:
         r = await client.get("/api/v1/tutor/companion")
-    assert r.status_code == 200
     svc.assert_not_called()
+    mock_redis_pipe.setex.assert_not_called()  # hit limpio, sin write-back
+    assert r.status_code == 200
 
 
 @pytest.mark.asyncio
 async def test_companion_requires_auth(anon_client):
     r = await anon_client.get("/api/v1/tutor/companion")
     assert r.status_code in (401, 403)  # dep real de auth sin token
+
+
+@pytest.mark.asyncio
+async def test_topic_complete_invalidates_companion_cache(client, mock_db, mock_redis_pipe, fake_user):
+    from types import SimpleNamespace
+    from datetime import datetime, timezone
+
+    topic = SimpleNamespace(id=9, module_id=1, is_active=True)
+    progress = SimpleNamespace(
+        is_completed=False, completed_at=None,
+        first_visited_at=datetime.now(timezone.utc),
+        last_accessed_at=datetime.now(timezone.utc),
+    )
+    with (
+        patch("app.routers.topics._get_topic_or_404", new=AsyncMock(return_value=topic)),
+        patch("app.routers.topics.assert_module_unlocked", new=AsyncMock()),
+        patch("app.routers.topics._get_or_create_progress", new=AsyncMock(return_value=progress)),
+    ):
+        r = await client.post("/api/v1/topics/9/complete")
+    assert r.status_code == 200
+    mock_redis_pipe.delete.assert_any_call(f"companion:{fake_user.id}")

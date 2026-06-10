@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_redis
 from app.models.user import User
+from app.utils.cache import invalidate
 from app.models.topic import Topic
 from app.models.quiz import QuizQuestion, QuizAttempt
 from app.models.ai_quiz_session import AIQuizSession
@@ -176,6 +177,7 @@ async def submit_quiz(
     body: QuizSubmitRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    redis_client=Depends(get_redis),
 ):
     """Submit quiz answers. Grades against the persisted answer key."""
     try:
@@ -263,6 +265,9 @@ async def submit_quiz(
         logger.warning(f"Error aplicando re-asignación automática: {e}")
 
     await db.commit()
+
+    # El diagnóstico del companion cambia tras un intento de quiz
+    await invalidate(redis_client, f"companion:{current_user.id}")
 
     return QuizSubmitResponse(
         score=round(score * 100, 1),
