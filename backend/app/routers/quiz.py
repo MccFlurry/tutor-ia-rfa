@@ -8,7 +8,7 @@ from sqlalchemy import select
 from app.database import get_db
 from app.dependencies import get_current_user, get_redis
 from app.models.user import User
-from app.utils.cache import invalidate
+from app.services.companion_service import invalidate_companion
 from app.models.topic import Topic
 from app.models.quiz import QuizQuestion, QuizAttempt
 from app.models.ai_quiz_session import AIQuizSession
@@ -267,7 +267,7 @@ async def submit_quiz(
     await db.commit()
 
     # El diagnóstico del companion cambia tras un intento de quiz
-    await invalidate(redis_client, f"companion:{current_user.id}")
+    await invalidate_companion(redis_client, current_user.id)
 
     return QuizSubmitResponse(
         score=round(score * 100, 1),

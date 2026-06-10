@@ -79,6 +79,17 @@ async def test_companion_requires_auth(anon_client):
 
 
 @pytest.mark.asyncio
+async def test_companion_admin_gets_empty_payload(admin_client, mock_db):
+    r = await admin_client.get("/api/v1/tutor/companion")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["needs_assessment"] is False
+    assert body["position"] is None
+    assert body["greeting"] == ""
+    mock_db.execute.assert_not_called()
+
+
+@pytest.mark.asyncio
 async def test_topic_complete_invalidates_companion_cache(client, mock_db, mock_redis_pipe, fake_user):
     from types import SimpleNamespace
     from datetime import datetime, timezone

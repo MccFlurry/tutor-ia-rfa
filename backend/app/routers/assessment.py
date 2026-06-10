@@ -24,8 +24,8 @@ from app.services.entry_assessment_service import (
     generate_assessment,
     AssessmentGenerationError,
 )
+from app.services.companion_service import invalidate_companion
 from app.services.leveling_service import compute_level, upsert_user_level
-from app.utils.cache import invalidate
 from app.utils.logger import logger
 
 router = APIRouter(prefix="/assessment", tags=["assessment"])
@@ -159,7 +159,7 @@ async def submit_assessment(
     await db.commit()
 
     # El companion depende del nivel: invalidar para que aparezca de inmediato
-    await invalidate(redis_client, f"companion:{current_user.id}")
+    await invalidate_companion(redis_client, current_user.id)
 
     logger.info(
         f"Usuario {current_user.id} evaluado: nivel={computation.level}, "

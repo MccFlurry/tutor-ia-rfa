@@ -7,7 +7,7 @@ from app.dependencies import get_current_user, get_redis
 from app.models.user import User
 from app.schemas.companion import CompanionResponse
 from app.schemas.tutor import NudgeResponse
-from app.services.companion_service import gather_companion
+from app.services.companion_service import companion_cache_key, gather_companion
 from app.services.tutor_service import get_nudges
 from app.utils.cache import cached_json
 
@@ -63,7 +63,7 @@ async def get_tutor_companion(
 
     data = await cached_json(
         redis_client,
-        f"companion:{current_user.id}",
+        companion_cache_key(current_user.id),
         ttl=COMPANION_CACHE_TTL,
         loader=_build,
     )

@@ -43,11 +43,13 @@ def compute_locks(progress_pairs: list[tuple[int, int]]) -> list[bool]:
     return locks
 
 
-async def get_module_locks(user_id, db: AsyncSession) -> dict[int, bool]:
-    """Return ``{module_id: is_locked}`` for all active modules.
+async def get_module_progress(
+    user_id, db: AsyncSession
+) -> tuple[list[Module], list[tuple[int, int]]]:
+    """Módulos activos ordenados + (total, completados) por módulo.
 
-    Three flat aggregate queries regardless of module count, so the access
-    gates stay cheap even on the hot topic-load path.
+    Base compartida del invariante de desbloqueo y de la posición del
+    companion — un solo lugar emite estas consultas.
     """
     mods_res = await db.execute(
         select(Module).where(Module.is_active == True).order_by(Module.order_index)
@@ -78,6 +80,12 @@ async def get_module_locks(user_id, db: AsyncSession) -> dict[int, bool]:
     done = {module_id: count for module_id, count in done_rows}
 
     pairs = [(totals.get(m.id, 0), done.get(m.id, 0)) for m in modules]
+    return modules, pairs
+
+
+async def get_module_locks(user_id, db: AsyncSession) -> dict[int, bool]:
+    """Return ``{module_id: is_locked}`` for all active modules."""
+    modules, pairs = await get_module_progress(user_id, db)
     locks = compute_locks(pairs)
     return {m.id: is_locked for m, is_locked in zip(modules, locks)}
 

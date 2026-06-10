@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.coding import CodingChallenge, CodingSubmission
 from app.models.learning_resource import LearningResource
-from app.models.module import Module
 from app.models.progress import UserTopicProgress
 from app.models.quiz import QuizAttempt
 from app.models.topic import Topic
@@ -24,14 +23,25 @@ from app.schemas.companion import (
     TopicStat,
 )
 from app.schemas.learning_resource import LearningResourceResponse
-from app.services.module_service import compute_locks
+from app.services.module_service import compute_locks, get_module_progress
+from app.services.topic_completion_service import CODING_PASS_SCORE
+from app.utils.cache import invalidate
 
 # Bandas de diagnóstico sobre el mejor score de quiz (0-100)
 WEAK_SCORE = 60.0        # < 60 → repasar
 PRACTICE_SCORE = 80.0    # [60, 80) → afianzar · ≥ 80 → dominado
 WEAK_FAILED_ATTEMPTS = 2  # ≥ 2 intentos fallidos (sin dominar) → repasar
-CODING_PASS_SCORE = 60.0  # submission ≥ 60 da el desafío por resuelto
 MAX_RESOURCES = 3
+
+
+def companion_cache_key(user_id) -> str:
+    return f"companion:{user_id}"
+
+
+async def invalidate_companion(redis_client, user_id) -> None:
+    """Punto único de invalidación del companion. Toda mutación que cambie
+    nivel, progreso, quizzes o coding del estudiante debe llamarlo."""
+    await invalidate(redis_client, companion_cache_key(user_id))
 
 
 def pick_current_index(progress_pairs: list[tuple[int, int]]) -> int | None:
@@ -172,8 +182,10 @@ async def _gather_topic_stats(user: User, module_id: int, db: AsyncSession) -> l
     ).all()
     quiz = {row.topic_id: row for row in quiz_rows}
 
-    # Desafíos que cuentan para este estudiante: catálogo + sus variantes IA
-    # (mismo criterio que topic_completion_service._has_passed_any_coding)
+    # Desafíos que cuentan para este estudiante: catálogo + sus variantes IA.
+    # Umbral compartido con topic_completion_service (CODING_PASS_SCORE);
+    # a diferencia de _has_passed_any_coding, aquí se filtra qué desafíos
+    # son visibles para el estudiante (catálogo o generados para él).
     chal_rows = (
         await db.execute(
             select(CodingChallenge.topic_id, CodingChallenge.id).where(
@@ -224,6 +236,14 @@ async def _gather_topic_stats(user: User, module_id: int, db: AsyncSession) -> l
 
 async def gather_companion(user: User, db: AsyncSession) -> CompanionResponse:
     """Resuelve posición + diagnóstico + recursos desde BD (sin LLM)."""
+    # Los admins no tienen ruta de estudiante: respuesta vacía en el seam
+    # (el frontend oculta panel y burbuja cuando no hay position/greeting).
+    if getattr(user, "role", None) == "admin":
+        return CompanionResponse(
+            needs_assessment=False, position=None, diagnostic=None,
+            resources=[], greeting="",
+        )
+
     # 0. Sin evaluación de entrada → respuesta mínima (consistente con regla R1)
     level_row = await db.execute(
         select(UserLevel.user_id).where(UserLevel.user_id == user.id)
@@ -234,41 +254,14 @@ async def gather_companion(user: User, db: AsyncSession) -> CompanionResponse:
             resources=[], greeting=NEEDS_ASSESSMENT_GREETING,
         )
 
-    # 1. Módulos + progreso (mismas 3 consultas planas que module_service)
-    mods_res = await db.execute(
-        select(Module).where(Module.is_active == True).order_by(Module.order_index)  # noqa: E712
-    )
-    modules = list(mods_res.scalars().all())
+    # 1. Módulos + progreso (consultas centralizadas en module_service)
+    modules, pairs = await get_module_progress(user.id, db)
     if not modules:
         return CompanionResponse(
             needs_assessment=False, position=None, diagnostic=None,
             resources=[], greeting=EMPTY_COURSE_GREETING,
         )
 
-    totals_rows = (
-        await db.execute(
-            select(Topic.module_id, func.count(Topic.id))
-            .where(Topic.is_active == True)  # noqa: E712
-            .group_by(Topic.module_id)
-        )
-    ).all()
-    totals = {module_id: count for module_id, count in totals_rows}
-
-    done_rows = (
-        await db.execute(
-            select(Topic.module_id, func.count(UserTopicProgress.id))
-            .join(UserTopicProgress, UserTopicProgress.topic_id == Topic.id)
-            .where(
-                UserTopicProgress.user_id == user.id,
-                UserTopicProgress.is_completed == True,  # noqa: E712
-                Topic.is_active == True,  # noqa: E712
-            )
-            .group_by(Topic.module_id)
-        )
-    ).all()
-    done = {module_id: count for module_id, count in done_rows}
-
-    pairs = [(totals.get(m.id, 0), done.get(m.id, 0)) for m in modules]
     idx = pick_current_index(pairs)
     course_completed = idx is None
     current = modules[-1] if course_completed else modules[idx]

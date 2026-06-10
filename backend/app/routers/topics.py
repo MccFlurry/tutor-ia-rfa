@@ -7,7 +7,7 @@ from sqlalchemy import select, func
 from app.database import get_db
 from app.dependencies import get_current_user, get_redis
 from app.models.user import User
-from app.utils.cache import invalidate
+from app.services.companion_service import invalidate_companion
 from app.models.topic import Topic
 from app.models.module import Module
 from app.models.progress import UserTopicProgress
@@ -154,7 +154,7 @@ async def complete_topic(
     await db.commit()
 
     # El diagnóstico del companion cambia al completar un tema
-    await invalidate(redis_client, f"companion:{current_user.id}")
+    await invalidate_companion(redis_client, current_user.id)
 
     return TopicCompleteResponse(message="Tema marcado como completado", is_completed=True)
 

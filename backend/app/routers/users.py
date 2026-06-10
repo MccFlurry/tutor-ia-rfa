@@ -3,12 +3,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_redis
 from app.models.user import User
 from app.models.user_level import UserLevel
 from app.schemas.user import UserResponse, UserUpdateRequest, PasswordChangeRequest
 from app.schemas.user_level import UserLevelResponse, ReassessmentProposal, ReassessmentConfirmRequest
 from app.schemas.auth import MessageResponse
+from app.services.companion_service import invalidate_companion
 from app.services.leveling_service import check_reassessment, apply_reassessment
 from app.utils.security import verify_password, hash_password
 
@@ -90,6 +91,7 @@ async def accept_reassessment(
     body: ReassessmentConfirmRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    redis_client=Depends(get_redis),
 ):
     """Apply (or dismiss) a pending reassessment proposal."""
     proposal = await check_reassessment(db, current_user.id)
@@ -102,6 +104,8 @@ async def accept_reassessment(
     if body.accept:
         await apply_reassessment(db, current_user.id, proposal)
         await db.commit()
+        # El companion depende del nivel: invalidar tras aplicar la propuesta
+        await invalidate_companion(redis_client, current_user.id)
 
     result = await db.execute(select(UserLevel).where(UserLevel.user_id == current_user.id))
     lvl = result.scalar_one_or_none()

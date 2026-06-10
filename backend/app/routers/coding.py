@@ -9,7 +9,7 @@ from sqlalchemy import select, func
 from app.database import get_db
 from app.dependencies import get_current_user, get_redis
 from app.models.user import User
-from app.utils.cache import invalidate
+from app.services.companion_service import invalidate_companion
 from app.models.coding import CodingChallenge, CodingSubmission
 from app.models.topic import Topic
 from app.schemas.coding import (
@@ -215,7 +215,7 @@ async def submit_code(
     await db.commit()
 
     # El diagnóstico del companion cambia tras una entrega de código
-    await invalidate(redis_client, f"companion:{current_user.id}")
+    await invalidate_companion(redis_client, current_user.id)
 
     return CodingEvaluationResponse(
         submission_id=submission.id,

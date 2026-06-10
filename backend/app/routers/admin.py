@@ -49,9 +49,9 @@ from app.schemas.admin import (
     UserAdminRow, UserAdminUpdate,
 )
 from app.schemas.user_level import UserLevelResponse
+from app.services.companion_service import invalidate_companion
 from app.services.leveling_service import upsert_user_level
 from app.services.ingest_service import process_document
-from app.utils.cache import invalidate
 from app.services.challenge_generator_service import (
     generate_challenge, ChallengeGenerationError,
 )
@@ -287,7 +287,7 @@ async def override_user_level(
     )
     await db.commit()
     # El companion depende del nivel: invalidar para que aparezca de inmediato
-    await invalidate(redis_client, f"companion:{user_id}")
+    await invalidate_companion(redis_client, user_id)
     logger.info(f"Admin {admin.email} overrode user {user_id} level → {data.level}")
     return UserLevelResponse.model_validate(record)
 
