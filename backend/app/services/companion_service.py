@@ -43,25 +43,25 @@ def build_diagnostic(stats: list[TopicStat], module_id: int) -> ModuleDiagnostic
     coding_pending: list[TopicStat] = []
 
     for s in ordered:
-        if not s.visited:
+        # Pendiente = no completado (incluye visitados a medio terminar): el
+        # companion debe poder retomar donde el estudiante se quedó.
+        if not s.completed:
             pending.append(s)
         if s.has_coding_pending:
             coding_pending.append(s)
         if s.best_score is None:
             continue
+        diag = TopicDiagnostic(
+            topic_id=s.topic_id, title=s.title,
+            best_score=s.best_score, attempts=s.attempts,
+        )
         # Dominado (≥80) tiene precedencia sobre la regla de intentos fallidos.
         if s.best_score < WEAK_SCORE or (
             s.failed_attempts >= WEAK_FAILED_ATTEMPTS and s.best_score < PRACTICE_SCORE
         ):
-            weak.append(TopicDiagnostic(
-                topic_id=s.topic_id, title=s.title,
-                best_score=s.best_score, attempts=s.attempts,
-            ))
+            weak.append(diag)
         elif s.best_score < PRACTICE_SCORE:
-            practice.append(TopicDiagnostic(
-                topic_id=s.topic_id, title=s.title,
-                best_score=s.best_score, attempts=s.attempts,
-            ))
+            practice.append(diag)
 
     if weak:
         next_action = NextAction(

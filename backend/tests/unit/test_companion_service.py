@@ -100,3 +100,19 @@ def test_empty_module_stats():
     d = build_diagnostic([], module_id=3)
     assert d.weak == [] and d.practice == []
     assert d.next_action.kind == "module"
+
+
+def test_boundary_60_with_two_failed_attempts_is_weak():
+    # score exactamente 60 no es <60, pero ≥2 fallidos sin dominar → repasar
+    d = build_diagnostic([_stat(best_score=60.0, attempts=3, failed_attempts=2)], module_id=3)
+    assert len(d.weak) == 1 and d.practice == []
+
+
+def test_visited_incomplete_topic_is_pending_next_action():
+    # visitado pero no completado y sin quiz → sigue siendo el siguiente paso
+    d = build_diagnostic(
+        [_stat(topic_id=7, title="Fragments", visited=True, completed=False)],
+        module_id=3,
+    )
+    assert d.next_action.kind == "next_topic"
+    assert d.next_action.route == "/topics/7"

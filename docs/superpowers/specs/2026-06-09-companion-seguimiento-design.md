@@ -40,7 +40,7 @@ Mismo patrón que `tutor_service.py`: funciones puras + un `gather` que resuelve
   - **Repasar (weak):** mejor score < 60, o ≥ 2 intentos fallidos
   - **Afianzar (practice):** aprobado con mejor score 60–79
   - **Dominado:** mejor score ≥ 80
-  - **Pendiente:** tema no visitado
+  - **Pendiente:** tema no completado (incluye visitados a medio terminar)
   - **`next_action`** por prioridad: (1) reintentar tema débil → (2) siguiente tema pendiente en
     orden → (3) desafío coding sin resolver del módulo. Sin candidatos → CTA al módulo.
 - **`build_greeting(position, diagnostic) -> str`** — plantillas en español peruano. Ejemplo:
