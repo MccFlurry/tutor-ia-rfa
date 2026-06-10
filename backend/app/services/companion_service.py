@@ -87,3 +87,34 @@ def build_diagnostic(stats: list[TopicStat], module_id: int) -> ModuleDiagnostic
         )
 
     return ModuleDiagnostic(weak=weak, practice=practice, next_action=next_action)
+
+
+NEEDS_ASSESSMENT_GREETING = (
+    "Antes de empezar, realiza tu evaluación de entrada para personalizar "
+    "tu ruta de aprendizaje."
+)
+EMPTY_COURSE_GREETING = "Aún no hay módulos disponibles. Vuelve pronto."
+
+
+def build_greeting(position: CompanionPosition, diagnostic: ModuleDiagnostic) -> str:
+    """Saludo contextual del tutor por plantillas (español peruano). Pura."""
+    if position.course_completed:
+        return (
+            "¡Felicitaciones! Completaste todos los módulos del curso. "
+            "Puedes repasar libremente cualquier tema o desafío."
+        )
+    pct = round(position.progress_pct)
+    if diagnostic.weak:
+        return (
+            f"Estás en «{position.module_title}» — {pct}% completado. "
+            f"Veo que te cuesta «{diagnostic.weak[0].title}», ¿lo repasamos?"
+        )
+    if position.topics_done == 0:
+        return (
+            f"Estás comenzando «{position.module_title}». "
+            "Te acompaño paso a paso; empieza con el primer tema."
+        )
+    return (
+        f"Estás en «{position.module_title}» — {pct}% completado. "
+        f"Tu siguiente paso: {diagnostic.next_action.label}."
+    )

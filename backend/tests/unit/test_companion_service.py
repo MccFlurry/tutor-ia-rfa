@@ -116,3 +116,42 @@ def test_visited_incomplete_topic_is_pending_next_action():
     )
     assert d.next_action.kind == "next_topic"
     assert d.next_action.route == "/topics/7"
+
+
+# --- build_greeting: plantillas por estado ---
+from app.services.companion_service import build_greeting
+
+
+def _pos(**over):
+    base = dict(
+        module_id=3, module_title="Interfaces de Usuario", icon_name=None,
+        color_hex=None, progress_pct=60.0, topics_done=3, topics_total=5,
+        course_completed=False,
+    )
+    base.update(over)
+    return CompanionPosition(**base)
+
+
+def test_greeting_course_completed():
+    g = build_greeting(_pos(course_completed=True), build_diagnostic([], module_id=3))
+    assert "Felicitaciones" in g
+
+
+def test_greeting_mentions_weak_topic():
+    d = build_diagnostic(
+        [_stat(title="Layouts", best_score=45, failed_attempts=2)], module_id=3
+    )
+    g = build_greeting(_pos(), d)
+    assert "Layouts" in g and "Interfaces de Usuario" in g
+
+
+def test_greeting_fresh_module():
+    d = build_diagnostic([_stat(visited=False)], module_id=3)
+    g = build_greeting(_pos(topics_done=0, progress_pct=0.0), d)
+    assert "comenzando" in g.lower()
+
+
+def test_greeting_default_mentions_next_step():
+    d = build_diagnostic([_stat(best_score=85, completed=True)], module_id=3)
+    g = build_greeting(_pos(), d)
+    assert "siguiente paso" in g.lower()
