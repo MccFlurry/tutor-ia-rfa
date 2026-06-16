@@ -33,7 +33,7 @@ export default function RecommendedResources({
           {title}
         </Heading>
         {data.ai_ranked && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+          <span className="inline-flex items-center gap-1 rounded-full bg-heritage-100 text-heritage-700 dark:bg-heritage-700/20 dark:text-heritage-200 px-2 py-0.5 text-[11px] font-medium">
             <Sparkles className="h-3 w-3" aria-hidden="true" />
             Recomendado por IA · nivel {LEVEL_LABEL[data.level] ?? data.level}
           </span>
@@ -44,7 +44,7 @@ export default function RecommendedResources({
           <div key={r.id} className="space-y-1">
             <ResourceCard resource={r} />
             {data.ai_ranked && r.reason && (
-              <p className="flex items-start gap-1 pl-1 text-xs text-primary/90">
+              <p className="flex items-start gap-1 pl-1 text-xs text-muted-foreground">
                 <Sparkles className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
                 <span>{r.reason}</span>
               </p>

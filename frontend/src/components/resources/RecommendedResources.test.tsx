@@ -41,4 +41,20 @@ describe('RecommendedResources', () => {
     const { container } = render(<RecommendedResources moduleId={1} />)
     expect(container).toBeEmptyDOMElement()
   })
+
+  it('shows the reason line only for items that have one', () => {
+    mockHook.mockReturnValue({
+      data: {
+        ai_ranked: true,
+        level: 'beginner',
+        recommendations: [
+          rec({ id: 1, reason: 'Empieza por aquí' }),
+          rec({ id: 2, reason: null }),
+        ],
+      },
+    })
+    render(<RecommendedResources moduleId={1} />)
+    // Dos recursos renderizados, pero solo el primero trae reason.
+    expect(screen.getAllByText(/Empieza por aquí/)).toHaveLength(1)
+  })
 })
