@@ -99,7 +99,7 @@ FORMATO (JSON objeto):
 
 def _build_human_prompt(candidates: list[LearningResourceResponse], signal: StudentSignal) -> str:
     items = [
-        {"id": c.id, "kind": c.kind, "title": c.title,
+        {"id": c.id, "kind": c.kind, "title": c.title[:80],
          "description": (c.description or "")[:200]}
         for c in candidates
     ]
@@ -120,7 +120,7 @@ async def _rank_with_llm(
             model=settings.OLLAMA_MODEL,
             temperature=0.3,
             num_ctx=4096,
-            num_predict=600,
+            num_predict=900,
             format="json",
             timeout=settings.OLLAMA_TIMEOUT,
         )
