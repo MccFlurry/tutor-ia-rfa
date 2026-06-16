@@ -12,3 +12,13 @@ export interface LearningResource {
   order_index: number
   is_active: boolean
 }
+
+export interface RecommendedResource extends LearningResource {
+  reason: string | null
+}
+
+export interface RecommendationResponse {
+  ai_ranked: boolean
+  level: string
+  recommendations: RecommendedResource[]
+}
