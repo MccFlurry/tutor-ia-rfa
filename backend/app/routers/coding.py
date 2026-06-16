@@ -10,6 +10,7 @@ from app.database import get_db
 from app.dependencies import get_current_user, get_redis
 from app.models.user import User
 from app.services.companion_service import invalidate_companion
+from app.services.resource_recommender_service import invalidate_resource_recs
 from app.models.coding import CodingChallenge, CodingSubmission
 from app.models.topic import Topic
 from app.schemas.coding import (
@@ -216,6 +217,7 @@ async def submit_code(
 
     # El diagnóstico del companion cambia tras una entrega de código
     await invalidate_companion(redis_client, current_user.id)
+    await invalidate_resource_recs(redis_client, current_user.id)
 
     return CodingEvaluationResponse(
         submission_id=submission.id,

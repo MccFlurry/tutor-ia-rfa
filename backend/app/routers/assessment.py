@@ -25,6 +25,7 @@ from app.services.entry_assessment_service import (
     AssessmentGenerationError,
 )
 from app.services.companion_service import invalidate_companion
+from app.services.resource_recommender_service import invalidate_resource_recs
 from app.services.leveling_service import compute_level, upsert_user_level
 from app.utils.logger import logger
 
@@ -160,6 +161,7 @@ async def submit_assessment(
 
     # El companion depende del nivel: invalidar para que aparezca de inmediato
     await invalidate_companion(redis_client, current_user.id)
+    await invalidate_resource_recs(redis_client, current_user.id)
 
     logger.info(
         f"Usuario {current_user.id} evaluado: nivel={computation.level}, "

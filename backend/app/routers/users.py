@@ -10,6 +10,7 @@ from app.schemas.user import UserResponse, UserUpdateRequest, PasswordChangeRequ
 from app.schemas.user_level import UserLevelResponse, ReassessmentProposal, ReassessmentConfirmRequest
 from app.schemas.auth import MessageResponse
 from app.services.companion_service import invalidate_companion
+from app.services.resource_recommender_service import invalidate_resource_recs
 from app.services.leveling_service import check_reassessment, apply_reassessment
 from app.utils.security import verify_password, hash_password
 
@@ -106,6 +107,7 @@ async def accept_reassessment(
         await db.commit()
         # El companion depende del nivel: invalidar tras aplicar la propuesta
         await invalidate_companion(redis_client, current_user.id)
+        await invalidate_resource_recs(redis_client, current_user.id)
 
     result = await db.execute(select(UserLevel).where(UserLevel.user_id == current_user.id))
     lvl = result.scalar_one_or_none()

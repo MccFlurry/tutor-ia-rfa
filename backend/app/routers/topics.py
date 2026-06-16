@@ -8,6 +8,7 @@ from app.database import get_db
 from app.dependencies import get_current_user, get_redis
 from app.models.user import User
 from app.services.companion_service import invalidate_companion
+from app.services.resource_recommender_service import invalidate_resource_recs
 from app.models.topic import Topic
 from app.models.module import Module
 from app.models.progress import UserTopicProgress
@@ -155,6 +156,7 @@ async def complete_topic(
 
     # El diagnóstico del companion cambia al completar un tema
     await invalidate_companion(redis_client, current_user.id)
+    await invalidate_resource_recs(redis_client, current_user.id)
 
     return TopicCompleteResponse(message="Tema marcado como completado", is_completed=True)
 
