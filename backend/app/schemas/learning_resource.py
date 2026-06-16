@@ -41,3 +41,14 @@ class LearningResourceUpdate(BaseModel):
     description: str | None = None
     order_index: int | None = None
     is_active: bool | None = None
+
+
+class RecommendedResource(LearningResourceResponse):
+    """A curated resource plus the LLM's 1-line rationale (None in fallback)."""
+    reason: str | None = None
+
+
+class RecommendationResponse(BaseModel):
+    ai_ranked: bool
+    level: str
+    recommendations: list[RecommendedResource]
