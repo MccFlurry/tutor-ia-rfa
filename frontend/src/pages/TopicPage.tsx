@@ -35,9 +35,8 @@ export default function TopicPage() {
   const startCodingMutation = useMutation({
     mutationFn: () => codingApi.getForTopic(topicId).then((r) => r.data),
     onSuccess: (data) => {
-      if (data.source === 'fallback') {
-        toast('Usando desafío del banco (IA no disponible)', { icon: '⚠️' })
-      }
+      // Abrir un desafío que ya existe no es un evento de "IA no disponible";
+      // el origen (IA o banco) se ve, sin alarma, en la propia página del desafío.
       navigate(`/coding/${data.challenge.id}`)
     },
     onError: (err: any) => {

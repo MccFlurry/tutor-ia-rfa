@@ -10,37 +10,36 @@ constructor call includes `timeout=settings.OLLAMA_TIMEOUT`. Cheap, deterministi
 no LLM required.
 """
 
+import importlib
 import re
 from pathlib import Path
 
 import pytest
 
+# Nombres de módulo (no rutas de host): se localizan vía importlib, así el test
+# corre igual desde el host, en el contenedor o en CI, sin depender del CWD.
 SERVICES = [
-    "backend/app/services/llm_service.py",
-    "backend/app/services/challenge_generator_service.py",
-    "backend/app/services/code_eval_service.py",
-    "backend/app/services/rag_service.py",
+    "app.services.llm_service",
+    "app.services.challenge_generator_service",
+    "app.services.code_eval_service",
+    "app.services.rag_service",
 ]
 
 
-def _project_root() -> Path:
-    # tests/unit/<this file>  →  project root is parents[3]
-    return Path(__file__).resolve().parents[3]
-
-
-@pytest.mark.parametrize("rel_path", SERVICES)
-def test_chatollama_call_has_timeout(rel_path):
-    source = (_project_root() / rel_path).read_text(encoding="utf-8")
+@pytest.mark.parametrize("mod_name", SERVICES)
+def test_chatollama_call_has_timeout(mod_name):
+    mod = importlib.import_module(mod_name)
+    source = Path(mod.__file__).read_text(encoding="utf-8")
 
     # Each ChatOllama(...) ctor block must contain timeout=settings.OLLAMA_TIMEOUT.
     pattern = re.compile(r"ChatOllama\((?P<body>.*?)\)", re.DOTALL)
     matches = list(pattern.finditer(source))
 
-    assert matches, f"No ChatOllama(...) call found in {rel_path}"
+    assert matches, f"No ChatOllama(...) call found in {mod_name}"
 
     for m in matches:
         body = m.group("body")
         assert "timeout=settings.OLLAMA_TIMEOUT" in body, (
-            f"ChatOllama(...) en {rel_path} no usa timeout=settings.OLLAMA_TIMEOUT — "
+            f"ChatOllama(...) en {mod_name} no usa timeout=settings.OLLAMA_TIMEOUT — "
             f"riesgo: cortes silenciosos del LLM y caída a fallback. Cuerpo:\n{body}"
         )

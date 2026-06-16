@@ -12,6 +12,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 
 from app.config import settings
 from app.utils.logger import logger
+from app.utils.prompt_security import LLM_GUARD_CLAUSE
 
 
 @dataclass
@@ -204,7 +205,7 @@ async def generate_quiz_questions(
 
         logger.info(f"Generando {num_questions} preguntas via Ollama (nivel={student_level})...")
         response = await llm.ainvoke([
-            SystemMessage(content=system_prompt),
+            SystemMessage(content=LLM_GUARD_CLAUSE + "\n\n" + system_prompt),
             HumanMessage(content=human_prompt),
         ])
 
@@ -238,7 +239,7 @@ async def generate_student_report_text(
             timeout=settings.OLLAMA_TIMEOUT,
         )
         response = await llm.ainvoke([
-            SystemMessage(content=system_prompt),
+            SystemMessage(content=LLM_GUARD_CLAUSE + "\n\n" + system_prompt),
             HumanMessage(content=user_prompt),
         ])
         return response.content

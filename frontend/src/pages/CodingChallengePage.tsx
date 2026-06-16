@@ -138,9 +138,9 @@ export default function CodingChallengePage() {
         return
       }
       if (data.source === 'fallback') {
-        toast('Se usó desafío del banco (IA no disponible)', { icon: '⚠️' })
+        toast('Desafío del banco del docente', { icon: '📘' })
       } else {
-        toast.success('Nuevo desafío generado')
+        toast.success('Nuevo desafío generado con IA')
       }
       navigate(`/coding/${data.challenge.id}`, { replace: true })
     },
@@ -221,6 +221,13 @@ export default function CodingChallengePage() {
     )
   }
 
+  // El banco de respaldo marca su título con "[Fallback] " para derivar el origen.
+  // Ese prefijo es interno (no debe verse) y un clon del banco no es "Generado con IA".
+  // ponytail: el prefijo es la única señal de origen sin migración; se limpia aquí.
+  const isBankFallback = challenge.title.startsWith('[Fallback]')
+  const displayTitle = challenge.title.replace(/^\[Fallback\]\s*/, '')
+  const showAiBadge = challenge.is_ai_generated && !isBankFallback
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6">
       {/* Breadcrumb */}
@@ -246,13 +253,13 @@ export default function CodingChallengePage() {
       <div className="mb-6 flex items-start justify-between flex-wrap gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-3 mb-2 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 dark:text-institutional-100">{challenge.title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-institutional-700 dark:text-institutional-100">{displayTitle}</h1>
             {diff && (
               <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${diff.color}`}>
                 {diff.label}
               </span>
             )}
-            {challenge.is_ai_generated && (
+            {showAiBadge && (
               <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-heritage-100 text-heritage-700 dark:bg-heritage-700/20 dark:text-heritage-200">
                 <Sparkles className="w-3 h-3" aria-hidden="true" />
                 Generado con IA
