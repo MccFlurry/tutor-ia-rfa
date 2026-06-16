@@ -4,7 +4,12 @@ reales del banco; nunca emite URLs ni títulos. Todo fallo → orden curado.
 """
 import json
 import re
+from dataclasses import dataclass
 
+from langchain_ollama import ChatOllama
+from langchain_core.messages import SystemMessage, HumanMessage
+
+from app.config import settings
 from app.schemas.learning_resource import LearningResourceResponse, RecommendedResource
 from app.utils.logger import logger
 
@@ -66,3 +71,64 @@ def _parse_ranking(raw: str) -> list[dict]:
         if isinstance(item, dict) and isinstance(item.get("id"), int):
             out.append({"id": item["id"], "reason": item.get("reason")})
     return out
+
+
+@dataclass
+class StudentSignal:
+    level: str
+    weakness_label: str
+
+
+RECOMMEND_SYSTEM_PROMPT = """Eres un tutor del curso de Aplicaciones Móviles del IESTP \
+República Federal de Alemania (RFA), Chiclayo, Perú.
+
+Recibes una lista de RECURSOS DE APRENDIZAJE ya curados (cada uno con su id) y el perfil \
+del estudiante. Tu tarea: ORDENAR los recursos del más al menos útil para ESTE estudiante \
+y dar una razón breve por cada uno.
+
+REGLAS ABSOLUTAS:
+1. SOLO puedes usar los id que aparecen en la lista. NUNCA inventes recursos, títulos ni URLs.
+2. Devuelve TODOS los id recibidos, sin repetir, ordenados por utilidad para el estudiante.
+3. La razón es 1 frase corta (máx ~15 palabras), en español peruano, motivadora y concreta.
+4. Prioriza lo que ayude con la debilidad indicada y se ajuste al nivel del estudiante.
+5. Responde ÚNICAMENTE con un objeto JSON con la clave "ranking".
+
+FORMATO (JSON objeto):
+{"ranking": [{"id": 3, "reason": "Empieza aquí: explica el emulador paso a paso."}]}"""
+
+
+def _build_human_prompt(candidates: list[LearningResourceResponse], signal: StudentSignal) -> str:
+    items = [
+        {"id": c.id, "kind": c.kind, "title": c.title,
+         "description": (c.description or "")[:200]}
+        for c in candidates
+    ]
+    return (
+        f"PERFIL DEL ESTUDIANTE:\n- Nivel: {signal.level}\n- Estado: {signal.weakness_label}\n\n"
+        f"RECURSOS DISPONIBLES (JSON):\n{json.dumps(items, ensure_ascii=False)}\n\n"
+        "Ordena estos recursos para este estudiante y justifica cada uno."
+    )
+
+
+async def _rank_with_llm(
+    candidates: list[LearningResourceResponse], signal: StudentSignal
+) -> list[dict]:
+    """Invoca Ollama para reordenar. Devuelve [] ante cualquier fallo (→ fallback)."""
+    try:
+        llm = ChatOllama(
+            base_url=settings.OLLAMA_BASE_URL,
+            model=settings.OLLAMA_MODEL,
+            temperature=0.3,
+            num_ctx=4096,
+            num_predict=600,
+            format="json",
+            timeout=settings.OLLAMA_TIMEOUT,
+        )
+        response = await llm.ainvoke([
+            SystemMessage(content=RECOMMEND_SYSTEM_PROMPT),
+            HumanMessage(content=_build_human_prompt(candidates, signal)),
+        ])
+        return _parse_ranking(response.content)
+    except Exception as e:
+        logger.warning(f"[recommender] LLM falló, fallback a orden curado: {e}")
+        return []

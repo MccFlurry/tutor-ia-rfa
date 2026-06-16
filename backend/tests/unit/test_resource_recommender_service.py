@@ -69,3 +69,32 @@ def test_parse_code_fences():
 
 def test_parse_invalid_returns_empty():
     assert _parse_ranking("no json aquí") == []
+
+
+from app.services.resource_recommender_service import _rank_with_llm, StudentSignal
+
+
+@pytest.mark.asyncio
+async def test_rank_with_llm_returns_empty_on_failure(monkeypatch):
+    class Boom:
+        def __init__(self, *a, **k): ...
+        async def ainvoke(self, *a, **k):
+            raise RuntimeError("ollama down")
+    monkeypatch.setattr(
+        "app.services.resource_recommender_service.ChatOllama", Boom
+    )
+    out = await _rank_with_llm([_res(1), _res(2)], StudentSignal("beginner", "x"))
+    assert out == []
+
+
+@pytest.mark.asyncio
+async def test_rank_with_llm_parses_success(monkeypatch):
+    class OK:
+        def __init__(self, *a, **k): ...
+        async def ainvoke(self, *a, **k):
+            return MagicMock(content='{"ranking":[{"id":2,"reason":"hazlo"}]}')
+    monkeypatch.setattr(
+        "app.services.resource_recommender_service.ChatOllama", OK
+    )
+    out = await _rank_with_llm([_res(1), _res(2)], StudentSignal("beginner", "x"))
+    assert out == [{"id": 2, "reason": "hazlo"}]
