@@ -207,3 +207,27 @@ async def test_topic_weakness_label_normalizes_score():
     db = MagicMock(); db.execute = AsyncMock(return_value=result_mock)
     label = await _topic_weakness_label(SimpleNamespace(id="u"), db, topic_id=1)
     assert "afianzar" in label
+
+
+from app.services.resource_recommender_service import invalidate_resource_recs
+
+
+class _FakeRedis:
+    def __init__(self, keys):
+        self.store = set(keys)
+    async def scan_iter(self, match=None):
+        import fnmatch
+        for k in list(self.store):
+            if match is None or fnmatch.fnmatch(k, match):
+                yield k
+    async def delete(self, k):
+        self.store.discard(k)
+
+
+@pytest.mark.asyncio
+async def test_invalidate_resource_recs_only_touches_user_prefix():
+    redis = _FakeRedis({
+        "resource_rec:u1:m1", "resource_rec:u1:t9", "resource_rec:u2:m1", "other:key",
+    })
+    await invalidate_resource_recs(redis, "u1")
+    assert redis.store == {"resource_rec:u2:m1", "other:key"}

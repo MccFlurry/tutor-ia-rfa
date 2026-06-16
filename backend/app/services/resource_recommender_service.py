@@ -21,6 +21,7 @@ from app.services.companion_service import (
     WEAK_SCORE, PRACTICE_SCORE, WEAK_FAILED_ATTEMPTS,
     _gather_topic_stats, build_diagnostic,
 )
+from app.utils.cache import invalidate_prefix
 from app.utils.logger import logger
 
 REASON_MAX_CHARS = 120
@@ -244,3 +245,16 @@ async def gather_recommendations(
         level=signal.level,
         recommendations=merge_ranking(candidates, ranking),
     )
+
+
+RESOURCE_REC_PREFIX = "resource_rec:"
+
+
+def resource_rec_cache_key(user_id, scope: str) -> str:
+    return f"{RESOURCE_REC_PREFIX}{user_id}:{scope}"
+
+
+async def invalidate_resource_recs(redis_client, user_id) -> None:
+    """Punto único de invalidación: borra todas las keys del estudiante. Lo llaman
+    los mismos eventos que invalidan el companion (cambian nivel/debilidad)."""
+    await invalidate_prefix(redis_client, f"{RESOURCE_REC_PREFIX}{user_id}:")
