@@ -165,3 +165,45 @@ async def test_gather_ai_ranked_true_when_llm_returns(monkeypatch):
                                         module_id=1, topic_id=None)
     assert resp.ai_ranked is True
     assert resp.recommendations[0].id == 2
+
+
+@pytest.mark.asyncio
+async def test_gather_ai_ranked_false_when_llm_fails(monkeypatch):
+    # ≥2 candidatos pero el LLM cae (_rank_with_llm devuelve []) → orden curado.
+    monkeypatch.setattr(mod, "select_candidates",
+                        AsyncMock(return_value=[_res(1), _res(2)]))
+    monkeypatch.setattr(mod, "build_student_signal",
+                        AsyncMock(return_value=StudentSignal("beginner", "x")))
+    monkeypatch.setattr(mod, "_rank_with_llm", AsyncMock(return_value=[]))
+    resp = await gather_recommendations(SimpleNamespace(id="u"), MagicMock(),
+                                        module_id=1, topic_id=None)
+    assert resp.ai_ranked is False
+    assert [r.id for r in resp.recommendations] == [1, 2]  # orden curado intacto
+
+
+@pytest.mark.asyncio
+async def test_select_candidates_module_only():
+    # topic_id=None → un solo execute, filtro por module_id.
+    db = MagicMock(); db.execute = AsyncMock()
+    orm = SimpleNamespace(
+        id=7, module_id=2, topic_id=None, kind="video", title="V",
+        url="http://x", author=None, description=None, order_index=0, is_active=True,
+    )
+    r = MagicMock()
+    r.scalars = MagicMock(return_value=MagicMock(all=MagicMock(return_value=[orm])))
+    db.execute.return_value = r
+    out = await select_candidates(db, module_id=2, topic_id=None)
+    assert [x.id for x in out] == [7]
+
+
+@pytest.mark.asyncio
+async def test_topic_weakness_label_normalizes_score():
+    # Trampa de escala: QuizAttempt.score 0-1 → bandas 0-100. 0.70→70 = "afianzar"
+    # (sin ×100 sería 0.70 < 60 → "dificultades": este test protege el ×100).
+    from app.services.resource_recommender_service import _topic_weakness_label
+    row = SimpleNamespace(best=0.70, failed=0)
+    result_mock = MagicMock()
+    result_mock.first = MagicMock(return_value=row)
+    db = MagicMock(); db.execute = AsyncMock(return_value=result_mock)
+    label = await _topic_weakness_label(SimpleNamespace(id="u"), db, topic_id=1)
+    assert "afianzar" in label

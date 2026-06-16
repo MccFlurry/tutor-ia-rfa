@@ -163,15 +163,24 @@ def weakness_label_for_score(best_score: float | None, failed_attempts: int) -> 
 async def select_candidates(db, module_id: int | None, topic_id: int | None):
     """Recursos curados candidatos. Por topic_id incluye los del tema Y los del
     módulo del tema (el seed asigna solo module_id), si no la tarjeta queda vacía."""
+    if topic_id is None and module_id is None:
+        logger.warning("[recommender] select_candidates sin module_id ni topic_id")
+        return []
     q = select(LearningResource).where(LearningResource.is_active == True)  # noqa: E712
     if topic_id is not None:
         mod_id = (
             await db.execute(select(Topic.module_id).where(Topic.id == topic_id))
         ).scalar_one_or_none()
-        q = q.where(or_(
-            LearningResource.topic_id == topic_id,
-            LearningResource.module_id == mod_id,
-        ))
+        if mod_id is None:
+            # Tema inexistente (p. ej. borrado): evita el filtro silencioso
+            # ``module_id IS NULL``; quedan solo los recursos del propio tema.
+            logger.warning(f"[recommender] tema {topic_id} sin módulo; solo recursos del tema")
+            q = q.where(LearningResource.topic_id == topic_id)
+        else:
+            q = q.where(or_(
+                LearningResource.topic_id == topic_id,
+                LearningResource.module_id == mod_id,
+            ))
     else:
         q = q.where(LearningResource.module_id == module_id)
     q = q.order_by(LearningResource.order_index, LearningResource.id).limit(MAX_CANDIDATES)
