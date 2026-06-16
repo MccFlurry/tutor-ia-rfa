@@ -9,8 +9,18 @@ from dataclasses import dataclass
 from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
 
+from sqlalchemy import func, or_, select
+
 from app.config import settings
-from app.schemas.learning_resource import LearningResourceResponse, RecommendedResource
+from app.models.learning_resource import LearningResource
+from app.models.quiz import QuizAttempt
+from app.models.topic import Topic
+from app.models.user_level import UserLevel
+from app.schemas.learning_resource import LearningResourceResponse, RecommendedResource, RecommendationResponse
+from app.services.companion_service import (
+    WEAK_SCORE, PRACTICE_SCORE, WEAK_FAILED_ATTEMPTS,
+    _gather_topic_stats, build_diagnostic,
+)
 from app.utils.logger import logger
 
 REASON_MAX_CHARS = 120
@@ -132,3 +142,96 @@ async def _rank_with_llm(
     except Exception as e:
         logger.warning(f"[recommender] LLM falló, fallback a orden curado: {e}")
         return []
+
+
+MAX_CANDIDATES = 6
+
+
+def weakness_label_for_score(best_score: float | None, failed_attempts: int) -> str:
+    """Etiqueta de debilidad por bandas (0-100), consistente con el companion. Pura."""
+    if best_score is None:
+        return "aún no evaluado en este tema"
+    if best_score < WEAK_SCORE or (
+        failed_attempts >= WEAK_FAILED_ATTEMPTS and best_score < PRACTICE_SCORE
+    ):
+        return "tiene dificultades en este tema"
+    if best_score < PRACTICE_SCORE:
+        return "necesita afianzar este tema"
+    return "domina este tema"
+
+
+async def select_candidates(db, module_id: int | None, topic_id: int | None):
+    """Recursos curados candidatos. Por topic_id incluye los del tema Y los del
+    módulo del tema (el seed asigna solo module_id), si no la tarjeta queda vacía."""
+    q = select(LearningResource).where(LearningResource.is_active == True)  # noqa: E712
+    if topic_id is not None:
+        mod_id = (
+            await db.execute(select(Topic.module_id).where(Topic.id == topic_id))
+        ).scalar_one_or_none()
+        q = q.where(or_(
+            LearningResource.topic_id == topic_id,
+            LearningResource.module_id == mod_id,
+        ))
+    else:
+        q = q.where(LearningResource.module_id == module_id)
+    q = q.order_by(LearningResource.order_index, LearningResource.id).limit(MAX_CANDIDATES)
+    rows = (await db.execute(q)).scalars().all()
+    return [LearningResourceResponse.model_validate(r) for r in rows]
+
+
+async def _module_weakness_label(user, db, module_id: int) -> str:
+    stats = await _gather_topic_stats(user, module_id, db)
+    diagnostic = build_diagnostic(stats, module_id)
+    if diagnostic.weak:
+        return f"tiene dificultades en «{diagnostic.weak[0].title}»"
+    if diagnostic.practice:
+        return f"necesita afianzar «{diagnostic.practice[0].title}»"
+    return "avanza bien en el módulo actual"
+
+
+async def _topic_weakness_label(user, db, topic_id: int) -> str:
+    row = (
+        await db.execute(
+            select(
+                func.max(QuizAttempt.score).label("best"),
+                func.count(QuizAttempt.id)
+                .filter(QuizAttempt.is_passed == False).label("failed"),  # noqa: E712
+            ).where(QuizAttempt.user_id == user.id, QuizAttempt.topic_id == topic_id)
+        )
+    ).first()
+    # QuizAttempt.score se persiste como fracción 0-1; las bandas son 0-100.
+    best = float(row.best) * 100 if row and row.best is not None else None
+    failed = int(row.failed) if row and row.failed is not None else 0
+    return weakness_label_for_score(best, failed)
+
+
+async def build_student_signal(user, db, module_id: int | None, topic_id: int | None) -> StudentSignal:
+    level = (
+        await db.execute(select(UserLevel.level).where(UserLevel.user_id == user.id))
+    ).scalar_one_or_none() or "beginner"
+    if topic_id is not None:
+        weakness = await _topic_weakness_label(user, db, topic_id)
+    else:
+        weakness = await _module_weakness_label(user, db, module_id)
+    return StudentSignal(level=level, weakness_label=weakness)
+
+
+async def gather_recommendations(
+    user, db, module_id: int | None = None, topic_id: int | None = None
+) -> RecommendationResponse:
+    """Orquesta candidatos → señal → LLM → merge. Sin caché (la maneja el router)."""
+    candidates = await select_candidates(db, module_id, topic_id)
+    signal = await build_student_signal(user, db, module_id, topic_id)
+    if len(candidates) < 2:
+        return RecommendationResponse(
+            ai_ranked=False, level=signal.level,
+            recommendations=[
+                RecommendedResource(**c.model_dump(), reason=None) for c in candidates
+            ],
+        )
+    ranking = await _rank_with_llm(candidates, signal)
+    return RecommendationResponse(
+        ai_ranked=bool(ranking),
+        level=signal.level,
+        recommendations=merge_ranking(candidates, ranking),
+    )

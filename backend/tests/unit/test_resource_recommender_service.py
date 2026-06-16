@@ -98,3 +98,70 @@ async def test_rank_with_llm_parses_success(monkeypatch):
     )
     out = await _rank_with_llm([_res(1), _res(2)], StudentSignal("beginner", "x"))
     assert out == [{"id": 2, "reason": "hazlo"}]
+
+
+from types import SimpleNamespace
+import app.services.resource_recommender_service as mod
+from app.services.resource_recommender_service import (
+    weakness_label_for_score, select_candidates, gather_recommendations,
+)
+
+
+# --- weakness_label_for_score: bandas puras (reusa umbrales del companion) ---
+
+def test_weakness_label_bands():
+    assert "dificultades" in weakness_label_for_score(40, 0)
+    assert "afianzar" in weakness_label_for_score(70, 0)
+    assert "domina" in weakness_label_for_score(90, 0)
+    assert "no evaluado" in weakness_label_for_score(None, 0)
+
+
+def test_weakness_label_failed_attempts_is_weak():
+    # ≥2 intentos fallidos sin dominar → dificultades, aunque score esté en banda media
+    assert "dificultades" in weakness_label_for_score(70, 2)
+
+
+# --- select_candidates: por topic_id une los recursos del módulo del tema ---
+
+@pytest.mark.asyncio
+async def test_select_candidates_topic_unions_module():
+    db = MagicMock(); db.execute = AsyncMock()
+    r1 = MagicMock(); r1.scalar_one_or_none = MagicMock(return_value=1)  # Topic.module_id
+    orm = SimpleNamespace(
+        id=5, module_id=1, topic_id=None, kind="doc", title="T",
+        url="http://x", author=None, description=None, order_index=0, is_active=True,
+    )
+    r2 = MagicMock()
+    r2.scalars = MagicMock(return_value=MagicMock(all=MagicMock(return_value=[orm])))
+    db.execute.side_effect = [r1, r2]
+    out = await select_candidates(db, module_id=None, topic_id=9)
+    assert [r.id for r in out] == [5]
+
+
+# --- gather_recommendations: flag ai_ranked + corto-circuito <2 candidatos ---
+
+@pytest.mark.asyncio
+async def test_gather_short_circuits_when_few_candidates(monkeypatch):
+    monkeypatch.setattr(mod, "select_candidates", AsyncMock(return_value=[_res(1)]))
+    monkeypatch.setattr(mod, "build_student_signal",
+                        AsyncMock(return_value=StudentSignal("beginner", "x")))
+    rank = AsyncMock()
+    monkeypatch.setattr(mod, "_rank_with_llm", rank)
+    resp = await gather_recommendations(SimpleNamespace(id="u"), MagicMock(),
+                                        module_id=1, topic_id=None)
+    assert resp.ai_ranked is False
+    rank.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_gather_ai_ranked_true_when_llm_returns(monkeypatch):
+    monkeypatch.setattr(mod, "select_candidates",
+                        AsyncMock(return_value=[_res(1), _res(2)]))
+    monkeypatch.setattr(mod, "build_student_signal",
+                        AsyncMock(return_value=StudentSignal("beginner", "x")))
+    monkeypatch.setattr(mod, "_rank_with_llm",
+                        AsyncMock(return_value=[{"id": 2, "reason": "r"}]))
+    resp = await gather_recommendations(SimpleNamespace(id="u"), MagicMock(),
+                                        module_id=1, topic_id=None)
+    assert resp.ai_ranked is True
+    assert resp.recommendations[0].id == 2
