@@ -220,8 +220,9 @@ class _FakeRedis:
         for k in list(self.store):
             if match is None or fnmatch.fnmatch(k, match):
                 yield k
-    async def delete(self, k):
-        self.store.discard(k)
+    async def delete(self, *ks):  # variádico, como redis.asyncio.delete(*names)
+        for k in ks:
+            self.store.discard(k)
 
 
 @pytest.mark.asyncio
@@ -231,3 +232,13 @@ async def test_invalidate_resource_recs_only_touches_user_prefix():
     })
     await invalidate_resource_recs(redis, "u1")
     assert redis.store == {"resource_rec:u2:m1", "other:key"}
+
+
+@pytest.mark.asyncio
+async def test_invalidate_resource_recs_survives_redis_failure():
+    # Modo degradado: una caché caída nunca debe romper la mutación que invalida.
+    class _BrokenRedis:
+        async def scan_iter(self, match=None):
+            raise ConnectionError("Redis down")
+            yield  # hace de esto un async generator
+    await invalidate_resource_recs(_BrokenRedis(), "u1")  # no debe lanzar

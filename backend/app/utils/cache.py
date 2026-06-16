@@ -64,7 +64,8 @@ async def invalidate_prefix(redis_client, prefix: str) -> None:
     """Delete every key starting with `prefix` (SCAN-based). Errors swallowed
     (degraded mode): a flaky cache must never break the mutation that triggers it."""
     try:
-        async for key in redis_client.scan_iter(match=f"{prefix}*"):
-            await redis_client.delete(key)
+        keys = [key async for key in redis_client.scan_iter(match=f"{prefix}*")]
+        if keys:
+            await redis_client.delete(*keys)  # un solo DEL: borrado todo-o-nada
     except Exception as e:
         logger.warning(f"[cache] Redis invalidate_prefix falló para {prefix}: {e}")
