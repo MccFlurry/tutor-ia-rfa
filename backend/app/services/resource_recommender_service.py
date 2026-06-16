@@ -11,7 +11,7 @@ from app.utils.logger import logger
 REASON_MAX_CHARS = 120
 
 
-def _cap_reason(reason) -> str | None:
+def _cap_reason(reason: str | None) -> str | None:
     if not reason or not str(reason).strip():
         return None
     return str(reason).strip()[:REASON_MAX_CHARS]
@@ -50,7 +50,7 @@ def _parse_ranking(raw: str) -> list[dict]:
     try:
         data = json.loads(cleaned)
     except json.JSONDecodeError:
-        m = re.search(r'\[.*\]', cleaned, re.DOTALL)
+        m = re.search(r'\[.*?\]', cleaned, re.DOTALL)
         if not m:
             return []
         try:
