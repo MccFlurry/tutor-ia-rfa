@@ -5,10 +5,10 @@ import DiagnosticChips from './DiagnosticChips'
 import type { CompanionResponse } from '@/types/companion'
 
 /**
- * Panel «Tu ruta» (Fase 5): posición del estudiante, diagnóstico del módulo
- * actual y recursos curados. Reemplaza al hero del Dashboard cuando el
- * endpoint /tutor/companion responde; si no, el hero clásico queda como
- * fallback (degradación silenciosa).
+ * Panel «Tu ruta» (Fase 5): posición del estudiante y diagnóstico del módulo
+ * actual. Los recursos los muestra <RecommendedResources> aparte (capa IA).
+ * Reemplaza al hero del Dashboard cuando el endpoint /tutor/companion
+ * responde; si no, el hero clásico queda como fallback (degradación silenciosa).
  */
 export default function CompanionPanel({ data }: { data: CompanionResponse }) {
   const navigate = useNavigate()
