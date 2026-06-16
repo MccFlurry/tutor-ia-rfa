@@ -54,10 +54,9 @@ describe('<CompanionPanel />', () => {
     expect(screen.getByRole('button', { name: /Repasar «Layouts»/ })).toBeInTheDocument()
   })
 
-  it('renders diagnostic chips and module resources', () => {
+  it('renders diagnostic chips', () => {
     renderPanel()
     expect(screen.getByRole('link', { name: /Repasar: Layouts/ })).toBeInTheDocument()
-    expect(screen.getByText('Curso de Layouts')).toBeInTheDocument()
   })
 
   it('renders nothing without position or diagnostic', () => {

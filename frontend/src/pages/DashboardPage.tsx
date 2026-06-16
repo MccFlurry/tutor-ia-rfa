@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils'
 import type { StudentLevel } from '@/types/assessment'
 import TutorNudgeList from '@/components/tutor/TutorNudgeList'
 import ResourceList from '@/components/resources/ResourceList'
+import RecommendedResources from '@/components/resources/RecommendedResources'
 import CompanionPanel from '@/components/tutor/CompanionPanel'
 import { useCompanion } from '@/hooks/useCompanion'
 
@@ -181,7 +182,16 @@ export default function DashboardPage() {
 
       {/* Hero: companion «Tu ruta» (Fase 5); hero clásico como fallback */}
       {showCompanion ? (
-        <CompanionPanel data={companion} />
+        <>
+          <CompanionPanel data={companion} />
+          {companion.position && (
+            <RecommendedResources
+              moduleId={companion.position.module_id}
+              title="Recursos de tu módulo actual"
+              headingLevel={3}
+            />
+          )}
+        </>
       ) : (
         <section
           aria-labelledby="hero-resume"

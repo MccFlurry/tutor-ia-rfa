@@ -11,7 +11,7 @@ import Skeleton, { SkeletonLine } from '@/components/common/Skeleton'
 import EmptyState from '@/components/common/EmptyState'
 import ContentRenderer from '@/components/topics/ContentRenderer'
 import TutorNudgeList from '@/components/tutor/TutorNudgeList'
-import ResourceList from '@/components/resources/ResourceList'
+import RecommendedResources from '@/components/resources/RecommendedResources'
 
 export default function TopicPage() {
   const { id } = useParams<{ id: string }>()
@@ -309,7 +309,7 @@ export default function TopicPage() {
         </div>
       )}
 
-      {!isNaN(topicId) && <ResourceList topicId={topicId} />}
+      {!isNaN(topicId) && <RecommendedResources topicId={topicId} />}
 
       {/* Prev / Next navigation — sticky on mobile so it stays reachable */}
       <div className="sticky bottom-0 sm:static -mx-4 sm:mx-0 px-4 sm:px-0 py-3 sm:py-0 bg-background/95 sm:bg-transparent backdrop-blur sm:backdrop-blur-0 border-t border-border sm:pt-6 flex items-center justify-between gap-2">

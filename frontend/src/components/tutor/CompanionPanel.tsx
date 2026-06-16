@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowRight, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import DiagnosticChips from './DiagnosticChips'
-import ResourceList from '@/components/resources/ResourceList'
 import type { CompanionResponse } from '@/types/companion'
 
 /**
@@ -13,7 +12,7 @@ import type { CompanionResponse } from '@/types/companion'
  */
 export default function CompanionPanel({ data }: { data: CompanionResponse }) {
   const navigate = useNavigate()
-  const { position, diagnostic, greeting, resources } = data
+  const { position, diagnostic, greeting } = data
   if (!position || !diagnostic) return null
   const pct = Math.round(position.progress_pct)
 
@@ -57,14 +56,6 @@ export default function CompanionPanel({ data }: { data: CompanionResponse }) {
       </section>
 
       <DiagnosticChips diagnostic={diagnostic} className="mb-6" />
-
-      {resources.length > 0 && (
-        <ResourceList
-          resources={resources}
-          title="Recursos de tu módulo actual"
-          headingLevel={3}
-        />
-      )}
     </>
   )
 }
