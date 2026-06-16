@@ -77,6 +77,9 @@ async def test_recommended_requires_exactly_one_param(client):
     both = await client.get("/api/v1/resources/recommended?module_id=1&topic_id=2")
     assert none.status_code == 422
     assert both.status_code == 422
+    # Distinguir nuestro 422 de dominio de un 422 de validación de FastAPI.
+    assert "Especifica exactamente uno" in none.json()["detail"]
+    assert "Especifica exactamente uno" in both.json()["detail"]
 
 
 @pytest.mark.asyncio

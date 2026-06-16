@@ -36,7 +36,9 @@ async def list_resources(
     return [LearningResourceResponse.model_validate(r) for r in result.scalars().all()]
 
 
-async def _recommendations_payload(user, db, module_id, topic_id) -> dict:
+async def _recommendations_payload(
+    user: User, db: AsyncSession, module_id: int | None, topic_id: int | None
+) -> dict:
     resp = await gather_recommendations(user, db, module_id, topic_id)
     return resp.model_dump(mode="json")
 
@@ -51,6 +53,7 @@ async def recommended_resources(
 ):
     """Recursos curados reordenados y justificados por IA (fallback al orden
     curado). Exactamente uno de module_id | topic_id."""
+    # Exactamente uno: el XNOR es True si ambos son None o ambos vienen dados.
     if (module_id is None) == (topic_id is None):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
