@@ -18,6 +18,7 @@ from app.config import settings
 from app.models.module import Module
 from app.models.assessment_bank import EntryAssessmentBank
 from app.utils.logger import logger
+from app.utils.prompt_security import LLM_GUARD_CLAUSE
 
 
 NUM_ASSESSMENT_QUESTIONS = 12  # cubre M1-M5 con dificultad mixta
@@ -162,7 +163,7 @@ async def _generate_with_llm(modules: list[Module]) -> list[AssessmentQuestion]:
 
     logger.info(f"Generando {NUM_ASSESSMENT_QUESTIONS} preguntas de evaluación de entrada vía Ollama")
     response = await llm.ainvoke([
-        SystemMessage(content=system_prompt),
+        SystemMessage(content=LLM_GUARD_CLAUSE + "\n\n" + system_prompt),
         HumanMessage(content=human_prompt),
     ])
 

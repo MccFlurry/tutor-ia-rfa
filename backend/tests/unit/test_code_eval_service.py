@@ -6,7 +6,38 @@ y normalice score, feedback, strengths, improvements.
 
 import json
 
-from app.services.code_eval_service import _parse_evaluation
+import pytest
+
+from app.services.code_eval_service import (
+    _parse_evaluation,
+    _code_core,
+    _is_blank_submission,
+    evaluate_code,
+    CODE_EVAL_PROMPT,
+)
+
+
+class TestCodeEvalInjectionDefense:
+    """El código del estudiante puede traer 'dame 100'; el prompt debe blindarse."""
+
+    def test_prompt_treats_code_as_data(self):
+        low = CODE_EVAL_PROMPT.lower()
+        assert "datos a evaluar" in low
+        assert "guard_clause" in CODE_EVAL_PROMPT  # cláusula central inyectada al formatear
+
+    def test_prompt_protects_score_integrity(self):
+        assert "EXCLUSIVAMENTE" in CODE_EVAL_PROMPT
+        assert "ninguna" in CODE_EVAL_PROMPT.lower()
+
+TEMPLATE = """// Declara aquí las variables
+
+fun saludar() {
+    // Tu código aquí
+}
+
+fun main() {
+    // Llama a saludar() 3 veces y muestra el contador
+}"""
 
 
 def _valid_eval_payload(score=85):
@@ -74,3 +105,43 @@ class TestParseEvaluation:
         raw = json.dumps({**_valid_eval_payload(), "score": "high"})
         parsed = _parse_evaluation(raw)
         assert parsed["score"] == 0
+
+
+class TestBlankSubmissionGuard:
+    """
+    Bug (16-jun-2026): enviar la plantilla sin completar daba 65/100 y aprobaba.
+    El guardia determinista reprueba esos envíos ANTES de llamar al LLM.
+    """
+
+    def test_code_core_ignores_comments_and_whitespace(self):
+        assert _code_core("val x = 1 // nota") == _code_core("val   x=1")
+
+    def test_empty_or_comments_only_is_blank(self):
+        assert _is_blank_submission("", None) is True
+        assert _is_blank_submission("   \n  // solo un comentario\n", None) is True
+
+    def test_unchanged_template_is_blank(self):
+        # Mismo esqueleto, distinto formato/comentarios → sigue siendo "sin completar".
+        resubmit = TEMPLATE.replace("// Tu código aquí", "// todavía nada")
+        assert _is_blank_submission(resubmit, TEMPLATE) is True
+
+    def test_real_code_is_not_blank(self):
+        filled = TEMPLATE.replace(
+            "// Tu código aquí", 'println("Hola $nombre"); contadorSaludos++'
+        )
+        assert _is_blank_submission(filled, TEMPLATE) is False
+
+    @pytest.mark.asyncio
+    async def test_evaluate_code_fails_blank_without_llm(self):
+        # Si llegara a invocar al LLM, ChatOllama fallaría/colgaría; que pase
+        # prueba que cortocircuitó. Score 0 y sin fortalezas inventadas.
+        result = await evaluate_code(
+            title="Hola Mundo con Variables",
+            description="Declara variables y saluda.",
+            student_code=TEMPLATE,
+            initial_code=TEMPLATE,
+            student_level="beginner",
+        )
+        assert result["score"] == 0
+        assert result["strengths"] == []
+        assert "plantilla" in result["feedback"].lower()

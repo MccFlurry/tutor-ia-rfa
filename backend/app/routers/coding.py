@@ -174,6 +174,7 @@ async def submit_code(
             language=challenge.language,
             solution_code=challenge.solution_code,
             student_level=student_level,
+            initial_code=challenge.initial_code,
         )
     except Exception as e:
         logger.error(f"Error evaluando código para desafío {challenge_id}: {e}")

@@ -23,6 +23,7 @@ from app.services.companion_service import (
 )
 from app.utils.cache import invalidate_prefix
 from app.utils.logger import logger
+from app.utils.prompt_security import LLM_GUARD_CLAUSE
 
 REASON_MAX_CHARS = 120
 
@@ -136,7 +137,7 @@ async def _rank_with_llm(
             timeout=settings.OLLAMA_TIMEOUT,
         )
         response = await llm.ainvoke([
-            SystemMessage(content=RECOMMEND_SYSTEM_PROMPT),
+            SystemMessage(content=LLM_GUARD_CLAUSE + "\n\n" + RECOMMEND_SYSTEM_PROMPT),
             HumanMessage(content=_build_human_prompt(candidates, signal)),
         ])
         return _parse_ranking(response.content)
