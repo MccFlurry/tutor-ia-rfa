@@ -30,11 +30,9 @@ export default function ChatSources({ sources }: ChatSourcesProps) {
       </button>
 
       {open && (
-        <div
-          id={listId}
-          className="mt-2 space-y-2 opacity-0 animate-in fade-in slide-in-from-top-1 duration-150 fill-mode-forwards"
-          style={{ animationFillMode: 'forwards' }}
-        >
+        <div id={listId} className="mt-2 space-y-2 animate-fade-in-up">
+          {/* ponytail: tailwindcss-animate no está instalado; animate-in/fade-in eran no-op
+              y opacity-0 dejaba el panel invisible. Uso el token fade-in-up del config (sí existe). */}
           {sources.map((source, i) => (
             <div
               key={i}
