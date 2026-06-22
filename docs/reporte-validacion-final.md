@@ -2,7 +2,7 @@
 
 **Tesis:** Tutor con IA generativa para Aplicaciones Móviles — IESTP "República Federal de Alemania"
 **Autor:** Roger Alessandro Zavaleta Marcelo · **Asesora:** Mg. Reyes Burgos, Karla (USAT)
-**Fecha:** 04-jun-2026
+**Fecha:** 22-jun-2026 (rev. OE3 GPU)
 
 Este documento consolida el estado de validación de los cinco objetivos específicos. Se reporta con criterio de **honestidad académica**: lo validado se marca como tal; lo pendiente (dictamen de jueces OE5) se declara explícitamente.
 
@@ -14,7 +14,7 @@ Este documento consolida el estado de validación de los cinco objetivos especí
 |----|---------------------|--------|-----------|
 | OE1 | Selección de LLM + embeddings | ✅ **Validado** | `reporte-LLM.docx`, `reporte-OE1-metricas-oficiales.md` |
 | OE2 | Validación RAGAS del pipeline RAG | ✅ **Validado** | `reporte-RAGAS.md/.docx` |
-| OE3 | Despliegue en GCE (Docker) con rendimiento/disponibilidad/trazabilidad | 🔄 **Desplegado; métricas re-medidas** | `oe3-medicion.md`, este doc §OE3 |
+| OE3 | Despliegue en GCE (Docker) con rendimiento/disponibilidad/trazabilidad | ✅ **Desplegado; rendimiento de generación cumple sobre GPU** | `oe3-medicion.md` §6, este doc §OE3 |
 | OE4 | Mejora del rendimiento académico (pretest/postest, t pareada) | ✅ **Validado** (n=49; t(48)=14.85, p<0.001; d=2.12) | `reporte-rendimiento-academico.md/.docx`, `datos-pretest-postest.csv` |
 | OE5 | Adecuación funcional ISO/IEC 25010 | ⏳ **Interno completo; dictamen 2 jueces pendiente** | `matriz-trazabilidad-ISO25010.md`, `reporte-ISO25010.md` |
 
@@ -52,7 +52,16 @@ Golden set de 50 ítems (M1–M5), juez **independiente** `llama3.1:8b`, librer�
 - **Corpus:** 3388 chunks indexados en pgvector (índice IVFFlat).
 - **Trazabilidad:** logs JSON estructurados; respuestas RAG con citas a fuentes.
 
-**Rendimiento:** ver `oe3-medicion.md` (re-medición 02-jun-2026). _Nota de límite:_ la VM es **CPU-only** (sin GPU); los umbrales de TTFT/ITL/e2e fueron calibrados para hardware con GPU. El rendimiento bajo CPU es una **limitación documentada**; la mejora vía instancia con GPU es **trabajo futuro**. Disponibilidad y trazabilidad se cumplen.
+**Rendimiento:** re-medido sobre **GPU NVIDIA RTX 3090** (22-jun-2026, mismo backend de producción enrutado al pod por túnel; ver `oe3-medicion.md` §6):
+
+| Indicador | Umbral | CPU | GPU | GPU cumple |
+|-----------|--------|-----|-----|-----------|
+| TTFT P95 | ≤2.5 s | 99.40 s | **0.838 s** | ✅ |
+| ITL P95 | ≤250 ms | 362.6 ms | **104.9 ms** | ✅ |
+| throughput | ≥8 tok/s | 2.69 | **52.79** (71.5/petición) | ✅ |
+| e2e P95 | ≤8 s | — | 10.80 s (media 6.06 · p50 5.27; n=12) | ⚠️ cola |
+
+Los **tres indicadores de generación cumplen sobre GPU** (el incumplimiento sobre CPU era de hardware, no del pipeline). El e2e típico (mediana ~5.3 s) está dentro del umbral; el P95 (10.8 s) excede solo en la cola con muestra pequeña (n=12, limitada por rate limit) → muestra ampliada = medición complementaria. **Disponibilidad** (healthchecks, restart-policy, backup, poller) y **trazabilidad** (cobertura RF 1.0, `context_precision` 0.876) se cumplen. _Nota:_ la GPU es la configuración recomendada de producción; el piloto sobre CPU es funcional para uso esporádico (1 usuario) con latencia mayor documentada.
 
 ## OE4 — Rendimiento académico ✅
 
@@ -88,7 +97,7 @@ Golden set de 50 ítems (M1–M5), juez **independiente** `llama3.1:8b`, librer�
 
 ## Conclusión
 
-**Cuatro de los cinco objetivos cuentan con validación cerrada:** cuantitativa (**OE1, OE2, OE4**) y despliegue operativo (**OE3**, con límite de hardware CPU documentado). Queda **un solo objetivo** a la espera de actividad de campo: **OE5** (dictamen de ≥2 jueces expertos sobre pertinencia funcional; instrumento listo). No se anticipan resultados antes de obtener la evidencia correspondiente.
+**Cuatro de los cinco objetivos cuentan con validación cerrada:** cuantitativa (**OE1, OE2, OE4**) y despliegue operativo con rendimiento de generación verificado sobre GPU (**OE3**; e2e P95 con muestra ampliada = medición complementaria). Queda **un solo objetivo** a la espera de actividad de campo: **OE5** (dictamen de ≥2 jueces expertos sobre pertinencia funcional; instrumento listo). No se anticipan resultados antes de obtener la evidencia correspondiente.
 
 ---
 

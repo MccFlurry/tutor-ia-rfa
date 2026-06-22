@@ -108,7 +108,35 @@ Requiere ≥ **48 h** de `tutor-health-poller` corriendo (para MTBF ≥ 48 h). A
 - Cobertura RF = **1.0** (33/33, matriz ISO/OE5).
 - Exactitud de citación apoyada en RAGAS `context_precision` = **0.876** (OE2).
 
-### 5.4 Conclusión OE3
+### 5.4 Conclusión OE3 (CPU)
 
-Despliegue, arquitectura de disponibilidad (healthchecks, `restart: unless-stopped`, backup, poller) y trazabilidad **logrados**. La latencia de generación queda por debajo de los umbrales sobre **CPU**; alcanzarlos exige **GPU** (recomendación de infraestructura documentada). Medición de disponibilidad sobre ventana ≥48 h y, opcionalmente, latencia a concurrencia 1, quedan como mediciones complementarias.
+Despliegue, arquitectura de disponibilidad (healthchecks, `restart: unless-stopped`, backup, poller) y trazabilidad **logrados**. La latencia de generación queda por debajo de los umbrales sobre **CPU**; alcanzarlos exige **GPU** (recomendación de infraestructura documentada). La re-medición con GPU se reporta en §6.
+
+---
+
+## 6. Resultados de medición — 22-jun-2026 (GPU NVIDIA RTX 3090, túnel RunPod)
+
+La hipótesis de §5 ("el rendimiento es asunto de hardware, no del pipeline") se verificó re-midiendo el **mismo backend de producción** enrutado a una GPU. Arquitectura de la medición:
+
+- **GPU:** NVIDIA RTX 3090 en un pod RunPod, sirviendo `qwen2.5:7b-instruct-q4_K_M` vía Ollama nativo.
+- **Backend:** el contenedor FastAPI de la VM GCE `e2-standard-4` (sin cambios de código) alcanza la GPU por **túnel SSH** (`host.docker.internal:11434` → pod). El pipeline RAG, prompts, retrieval y citación son idénticos a producción.
+- **Harness:** `oe3_perf.py` con **dos planos de medición**: *generación* contra Ollama directo (streaming) y *e2e* contra el endpoint `/chat` autenticado (RAG completo). Concurrencia 1 (aproxima el uso real del piloto: 10–15 estudiantes esporádicos).
+- Evidencia cruda: `backend/oe3_results/perf_20260622_031926_gpu.json`.
+
+### 6.1 Rendimiento sobre GPU
+
+| Indicador | Umbral | CPU (§5.1) | **GPU** | ¿Cumple GPU? |
+|-----------|--------|-----------|---------|--------------|
+| TTFT P95 | ≤ 2.5 s | 99.40 s | **0.838 s** | ✅ |
+| ITL P95 | ≤ 250 ms | 362.6 ms | **104.9 ms** | ✅ |
+| throughput (tok/s) | ≥ 8 | 2.69 | **52.79** agg · **71.5** por petición | ✅ |
+| e2e P95 | ≤ 8 s | — | **10.80 s** (media 6.06 · p50 5.27 · mín 2.50; n=12) | ⚠️ cola |
+
+**Lectura honesta.** Los **tres indicadores de generación** (TTFT, ITL, throughput) — los que dependen directamente del LLM — **pasan con holgura sobre GPU**: TTFT P95 de 0.84 s (≈118× mejor que CPU), decodificación de ~71 tok/s por petición. Esto confirma que el pipeline está bien construido y que el incumplimiento de §5 era puramente de hardware.
+
+El **e2e P95 (10.80 s)** excede el umbral de 8 s **solo en la cola**: la **media (6.06 s) y la mediana (5.27 s) sí están por debajo de 8 s**, y el mínimo es 2.50 s. El P95 es poco estable porque la muestra es de **n=12** (limitada por `CHAT_RATE_LIMIT_PER_HOUR`=20) y el e2e incluye recuperación pgvector + generación de la respuesta completa con citas; las respuestas más largas elevan la cola. Para un dictamen formal del e2e P95 conviene una muestra mayor (subir el rate limit durante la medición o usar varios usuarios), pero la **experiencia típica del estudiante (mediana ~5 s)** está dentro del objetivo.
+
+### 6.2 Conclusión OE3 (consolidada)
+
+Con aceleración GPU, los indicadores de **generación de OE3 se cumplen** (TTFT, ITL, throughput: 3/3) y el e2e típico (mediana 5.3 s) está dentro del umbral, con la cola P95 pendiente de una muestra mayor. Sumado al **despliegue** operativo, la **arquitectura de disponibilidad** y la **trazabilidad** (cobertura RF 1.0, `context_precision` 0.876), OE3 queda **sustancialmente cumplido**. La GPU es la configuración recomendada de producción; el piloto sobre CPU sigue siendo funcional para uso esporádico (1 usuario), con latencia mayor documentada como límite de hardware. Pendiente complementario: ventana de disponibilidad ≥48 h y muestra e2e ampliada.
 

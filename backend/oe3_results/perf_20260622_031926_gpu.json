@@ -1,0 +1,58 @@
+{
+  "kind": "oe3_perf",
+  "ts": "2026-06-22T03:19:26",
+  "hardware_note": "GPU NVIDIA RTX 3090 (RunPod) servida vía Ollama; backend FastAPI en VM GCE e2-standard-4 enrutado al pod por túnel SSH (host.docker.internal:11434). Plano de generación = Ollama directo sobre GPU; plano e2e = endpoint /chat autenticado (RAG completo).",
+  "model": "qwen2.5:7b-instruct-q4_K_M",
+  "concurrency": 1,
+  "generation": {
+    "requests_ok": 10,
+    "requests_err": 0,
+    "run_wall_s": 30.63,
+    "total_tokens": 1617,
+    "ttft_s": {
+      "n": 10,
+      "min": 0.6354196080000065,
+      "mean": 0.7337354317999825,
+      "p50": 0.7247258305000059,
+      "p95": 0.837997858300025,
+      "max": 0.906154870000023
+    },
+    "itl_ms": {
+      "n": 1599,
+      "min": 0.023967999936758133,
+      "mean": 14.39648657848674,
+      "p50": 0.03634600000168575,
+      "p95": 104.88312950003547,
+      "max": 127.27259600001162
+    },
+    "throughput_tok_s_aggregate": 52.79,
+    "tok_s_per_request": {
+      "n": 10,
+      "min": 71.0316720654096,
+      "mean": 71.521959542489,
+      "p50": 71.4075976063223,
+      "p95": 72.32551767376432,
+      "max": 72.7498793013366
+    }
+  },
+  "e2e": {
+    "requests_ok": 12,
+    "status_counts": { "200": 12 },
+    "e2e_s": {
+      "n": 12,
+      "min": 2.5035232419999147,
+      "mean": 6.064513420666657,
+      "p50": 5.267039922500032,
+      "p95": 10.79546424229998,
+      "max": 12.288678026999946
+    },
+    "note": "Limitado por CHAT_RATE_LIMIT_PER_HOUR. Para una muestra mayor, sube ese valor en .env durante la medicion o usa varios usuarios."
+  },
+  "checks": {
+    "ttft_p95_s": { "value": 0.838, "target": 2.5, "op": "<=", "pass": true },
+    "itl_p95_ms": { "value": 104.883, "target": 250.0, "op": "<=", "pass": true },
+    "throughput_tok_s": { "value": 52.79, "target": 8.0, "op": ">=", "pass": true },
+    "e2e_p95_s": { "value": 10.795, "target": 8.0, "op": "<=", "pass": false }
+  },
+  "verdict": false
+}
